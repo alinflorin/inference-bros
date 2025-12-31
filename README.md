@@ -3,8 +3,10 @@
 ## Requirements:
 - Domain pointed to CloudFlare
 - Linux nodes amd64/arm64 with GPU, systemd, iptables/nftables, public key authentication
-- Public IP, router. Ports 6443, 80, 443 forwarded. 6443 -> k3s masters, 80,443 -> any k3s node
-- K3S installed with vxlan flannel backend and OIDC auth. Disable: servicelb, traefik, local-storage
+- Netbird client installed
+- Public IP, router. Ports 6443, 80, 443 forwarded. 6443 -> k3s masters, 80,443 -> MetalLB VIP
+- K3S installed with host-gw flannel backend and OIDC auth. Disable: servicelb, traefik, local-storage
+- Netbird configured for K3S routes for Pods and Services, for each server.
 
 In K3S:  
 - GPU support
