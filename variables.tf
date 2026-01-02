@@ -18,6 +18,11 @@ variable "root_ca_crt" {
   sensitive   = true
 }
 
+variable "letsencrypt_email" {
+  type        = string
+  sensitive   = true
+}
+
 variable "servers" {
   type = list(object({
     ip     = string
