@@ -1,4 +1,5 @@
-terraform { 
+terraform {
+  required_version = ">= 1.14.3"
   cloud { 
     
     organization = "inference-bros" 
@@ -6,5 +7,8 @@ terraform {
     workspaces { 
       name = "stalpeni" 
     } 
-  } 
+  }
+  required_providers {
+
+  }
 }
