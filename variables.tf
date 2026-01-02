@@ -23,9 +23,18 @@ variable "letsencrypt_email" {
   sensitive   = true
 }
 
+variable "k3s_vip" {
+  type        = string
+}
+
+variable "domain" {
+  type        = string
+}
+
 variable "servers" {
   type = list(object({
     ip     = string
+    hostname = string
     port   = number
     user   = string
     master = bool
