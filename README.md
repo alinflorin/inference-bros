@@ -2,9 +2,10 @@
 
 ## Local dev
 - VirtualBox + Extension Pack
-- https://dl-cdn.alpinelinux.org/alpine/v3.23/releases/x86_64/alpine-virt-3.23.2-x86_64.iso - use this as cdrom
-- Install alpine on disk
-- apk add openssh
-- Install 2 VMs with Alpine, user root, add SSH PUB key to trusted keys
-- Get IPs of VMs, configure terraform input accordingly.
-- TF plan & apply
+- Download OVA file and import: https://drive.google.com/file/d/1SipJrZvbng4HZPFj2zcbQGGtiQyZDAeF/view?usp=sharing
+- User root password root. SSH working only with keys. Pubkey already included.
+- Clone the machine 2 times, total 3 VMs.
+- Ensure each has unique MAC and IP
+- Setup port forwarding for each for ports 22 (2201, 2202, 2203 target host ports).
+
+- Run terraform plan and apply with dev input
