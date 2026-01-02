@@ -8,16 +8,6 @@ variable "ssh_public_key" {
   sensitive   = true
 }
 
-variable "root_ca_key" {
-  type        = string
-  sensitive   = true
-}
-
-variable "root_ca_crt" {
-  type        = string
-  sensitive   = true
-}
-
 variable "letsencrypt_email" {
   type        = string
   sensitive   = true

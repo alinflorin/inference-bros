@@ -8,18 +8,6 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   when = "create"
 
   file {
-    content     = var.root_ca_crt
-    destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
-    permissions = "0700"
-  }
-
-  file {
-    content     = var.root_ca_key
-    destination = "/var/lib/rancher/k3s/server/tls/root-ca.key"
-    permissions = "0700"
-  }
-
-  file {
     content     = <<-EOT
       write-kubeconfig-mode: "0644"
       node-ip: ${local.first_master.ip}
@@ -52,15 +40,31 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
 
   commands = [
     "apk update",
-    "apk add curl",
-    "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -",
-    "curl -sfL https://get.k3s.io | sh - ",
-    "cat /var/lib/rancher/k3s/server/token"
+    "apk add curl jq",
+    "curl -sfL https://get.k3s.io | sh -",
+    "sleep 30",
+    <<-EOCMD
+      jq -n \
+        --arg token "$(cat /var/lib/rancher/k3s/server/token)" \
+        --arg kubeconfig "$(base64 /etc/rancher/k3s/k3s.yaml | tr -d '\n')" \
+        '{token: $token, kubeconfig_b64: $kubeconfig}'
+    EOCMD
   ]
 }
 
+output "k3s_token" {
+  value = jsondecode(
+    ssh_sensitive_resource.install_k3s_first_master.result
+  ).token
+  sensitive = true
+}
 
-
+output "k3s_kubeconfig" {
+  value = replace(base64decode(jsondecode(
+    ssh_sensitive_resource.install_k3s_first_master.result
+  ).kubeconfig_b64), "127.0.0.1", local.first_master.ip)
+  sensitive = true
+}
 
 
 
