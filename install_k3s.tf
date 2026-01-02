@@ -20,22 +20,23 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   }
 
   file {
-    content     = templatefile("${path.module}/files/k3s_config_first_master.yaml.tpl",
-      {
-        ip       = local.first_master.ip
-        iface = local.first_master.iface
-        hostname = local.first_master.hostname
-        vip = var.k3s_vip
-        domain = var.domain
-      }
-    )
-    destination = "/etc/rancher/k3s/config.yaml"
-    permissions = "0700"
-  }
+    content     = <<-EOT
+      write-kubeconfig-mode: "0644"
+      node-ip: ${local.first_master.ip}
+      flannel-iface: ${local.first_master.iface}
+      node-name: ${local.first_master.hostname}
+      tls-san:
+        - ${local.first_master.ip}
+        - ${var.k3s_vip}
+        - ${var.domain}
+      disable:
+        - servicelb
+        - traefik
+        - local-storage
+      cluster-init: true
+    EOT
 
-  file {
-    content     = file("${path.module}/files/install_k3s.sh")
-    destination = "/root/install_k3s.sh"
+    destination = "/etc/rancher/k3s/config.yaml"
     permissions = "0700"
   }
 
@@ -47,7 +48,11 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   ]
 
   commands = [
-    "/root/install_k3s.sh first-master",
+    "apk update",
+    "apk add curl",
+    "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -",
+    "curl -sfL https://get.k3s.io | sh - ",
+    "cat /var/lib/rancher/k3s/server/token"
   ]
 }
 
