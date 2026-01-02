@@ -28,7 +28,10 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
       tls-san:
         - ${local.first_master.ip}
         - ${var.k3s_vip}
-        - ${var.domain}
+        - k3s.${var.domain}
+        - k3s-ha.${var.domain}
+        - k3s
+        - k3s-ha
       disable:
         - servicelb
         - traefik
