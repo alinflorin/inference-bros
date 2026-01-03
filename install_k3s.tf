@@ -181,7 +181,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 
 
 
-# Install other masters
+# Install workers
 resource "ssh_sensitive_resource" "install_k3s_workers" {
   for_each = {
     for s in local.workers : s.hostname => s
@@ -224,7 +224,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
 }
 
 
-// Destroy all
+// Destroy all on tf destroy command
 resource "ssh_sensitive_resource" "destroy_k3s_all" {
   for_each = {
     for s in var.servers : s.hostname => s
