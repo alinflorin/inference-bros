@@ -49,12 +49,6 @@ jobs:
         if: github.event_name == 'pull_request'
         run: terraform init
 
-      - name: Terraform switch backend type (Terraform Cloud)
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-        run: |
-          sed -i 's/backend "local"/backend "remote"/' main.tf
-          cat main.tf
-
       - name: Terraform init (Terraform Cloud)
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         run: |
@@ -111,11 +105,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tfplan
-
-      - name: Terraform switch backend type (Terraform Cloud)
-        run: |
-          sed -i 's/backend "local"/backend "remote"/' main.tf
-          cat main.tf
 
       - name: Terraform init (Terraform Cloud)
         run: |
