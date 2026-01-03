@@ -31,15 +31,7 @@ jobs:
 
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || null }}
 
-    outputs:
-      target_env: ${{ steps.export-env.outputs.target_env }}
-
     steps:
-      - name: Export target environment
-        id: export-env
-        run: |
-          echo "target_env=${{ github.event.inputs.environment }}" >> "$GITHUB_OUTPUT"
-
       - uses: actions/checkout@v4
 
       - uses: hashicorp/setup-terraform@v3
