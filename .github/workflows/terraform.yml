@@ -72,7 +72,7 @@ jobs:
 
       - name: Terraform init
         run: |
-          terraform init -reconfigure
+          terraform init
 
       - name: Terraform fmt
         run: terraform fmt -check -recursive
@@ -159,7 +159,7 @@ jobs:
 
       - name: Terraform init
         run: |
-          terraform init -reconfigure
+          terraform init
 
       - name: Terraform apply (same plan)
         run: terraform apply -auto-approve tfplan
