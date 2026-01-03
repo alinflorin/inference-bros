@@ -15,5 +15,8 @@ terraform {
     helm = {
       source = "hashicorp/helm"
     }
+    null = {
+      source = "hashicorp/null"
+    }
   }
 }
