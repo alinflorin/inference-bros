@@ -1,6 +1,6 @@
 servers = [
   {
-    ip       = "192.168.1.146"
+    ip       = "192.168.0.101"
     port     = 22
     user     = "root"
     master   = true
@@ -8,10 +8,8 @@ servers = [
     iface    = "eth0"
   }
 ]
-
-k3s_vip = "192.168.1.252"
-domain  = "alin.go.ro"
-
+k3s_vip = "192.168.0.252"
+domain  = "teodorchiretu.go.ro"
 ssh_private_key = <<EOF
 #{SSH_PRIVATE_KEY}
 EOF
@@ -19,6 +17,5 @@ EOF
 ssh_public_key = <<EOF
 #{SSH_PUBLIC_KEY}
 EOF
-
 
 letsencrypt_email = "#{LETSENCRYPT_EMAIL}"
