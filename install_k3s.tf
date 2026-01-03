@@ -72,7 +72,6 @@ locals {
   k3s_kubeconfig_object = yamldecode(local.k3s_kubeconfig)
 }
 
-
 # Install kube-vip on first master
 resource "helm_release" "kube_vip" {
   name       = "kube-vip"
