@@ -18,5 +18,6 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 - User root password root. SSH working only with keys. Pubkey already included.
 - Boot it, run ifconfig and take note of the IP. Add the IP to the terraform input file in the servers section.
 - Add another IP for kube_vip in terraform.tfvars, any free IP on your network.
+- Set metallb_range to a free range of IPs in your LAN
 - Modify domain var accordingly (use VM IP).
 - Run terraform plan and apply

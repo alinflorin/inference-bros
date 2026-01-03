@@ -35,3 +35,7 @@ variable "servers" {
 variable "location" {
   type = string
 }
+
+variable "metallb_range" {
+  type = string
+}

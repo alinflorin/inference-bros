@@ -112,7 +112,8 @@ resource "helm_release" "kube_vip" {
   repository = "https://kube-vip.github.io/helm-charts/"
   chart      = "kube-vip"
   namespace  = "kube-system"
-
+  version = "0.9.3"
+  create_namespace = true
   atomic          = true
   wait            = true
 

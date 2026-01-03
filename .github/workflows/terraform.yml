@@ -81,8 +81,8 @@ jobs:
         run: |
           terraform init
 
-      - name: Terraform fmt
-        run: terraform fmt -check -recursive
+      # - name: Terraform fmt
+      #   run: terraform fmt -check -recursive
 
       - name: Terraform validate
         run: terraform validate

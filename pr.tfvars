@@ -9,6 +9,7 @@ servers = [
   }
 ]
 k3s_vip = "192.168.1.252"
+metallb_range = "192.168.1.240-192.168.1.249"
 domain  = "inferencebros.192.168.1.174.nip.io"
 
 ssh_private_key = <<EOF
