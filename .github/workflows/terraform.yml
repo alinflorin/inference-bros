@@ -61,7 +61,7 @@ jobs:
           terraform init \
             -reconfigure \
             -backend-config="hostname=app.terraform.io" \
-            -backend-config="organization=YOUR_TFC_ORG" \
+            -backend-config="organization=${{ secrets.TF_ORG }}" \
             -backend-config="workspaces.name=${{ github.event.inputs.environment }}"
 
       - name: Terraform fmt
