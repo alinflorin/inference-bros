@@ -10,10 +10,30 @@ resource "helm_release" "longhorn" {
 
   values = [
     <<-EOT
-
+      longhornUI:
+        replicas: 1
+      ingress:
+        enabled: true
+        ingressClassName: nginx
+        host: longhorn.${var.domain}
+        tls: true
+        tlsSecret: longhorn-tls
+        annotations:
+          nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+          cert-manager.io/cluster-issuer: letsencrypt
+      metrics:
+        serviceMonitor:
+          enabled: true
+      persistence:
+        defaultClassReplicaCount: 1
+      defaultSettings:
+        storageReservedPercentageForDefaultDisk: 1
+        guaranteedInstanceManagerCPU: 0
+        allowCollectingLonghornUsageMetrics: false
+        
     EOT
 
   ]
 
-  depends_on = [null_resource.k3s_installed]
+  depends_on = [helm_release.cert_manager_issuer, helm_release.ingress_nginx]
 }
