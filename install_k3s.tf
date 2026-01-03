@@ -238,3 +238,11 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
     "(k3s-killall.sh || true) && (k3s-uninstall.sh || true) && (k3s-agent-uninstall.sh || true) && (rm -rf /etc/rancher /var/lib/rancher /root/install_k3s.sh /var/log/k3s* || true)",
   ]
 }
+
+resource "null_resource" "k3s_installed" {
+  depends_on = [ 
+    ssh_sensitive_resource.install_k3s_first_master,
+    ssh_sensitive_resource.install_k3s_other_masters,
+    ssh_sensitive_resource.install_k3s_workers
+  ]
+}

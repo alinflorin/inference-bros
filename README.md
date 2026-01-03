@@ -2,14 +2,11 @@
 
 ## Local dev
 Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcyquWPW4AF9pN?usp=share_link   
-- VirtualBox + Extension Pack
+- Install VirtualBox + Extension Pack
+- Download terraform.tfvars from Google Drive and add it to the root of this repo.
 - Download OVA file from Google Drive and import.
 - User root password root. SSH working only with keys. Pubkey already included.
-- Clone the machine 1 time, total 2 VMs.
-- They use Bridge mode for network so they will be like regular devices on your LAN, each with its own IP.
-- Boot them, run ifconfig and take note of the IPs. Add the IPs to the terraform input file.
-- VM1 - master, VM2 - worker
-
-
-- Download terraform.tfvars from Google Drive and add it to the root of this repo. Change the IPs!
+- Boot it, run ifconfig and take note of the IP. Add the IP to the terraform input file in the servers section.
+- Add another IP for kube_vip in terraform.tfvars, any free IP on your network.
+- Modify domain var accordingly (use VM IP).
 - Run terraform plan and apply
