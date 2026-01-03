@@ -29,7 +29,15 @@ jobs:
 
     environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || null }}
 
+    outputs:
+      target_env: ${{ steps.export-env.outputs.target_env }}
+
     steps:
+      - name: Export target environment
+        id: export-env
+        run: |
+          echo "target_env=${{ github.event.inputs.environment }}" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v4
 
       - uses: hashicorp/setup-terraform@v3
@@ -74,7 +82,7 @@ jobs:
 
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
 
-    environment: ${{ github.event.inputs.environment }}
+    environment: approval
 
     steps:
       - uses: actions/checkout@v4
@@ -95,7 +103,7 @@ jobs:
             -reconfigure \
             -backend-config="hostname=app.terraform.io" \
             -backend-config="organization=${{ secrets.TF_ORG }}" \
-            -backend-config="workspaces.name=${{ github.event.inputs.environment }}"
+            -backend-config="workspaces.name=${{ needs.plan.outputs.target_env }}"
 
       - name: Terraform apply (same plan)
         run: terraform apply -auto-approve tfplan
