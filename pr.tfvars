@@ -22,3 +22,4 @@ EOF
 
 
 letsencrypt_email = "..."
+location = "pr"
