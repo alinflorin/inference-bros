@@ -57,7 +57,7 @@ jobs:
             cloud {
               organization = "${{ secrets.TF_ORG }}"
               workspaces {
-                name = "${{ github.event.inputs.environment }}"
+                name = "${{ env.ENV }}"
               }
             }
           }
