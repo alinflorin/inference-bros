@@ -1,1 +1,101 @@
-name: TerraForm
+name: Terraform
+
+on:
+  pull_request:
+    paths:
+      - '**/*.tf'
+      - '**/*.tfvars'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - stalpeni
+
+permissions:
+  contents: read
+
+env:
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+  TF_VERSION: 1.14.3
+
+jobs:
+  plan:
+    name: Terraform Plan / Validate
+    runs-on: ubuntu-latest
+
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || null }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          cli_config_credentials_token: ${{ github.event_name == 'workflow_dispatch' && secrets.TF_TOKEN || '' }}
+
+      - name: Terraform init (local backend)
+        if: github.event_name == 'pull_request'
+        run: terraform init
+
+      - name: Terraform init (Terraform Cloud)
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        run: |
+          terraform init \
+            -reconfigure \
+            -backend-config="hostname=app.terraform.io" \
+            -backend-config="organization=YOUR_TFC_ORG" \
+            -backend-config="workspaces.name=${{ github.event.inputs.environment }}"
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: Terraform validate
+        run: terraform validate
+
+      - name: Terraform plan
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        run: terraform plan -out=tfplan
+
+      - name: Upload plan artifact
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: tfplan
+
+  apply:
+    name: Terraform Apply
+    needs: plan
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_TOKEN }}
+
+      - name: Download plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+
+      - name: Terraform init (Terraform Cloud)
+        run: |
+          terraform init \
+            -reconfigure \
+            -backend-config="hostname=app.terraform.io" \
+            -backend-config="organization=${{ secrets.TF_ORG }}" \
+            -backend-config="workspaces.name=${{ github.event.inputs.environment }}"
+
+      - name: Terraform apply (same plan)
+        run: terraform apply -auto-approve tfplan
