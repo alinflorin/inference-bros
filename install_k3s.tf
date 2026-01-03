@@ -70,6 +70,40 @@ locals {
   ).kubeconfig_b64), "127.0.0.1", local.first_master.ip)
   k3s_kubeconfig_url    = "https://${local.first_master.ip}:6443"
   k3s_kubeconfig_object = yamldecode(local.k3s_kubeconfig)
+  k3s_kubeconfig_for_users = <<-EOT
+    apiVersion: v1
+    clusters:
+    - cluster:
+        certificate-authority-data: ${local.k3s_kubeconfig_object.clusters[0].cluster.certificate-authority-data}
+        server: https://k3s.${var.domain}:6443
+      name: k3s-${var.location}
+    contexts:
+    - context:
+        cluster: k3s-${var.location}
+        user: oidc
+      name: k3s-${var.location}
+    current-context: k3s-${var.location}
+    kind: Config
+    preferences: {}
+    users:
+    - name: oidc
+      user:
+        exec:
+          apiVersion: client.authentication.k8s.io/v1beta1
+          args:
+          - oidc-login
+          - get-token
+          - --oidc-issuer-url=https://dex.${var.domain}
+          - --oidc-client-id=k3s
+          - --oidc-extra-scope=openid
+          - --oidc-extra-scope=profile
+          - --oidc-extra-scope=email
+          - --oidc-extra-scope=offline_access
+          command: kubectl
+          env: null
+          provideClusterInfo: false
+  EOT
+
 }
 
 # Install kube-vip on first master

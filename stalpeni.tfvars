@@ -19,3 +19,4 @@ ssh_public_key = <<EOF
 EOF
 
 letsencrypt_email = "#{LETSENCRYPT_EMAIL}"
+location = "stalpeni"

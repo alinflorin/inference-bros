@@ -31,3 +31,7 @@ variable "servers" {
     iface    = string
   }))
 }
+
+variable "location" {
+  type = string
+}
