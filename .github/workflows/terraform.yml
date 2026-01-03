@@ -52,7 +52,7 @@ jobs:
       - name: Terraform switch backend type (Terraform Cloud)
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         run: |
-          sed -i '' 's/backend "local" {}/backend "remote" {}/g' main.tf
+          sed -i '' 's/backend "local"/backend "remote"/' main.tf
 
       - name: Terraform init (Terraform Cloud)
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
@@ -113,7 +113,7 @@ jobs:
 
       - name: Terraform switch backend type (Terraform Cloud)
         run: |
-          sed -i '' 's/backend "local" {}/backend "remote" {}/g' main.tf
+          sed -i '' 's/backend "local"/backend "remote"/' main.tf
 
       - name: Terraform init (Terraform Cloud)
         run: |
