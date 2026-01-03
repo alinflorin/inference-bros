@@ -1,15 +1,72 @@
 resource "helm_release" "dex" {
   name       = "dex"
-  repository = ""
+  repository = "https://charts.dexidp.io"
   chart      = "dex"
   namespace  = "dex"
   create_namespace = true
-  version = "0.7.0"
+  version = "0.24.0"
   atomic          = true
   wait            = true
 
   values = [
     <<-EOT
+      ingress:
+        annotations:
+          cert-manager.io/cluster-issuer: letsencrypt
+          nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+        className: nginx
+        enabled: true
+        hosts:
+        - host: dex.${var.domain}
+          paths:
+          - path: /
+            pathType: ImplementationSpecific
+        tls:
+        - hosts:
+          - dex.${var.domain}
+          secretName: dex-tls
+      config:
+        enablePasswordDB: true
+        expiry:
+          deviceRequests: 5m
+          idTokens: 24h
+          refreshTokens:
+            absoluteLifetime: 3960h
+            reuseInterval: 3s
+            validIfNotUsedFor: 2160h
+          signingKeys: 6h
+        issuer: https://dex.${var.domain}
+        oauth2:
+          alwaysShowLoginScreen: false
+          passwordConnector: local
+          skipApprovalScreen: true
+        staticClients:
+        - id: k3s
+          name: k3s
+          public: true
+          redirectURIs:
+          - http://localhost:8000
+          - http://localhost:18000
+          - https://headlamp.${var.domain}/oidc-callback
+          - https://kubenav.io/auth/oidc.html
+        - id: oauth2-proxy
+          name: oauth2-proxy
+          public: false
+          redirectURIs:
+          - https://oauth2-proxy.${var.domain}/oauth2/callback
+          secret: ilieoauth
+        - id: grafana
+          name: grafana
+          public: true
+          redirectURIs:
+          - https://grafana.${var.domain}/login/generic_oauth
+        staticPasswords: []
+        storage:
+          type: memory
+        web:
+          http: 0.0.0.0:5556
+
+
 
     EOT
 
