@@ -21,6 +21,8 @@ env:
   TF_IN_AUTOMATION: true
   TF_INPUT: false
   TF_VERSION: 1.14.3
+  TF_ORG: ${{ secrets.TF_ORG }}
+  TF_WORKSPACE: ${{ github.event.inputs.environment }}
 
 jobs:
   plan:
@@ -45,18 +47,23 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
           cli_config_credentials_token: ${{ github.event_name == 'workflow_dispatch' && secrets.TF_TOKEN || '' }}
 
-      - name: Terraform init (local backend)
-        if: github.event_name == 'pull_request'
-        run: terraform init
-
-      - name: Terraform init (Terraform Cloud)
+      - name: Create Backend Override
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         run: |
-          terraform init \
-            -reconfigure \
-            -backend-config="hostname=app.terraform.io" \
-            -backend-config="organization=${{ secrets.TF_ORG }}" \
-            -backend-config="workspaces.name=${{ github.event.inputs.environment }}"
+          cat <<EOF > backend_override.tf
+          terraform {
+            backend "remote" {
+              organization = "${{ env.TF_ORG }}"
+              workspaces {
+                name = "${{ env.TF_WORKSPACE }}"
+              }
+            }
+          }
+          EOF
+
+      - name: Terraform init
+        run: |
+          terraform init
 
       - name: Terraform fmt
         run: terraform fmt -check -recursive
@@ -106,13 +113,23 @@ jobs:
         with:
           name: tfplan
 
-      - name: Terraform init (Terraform Cloud)
+      - name: Create Backend Override
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         run: |
-          terraform init \
-            -reconfigure \
-            -backend-config="hostname=app.terraform.io" \
-            -backend-config="organization=${{ secrets.TF_ORG }}" \
-            -backend-config="workspaces.name=${{ needs.plan.outputs.target_env }}"
+          cat <<EOF > backend_override.tf
+          terraform {
+            backend "remote" {
+              organization = "${{ env.TF_ORG }}"
+              workspaces {
+                name = "${{ env.TF_WORKSPACE }}"
+              }
+            }
+          }
+          EOF
+
+      - name: Terraform init
+        run: |
+          terraform init
 
       - name: Terraform apply (same plan)
         run: terraform apply -auto-approve tfplan
