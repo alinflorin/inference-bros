@@ -32,13 +32,14 @@ env:
   TF_INPUT: false
   TF_VERSION: 1.14.3
   TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+  ENV: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'pr' }}
 
 jobs:
   plan:
     name: Terraform Plan / Validate
     runs-on: ubuntu-latest
 
-    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || null }}
+    environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'pr' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -88,7 +89,7 @@ jobs:
       - name: Substitute Secrets
         uses: faradaytrs/substitute-secrets-action@2.6
         with:
-          input: "${{ github.event.inputs.environment }}.tfvars"
+          input: "${{ env.ENV }}.tfvars"
           substitutionRegex: \#\{([A-Z0-9_]+)\}
           substitutionData: ${{ toJSON(secrets) }}
           throwOnDataMissing: false
@@ -102,10 +103,10 @@ jobs:
           fi
           
           # 2. Run the plan
-          terraform plan $DESTROY_FLAG -input=false -var-file=${{ github.event.inputs.environment }}.tfvars -out=tfplan
+          terraform plan $DESTROY_FLAG -input=false -var-file=${{ env.ENV }}.tfvars -out=tfplan
           
           # 3. Generate the summary
-          echo "### Terraform Plan Summary (Env: ${{ github.event.inputs.environment }})" >> $GITHUB_STEP_SUMMARY
+          echo "### Terraform Plan Summary (Env: ${{ env.ENV }})" >> $GITHUB_STEP_SUMMARY
           echo '```hcl' >> $GITHUB_STEP_SUMMARY
           terraform show -no-color tfplan >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
@@ -147,7 +148,7 @@ jobs:
             cloud {
               organization = "${{ secrets.TF_ORG }}"
               workspaces {
-                name = "${{ github.event.inputs.environment }}"
+                name = "${{ env.ENV }}"
               }
             }
           }
