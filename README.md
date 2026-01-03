@@ -20,4 +20,16 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 - Add another IP for kube_vip in terraform.tfvars, any free IP on your network.
 - Set metallb_range to a free range of IPs in your LAN
 - Modify domain var accordingly (use VM IP).
+- Edit your hosts file and add: local.inferencebros.com -> VM IP, k3s.local.inferencebros.com -> k3s vip, longhorn/dex/oauth2-proxy/grafana/etc .local.inferencebros.com -> nginx ip (first Metallb ip).
+
+```
+192.168.1.252 k3s.local.inferencebros.com
+192.168.1.174 local.inferencebros.com
+192.168.1.240 dex.local.inferencebros.com
+192.168.1.240 oauth2-proxy.local.inferencebros.com
+192.168.1.240 headlamp.local.inferencebros.com
+192.168.1.240 grafana.local.inferencebros.com
+192.168.1.240 longhorn.local.inferencebros.com
+```
+
 - Run terraform plan and apply
