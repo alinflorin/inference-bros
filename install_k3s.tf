@@ -19,9 +19,6 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
         - ${local.first_master.ip}
         - ${var.k3s_vip}
         - k3s.${var.domain}
-        - ${var.domain}
-        - k3s
-        - k3s-ha
       disable:
         - servicelb
         - traefik
@@ -143,9 +140,6 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
         - ${each.value.ip}
         - ${var.k3s_vip}
         - k3s.${var.domain}
-        - ${var.domain}
-        - k3s
-        - k3s-ha
       disable:
         - servicelb
         - traefik
