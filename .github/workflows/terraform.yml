@@ -2,17 +2,18 @@ name: Terraform
 
 on:
   pull_request:
-    paths:
-      - '**/*.tf'
-      - '**/*.tfvars'
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:
         description: Target environment
         required: true
         type: choice
+        default: pr
         options:
           - stalpeni
+          - pr
       destroy:
         description: 'Check this to DESTROY resources'
         required: false
