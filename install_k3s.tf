@@ -77,6 +77,7 @@ resource "helm_release" "kube_vip" {
   namespace  = "kube-system"
 
   atomic          = true
+  upgrade_install = true
   cleanup_on_fail = true
   recreate_pods   = true
   wait            = true
