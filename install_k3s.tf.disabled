@@ -3,13 +3,13 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   host        = local.first_master.ip
   user        = local.first_master.user
   port        = local.first_master.port
-  agent        = false
+  agent       = false
   private_key = var.ssh_private_key
-  
+
   when = "create"
 
   file {
-    content     = <<-EOT
+    content = <<-EOT
       write-kubeconfig-mode: "0644"
       node-ip: ${local.first_master.ip}
       flannel-iface: ${local.first_master.iface}
@@ -57,7 +57,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     EOCMD
   ]
 
-  depends_on = [ ssh_sensitive_resource.destroy_k3s_all ]
+  depends_on = [ssh_sensitive_resource.destroy_k3s_all]
 }
 
 locals {
@@ -67,7 +67,7 @@ locals {
   k3s_kubeconfig = replace(base64decode(jsondecode(
     ssh_sensitive_resource.install_k3s_first_master.result
   ).kubeconfig_b64), "127.0.0.1", local.first_master.ip)
-  k3s_kubeconfig_url = "https://${local.first_master.ip}:6443"
+  k3s_kubeconfig_url    = "https://${local.first_master.ip}:6443"
   k3s_kubeconfig_object = yamldecode(local.k3s_kubeconfig)
 }
 
@@ -77,12 +77,12 @@ resource "helm_release" "kube_vip" {
   name       = "kube-vip"
   repository = "https://kube-vip.github.io/helm-charts/"
   chart      = "kube-vip"
-  namespace = "kube-system"
+  namespace  = "kube-system"
 
-  atomic = true
+  atomic          = true
   cleanup_on_fail = true
-  recreate_pods = true
-  wait = true
+  recreate_pods   = true
+  wait            = true
 
   values = [
     <<-EOT
@@ -114,7 +114,7 @@ resource "helm_release" "kube_vip" {
 
   ]
 
-  depends_on = [ ssh_sensitive_resource.install_k3s_first_master ]
+  depends_on = [ssh_sensitive_resource.install_k3s_first_master]
 }
 
 
@@ -127,13 +127,13 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   host        = each.value.ip
   user        = each.value.user
   port        = each.value.port
-  agent        = false
+  agent       = false
   private_key = var.ssh_private_key
-  
+
   when = "create"
 
   file {
-    content     = <<-EOT
+    content = <<-EOT
       write-kubeconfig-mode: "0644"
       node-ip: ${each.value.ip}
       flannel-iface: ${each.value.iface}
@@ -176,7 +176,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
     "echo OK",
   ]
 
-  depends_on = [ helm_release.kube_vip ]
+  depends_on = [helm_release.kube_vip]
 }
 
 
@@ -190,13 +190,13 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   host        = each.value.ip
   user        = each.value.user
   port        = each.value.port
-  agent        = false
+  agent       = false
   private_key = var.ssh_private_key
-  
+
   when = "create"
 
   file {
-    content     = <<-EOT
+    content = <<-EOT
       node-ip: ${each.value.ip}
       node-name: ${each.value.hostname}
       server: https://${var.k3s_vip}:6443
@@ -220,7 +220,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
     "echo OK",
   ]
 
-  depends_on = [ helm_release.kube_vip ]
+  depends_on = [helm_release.kube_vip]
 }
 
 
@@ -233,9 +233,9 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
   host        = each.value.ip
   user        = each.value.user
   port        = each.value.port
-  agent        = false
+  agent       = false
   private_key = var.ssh_private_key
-  
+
   when = "destroy"
 
   timeout = "15m"
