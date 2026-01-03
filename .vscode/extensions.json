@@ -1,6 +1,10 @@
 {
     "recommendations": [
-        "hashicorp.terraform"
+        "hashicorp.terraform",
+        "tim-koehler.helm-intellisense",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "esbenp.prettier-vscode",
+        "redhat.vscode-yaml"
 
     ]
 }
