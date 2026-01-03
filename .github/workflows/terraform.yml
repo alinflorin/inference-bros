@@ -13,6 +13,11 @@ on:
         type: choice
         options:
           - stalpeni
+      destroy:
+        description: 'Check this to DESTROY resources'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -21,8 +26,6 @@ env:
   TF_IN_AUTOMATION: true
   TF_INPUT: false
   TF_VERSION: 1.14.3
-  TF_ORG: ${{ secrets.TF_ORG }}
-  TF_WORKSPACE: ${{ github.event.inputs.environment }}
 
 jobs:
   plan:
@@ -55,7 +58,7 @@ jobs:
 
       - name: Terraform init
         run: |
-          terraform init
+          terraform init -reconfigure
 
       - name: Terraform fmt
         run: terraform fmt -check -recursive
@@ -74,7 +77,15 @@ jobs:
 
       - name: Terraform plan
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-        run: terraform plan -input=false -var-file=${{ github.event.inputs.environment }}.tfvars -out=tfplan
+        run: |
+          # Check if destroy is true and set the flag
+          DESTROY_FLAG=""
+          if [ "${{ github.event.inputs.destroy }}" == "true" ]; then
+            DESTROY_FLAG="-destroy"
+            echo "⚠️ RUNNING DESTROY PLAN"
+          fi
+          
+          terraform plan $DESTROY_FLAG -input=false -var-file=${{ github.event.inputs.environment }}.tfvars -out=tfplan
 
       - name: Upload plan artifact
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
@@ -121,7 +132,7 @@ jobs:
 
       - name: Terraform init
         run: |
-          terraform init
+          terraform init -reconfigure
 
       - name: Terraform apply (same plan)
         run: terraform apply -auto-approve tfplan
