@@ -1,3 +1,4 @@
+# Install first master
 resource "ssh_sensitive_resource" "install_k3s_first_master" {
   host        = local.first_master.ip
   user        = local.first_master.user
@@ -52,19 +53,20 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   ]
 }
 
-output "k3s_token" {
-  value = jsondecode(
+locals {
+  k3s_token = jsondecode(
     ssh_sensitive_resource.install_k3s_first_master.result
   ).token
-  sensitive = true
-}
-
-output "k3s_kubeconfig" {
-  value = replace(base64decode(jsondecode(
+  k3s_kubeconfig = replace(base64decode(jsondecode(
     ssh_sensitive_resource.install_k3s_first_master.result
   ).kubeconfig_b64), "127.0.0.1", local.first_master.ip)
-  sensitive = true
+  k3s_kubeconfig_url = "https://${local.first_master.ip}:6443"
+  k3s_kubeconfig_object = yamldecode(local.k3s_kubeconfig)
 }
+
+
+# Install kube-vip on first master
+
 
 
 

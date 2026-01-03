@@ -9,5 +9,11 @@ terraform {
     ssh = {
       source = "loafoe/ssh"
     }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+    }
+    helm = {
+      source = "hashicorp/helm"
+    }
   }
 }
