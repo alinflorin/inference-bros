@@ -92,14 +92,20 @@ jobs:
       - name: Terraform plan
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         run: |
-          # Check if destroy is true and set the flag
+          # 1. Determine flags
           DESTROY_FLAG=""
           if [ "${{ github.event.inputs.destroy }}" == "true" ]; then
             DESTROY_FLAG="-destroy"
-            echo "⚠️ RUNNING DESTROY PLAN"
           fi
           
+          # 2. Run the plan
           terraform plan $DESTROY_FLAG -input=false -var-file=${{ github.event.inputs.environment }}.tfvars -out=tfplan
+          
+          # 3. Generate the summary
+          echo "### Terraform Plan Summary (Env: ${{ github.event.inputs.environment }})" >> $GITHUB_STEP_SUMMARY
+          echo '```hcl' >> $GITHUB_STEP_SUMMARY
+          terraform show -no-color tfplan >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload plan artifact
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
