@@ -8,6 +8,10 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
 
   when = "create"
 
+  triggers = {
+    
+  }
+
   file {
     content = <<-EOT
       write-kubeconfig-mode: "0644"
@@ -77,9 +81,6 @@ resource "helm_release" "kube_vip" {
   namespace  = "kube-system"
 
   atomic          = true
-  upgrade_install = true
-  cleanup_on_fail = true
-  recreate_pods   = true
   wait            = true
 
   values = [
@@ -120,6 +121,10 @@ resource "helm_release" "kube_vip" {
 resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   for_each = {
     for s in local.other_masters : s.hostname => s
+  }
+
+  triggers = {
+    
   }
 
   host        = each.value.ip
@@ -180,6 +185,10 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 resource "ssh_sensitive_resource" "install_k3s_workers" {
   for_each = {
     for s in local.workers : s.hostname => s
+  }
+
+  triggers = {
+    
   }
 
   host        = each.value.ip
