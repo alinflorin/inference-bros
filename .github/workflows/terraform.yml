@@ -22,6 +22,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: terraform-${{ github.event.inputs.environment || github.run_id }}
+  cancel-in-progress: false
+
 env:
   TF_IN_AUTOMATION: true
   TF_INPUT: false
