@@ -52,10 +52,10 @@ jobs:
         run: |
           cat <<EOF > backend_override.tf
           terraform {
-            backend "remote" {
-              organization = "${{ env.TF_ORG }}"
+            cloud {
+              organization = "${{ secrets.TF_ORG }}"
               workspaces {
-                name = "${{ env.TF_WORKSPACE }}"
+                name = "${{ github.event.inputs.environment }}"
               }
             }
           }
@@ -118,10 +118,10 @@ jobs:
         run: |
           cat <<EOF > backend_override.tf
           terraform {
-            backend "remote" {
-              organization = "${{ env.TF_ORG }}"
+            cloud {
+              organization = "${{ secrets.TF_ORG }}"
               workspaces {
-                name = "${{ env.TF_WORKSPACE }}"
+                name = "${{ github.event.inputs.environment }}"
               }
             }
           }
