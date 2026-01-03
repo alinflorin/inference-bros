@@ -13,18 +13,24 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
       write-kubeconfig-mode: "0644"
       node-ip: ${local.first_master.ip}
       flannel-iface: ${local.first_master.iface}
+      flannel-backend: "vxlan"
       node-name: ${local.first_master.hostname}
       tls-san:
         - ${local.first_master.ip}
         - ${var.k3s_vip}
         - k3s.${var.domain}
-        - k3s-ha.${var.domain}
+        - ${var.domain}
         - k3s
         - k3s-ha
       disable:
         - servicelb
         - traefik
         - local-storage
+      kube-apiserver-arg:
+        - "oidc-issuer-url=https://dex.${var.domain}"
+        - "oidc-client-id=k3s"
+        - "oidc-username-claim=email"
+        - "oidc-groups-claim=groups"
       cluster-init: true
     EOT
 
@@ -35,13 +41,12 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   timeout = "20m"
 
   pre_commands = [
-    "mkdir -p /var/lib/rancher/k3s/server/tls",
     "mkdir -p /etc/rancher/k3s",
   ]
 
   commands = [
     "apk update",
-    "apk add curl jq",
+    "apk add curl jq iptables",
     "curl -sfL https://get.k3s.io | sh -",
     "sleep 30",
     <<-EOCMD
@@ -51,6 +56,8 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
         '{token: $token, kubeconfig_b64: $kubeconfig}'
     EOCMD
   ]
+
+  depends_on = [ ssh_sensitive_resource.destroy_k3s_all ]
 }
 
 locals {
@@ -66,8 +73,155 @@ locals {
 
 
 # Install kube-vip on first master
+resource "helm_release" "kube_vip" {
+  name       = "kube-vip"
+  repository = "https://kube-vip.github.io/helm-charts/"
+  chart      = "kube-vip"
+  namespace = "kube-system"
+
+  atomic = true
+  cleanup_on_fail = true
+  recreate_pods = true
+  wait = true
+
+  values = [
+    <<-EOT
+      config:
+        address: "${var.k3s_vip}"
+
+      env:
+        vip_interface: "${local.first_master.iface}"
+        vip_arp: "true"
+        lb_enable: "true"
+        lb_port: "6443"
+        vip_subnet: "32"
+        cp_enable: "true"
+        svc_enable: "false"
+        svc_election: "false"
+        vip_leaderelection: "false"
+
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+            - matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+    EOT
+
+  ]
+
+  depends_on = [ ssh_sensitive_resource.install_k3s_first_master ]
+}
 
 
+# Install other masters
+resource "ssh_sensitive_resource" "install_k3s_other_masters" {
+  for_each = {
+    for s in local.other_masters : s.hostname => s
+  }
+
+  host        = each.value.ip
+  user        = each.value.user
+  port        = each.value.port
+  agent        = false
+  private_key = var.ssh_private_key
+  
+  when = "create"
+
+  file {
+    content     = <<-EOT
+      write-kubeconfig-mode: "0644"
+      node-ip: ${each.value.ip}
+      flannel-iface: ${each.value.iface}
+      flannel-backend: "vxlan"
+      node-name: ${each.value.hostname}
+      tls-san:
+        - ${each.value.ip}
+        - ${var.k3s_vip}
+        - k3s.${var.domain}
+        - ${var.domain}
+        - k3s
+        - k3s-ha
+      disable:
+        - servicelb
+        - traefik
+        - local-storage
+      kube-apiserver-arg:
+        - "oidc-issuer-url=https://dex.${var.domain}"
+        - "oidc-client-id=k3s"
+        - "oidc-username-claim=email"
+        - "oidc-groups-claim=groups"
+      server: https://${var.k3s_vip}:6443
+      token: ${local.k3s_token}
+    EOT
+
+    destination = "/etc/rancher/k3s/config.yaml"
+    permissions = "0700"
+  }
+
+  timeout = "20m"
+
+  pre_commands = [
+    "mkdir -p /etc/rancher/k3s",
+  ]
+
+  commands = [
+    "apk update",
+    "apk add curl jq iptables",
+    "curl -sfL https://get.k3s.io | sh -",
+    "echo OK",
+  ]
+
+  depends_on = [ helm_release.kube_vip ]
+}
+
+
+
+# Install other masters
+resource "ssh_sensitive_resource" "install_k3s_workers" {
+  for_each = {
+    for s in local.workers : s.hostname => s
+  }
+
+  host        = each.value.ip
+  user        = each.value.user
+  port        = each.value.port
+  agent        = false
+  private_key = var.ssh_private_key
+  
+  when = "create"
+
+  file {
+    content     = <<-EOT
+      node-ip: ${each.value.ip}
+      node-name: ${each.value.hostname}
+      server: https://${var.k3s_vip}:6443
+      token: ${local.k3s_token}
+    EOT
+
+    destination = "/etc/rancher/k3s/config.yaml"
+    permissions = "0700"
+  }
+
+  timeout = "20m"
+
+  pre_commands = [
+    "mkdir -p /etc/rancher/k3s",
+  ]
+
+  commands = [
+    "apk update",
+    "apk add curl jq iptables",
+    "curl -sfL https://get.k3s.io | sh -s - agent",
+    "echo OK",
+  ]
+
+  depends_on = [ helm_release.kube_vip ]
+}
 
 
 // Destroy all
@@ -87,6 +241,6 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
   timeout = "15m"
 
   commands = [
-    "(k3s-killall.sh || true) && (k3s-uninstall.sh || true) && (k3s-agent-uninstall.sh || true) && (rm -rf /etc/rancher /var/lib/rancher /root/install_k3s.sh || true)",
+    "(k3s-killall.sh || true) && (k3s-uninstall.sh || true) && (k3s-agent-uninstall.sh || true) && (rm -rf /etc/rancher /var/lib/rancher /root/install_k3s.sh /var/log/k3s* || true)",
   ]
 }
