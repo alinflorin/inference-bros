@@ -39,3 +39,12 @@ variable "location" {
 variable "metallb_range" {
   type = string
 }
+
+variable "dex_users" {
+  type = list(object({
+    email = string
+    username = string
+    password = string
+  }))
+  sensitive = true
+}

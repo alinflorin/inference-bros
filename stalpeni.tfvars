@@ -8,9 +8,9 @@ servers = [
     iface    = "eth0"
   }
 ]
-k3s_vip = "192.168.0.252"
-metallb_range = "192.168.0.240-192.168.0.249"
-domain  = "teodorchiretu.go.ro"
+k3s_vip         = "192.168.0.252"
+metallb_range   = "192.168.0.240-192.168.0.249"
+domain          = "stalpeni.inferencebros.com"
 ssh_private_key = <<EOF
 #{SSH_PRIVATE_KEY}
 EOF
@@ -20,4 +20,22 @@ ssh_public_key = <<EOF
 EOF
 
 letsencrypt_email = "#{LETSENCRYPT_EMAIL}"
-location = "stalpeni"
+location          = "stalpeni"
+
+dex_users = [
+  {
+    email    = "#{ALIN_EMAIL}"
+    password = "#{ALIN_PASSWORD}"
+    username = "alin"
+  },
+  {
+    email    = "#{TEODOR_EMAIL}"
+    password = "#{TEODOR_PASSWORD}"
+    username = "teodor"
+  },
+  {
+    email    = "#{SORIN_EMAIL}"
+    password = "#{SORIN_PASSWORD}"
+    username = "sorin"
+  }
+]

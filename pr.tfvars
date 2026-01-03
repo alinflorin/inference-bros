@@ -1,6 +1,6 @@
 servers = [
   {
-    ip       = "192.168.1.174"
+    ip       = "192.168.0.101"
     port     = 22
     user     = "root"
     master   = true
@@ -8,9 +8,9 @@ servers = [
     iface    = "eth0"
   }
 ]
-k3s_vip = "192.168.1.252"
-metallb_range = "192.168.1.240-192.168.1.249"
-domain  = "inferencebros.192.168.1.174.nip.io"
+k3s_vip       = "192.168.0.252"
+metallb_range = "192.168.0.240-192.168.0.249"
+domain        = "pr.inferencebros.com"
 
 ssh_private_key = <<EOF
 ...
@@ -22,4 +22,10 @@ EOF
 
 
 letsencrypt_email = "..."
-location = "pr"
+location          = "pr"
+
+dex_users = [{
+  email = "someone@inferencebros.com"
+  password = "..."
+  username = "someone"
+}]

@@ -1,12 +1,23 @@
+locals {
+  dex_static_passwords = [
+    for u in var.dex_users : {
+      email    = u.email
+      username = u.username
+      hash     = bcrypt(u.password)
+      userID   = substr(sha1(u.username), 0, 8)
+    }
+  ]
+}
+
 resource "helm_release" "dex" {
-  name       = "dex"
-  repository = "https://charts.dexidp.io"
-  chart      = "dex"
-  namespace  = "dex"
+  name             = "dex"
+  repository       = "https://charts.dexidp.io"
+  chart            = "dex"
+  namespace        = "dex"
   create_namespace = true
-  version = "0.24.0"
-  atomic          = true
-  wait            = true
+  version          = "0.24.0"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT
@@ -69,7 +80,12 @@ resource "helm_release" "dex" {
 
 
     EOT
-
+    ,
+    yamlencode({
+      config = {
+        staticPasswords = local.dex_static_passwords
+      }
+    })
   ]
 
   depends_on = [helm_release.ingress_nginx, helm_release.cert_manager_issuer]
