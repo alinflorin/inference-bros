@@ -64,9 +64,18 @@ jobs:
       - name: Terraform validate
         run: terraform validate
 
+      - name: Substitute Secrets
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        uses: faradaytrs/substitute-secrets-action@2.6
+        with:
+          input: "${{ github.event.inputs.environment }}.tfvars"
+          substitutionRegex: \$\{([A-Z0-9_]+)\}
+          substitutionData: ${{ toJSON(secrets) }}
+          throwOnDataMissing: false
+
       - name: Terraform plan
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-        run: terraform plan -out=tfplan
+        run: terraform plan -input=false -var-file=${{ github.event.inputs.environment }}.tfvars -out=tfplan
 
       - name: Upload plan artifact
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
