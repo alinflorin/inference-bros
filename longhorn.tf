@@ -41,5 +41,6 @@ resource "helm_release" "longhorn" {
 
   ]
 
+  count = var.enable_longhorn ? 1 : 0
   depends_on = [helm_release.oauth2_proxy]
 }

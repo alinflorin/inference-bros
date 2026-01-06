@@ -36,3 +36,5 @@ dex_users = [{
 }]
 
 dex_passwords = [ "..." ]
+
+enable_longhorn = false

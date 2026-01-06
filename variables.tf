@@ -65,3 +65,8 @@ variable "dex_passwords" {
   type      = list(string)
   sensitive = true
 }
+
+variable "enable_longhorn" {
+  type    = bool
+  default = false
+}

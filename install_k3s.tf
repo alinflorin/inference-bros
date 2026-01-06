@@ -48,7 +48,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
       disable:
         - servicelb
         - traefik
-        - local-storage
+        ${var.enable_longhorn ? "" : "- local-storage"}
       kube-apiserver-arg:
         - "oidc-issuer-url=https://dex.${var.domain}"
         - "oidc-client-id=k3s"
@@ -266,7 +266,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
       disable:
         - servicelb
         - traefik
-        - local-storage
+        ${var.enable_longhorn ? "" : "- local-storage"}
       kube-apiserver-arg:
         - "oidc-issuer-url=https://dex.${var.domain}"
         - "oidc-client-id=k3s"

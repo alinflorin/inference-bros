@@ -49,3 +49,5 @@ dex_passwords = [
   "#{TEODOR_PASSWORD}",
   "#{SORIN_PASSWORD}"
 ]
+
+enable_longhorn = false
