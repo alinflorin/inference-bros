@@ -22,8 +22,8 @@ resource "helm_release" "longhorn" {
         annotations:
           nginx.ingress.kubernetes.io/ssl-redirect: 'true'
           cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
-          nginx.ingress.kubernetes.io/auth-url: "https://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
-          nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/start?rd=$scheme://$host$request_uri"
+          nginx.ingress.kubernetes.io/auth-url: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/start?rd=$scheme://$host$request_uri"
       metrics:
         serviceMonitor:
           enabled: true
