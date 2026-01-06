@@ -23,7 +23,7 @@ resource "helm_release" "dex" {
     <<-EOT
       ingress:
         annotations:
-          cert-manager.io/cluster-issuer: letsencrypt${var.location == "local" ? "-stg" : ""}
+          cert-manager.io/cluster-issuer: letsencrypt
           nginx.ingress.kubernetes.io/ssl-redirect: 'true'
         className: nginx
         enabled: true
