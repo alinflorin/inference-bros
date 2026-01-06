@@ -62,7 +62,8 @@ resource "helm_release" "dex" {
           - https://kubenav.io/auth/oidc.html
         - id: oauth2-proxy
           name: oauth2-proxy
-          public: true
+          public: false
+          secret: "${random_string.oauth2_proxy_client_secret.result}"
           redirectURIs:
           - https://oauth2-proxy.${var.domain}/oauth2/callback
         - id: grafana
