@@ -52,3 +52,19 @@ resource "helm_release" "cert_manager_issuer" {
   depends_on = [helm_release.cert_manager]
 }
 
+resource "kubernetes_manifest" "root_ca_issuer" {
+  manifest = {
+    "apiVersion" = "cert-manager.io/v1"
+    "kind"       = "ClusterIssuer"
+    "metadata" = {
+      "name"      = "root-ca-issuer"
+    }
+    spec = {
+      ca = {
+        secretName = "root-ca"
+      }
+    }
+  }
+
+  depends_on = [ helm_release.cert_manager ]
+}

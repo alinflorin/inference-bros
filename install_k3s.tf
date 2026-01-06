@@ -13,6 +13,18 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   }
 
   file {
+    content = var.root_ca_crt
+    destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
+    permissions = "0700"
+  }
+
+  file {
+    content = var.root_ca_key
+    destination = "/var/lib/rancher/k3s/server/tls/root-ca.key"
+    permissions = "0700"
+  }
+
+  file {
     content = <<-EOT
       write-kubeconfig-mode: "0644"
       node-ip: ${local.first_master.ip}
@@ -32,6 +44,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
         - "oidc-client-id=k3s"
         - "oidc-username-claim=email"
         - "oidc-groups-claim=groups"
+        ${var.location == "local" ? "- \"oidc-ca-file=/var/lib/rancher/k3s/server/tls/root-ca.pem\"" : ""}
       cluster-init: true
     EOT
 
@@ -43,13 +56,17 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
 
   pre_commands = [
     "mkdir -p /etc/rancher/k3s",
+    "mkdir -p /var/lib/rancher/k3s/server/tls",
   ]
 
   commands = [
     "apk update",
     "apk add curl jq iptables",
+    "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | sh -",
     "curl -sfL https://get.k3s.io | sh -",
     "sleep 30",
+    "k3s kubectl create namespace cert-manager",
+    "k3s kubectl create secret generic root-ca --from-file=ca.crt=/var/lib/rancher/k3s/server/tls/root-ca.pem --from-file=ca.key=/var/lib/rancher/k3s/server/tls/root-ca.key -n cert-manager",
     <<-EOCMD
       jq -n \
         --arg token "$(cat /var/lib/rancher/k3s/server/token)" \
@@ -171,6 +188,18 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   when = "create"
 
   file {
+    content = var.root_ca_crt
+    destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
+    permissions = "0700"
+  }
+
+  file {
+    content = var.root_ca_key
+    destination = "/var/lib/rancher/k3s/server/tls/root-ca.key"
+    permissions = "0700"
+  }
+
+  file {
     content = <<-EOT
       write-kubeconfig-mode: "0644"
       node-ip: ${each.value.ip}
@@ -190,6 +219,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
         - "oidc-client-id=k3s"
         - "oidc-username-claim=email"
         - "oidc-groups-claim=groups"
+        ${var.location == "local" ? "- \"oidc-ca-file=/var/lib/rancher/k3s/server/tls/root-ca.pem\"" : ""}
       server: https://${var.k3s_vip}:6443
       token: ${local.k3s_token}
     EOT
@@ -202,11 +232,13 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 
   pre_commands = [
     "mkdir -p /etc/rancher/k3s",
+    "mkdir -p /var/lib/rancher/k3s/server/tls",
   ]
 
   commands = [
     "apk update",
     "apk add curl jq iptables",
+    "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | sh -",
     "curl -sfL https://get.k3s.io | sh -",
     "echo OK",
   ]

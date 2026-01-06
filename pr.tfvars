@@ -12,7 +12,12 @@ k3s_vip       = "192.168.0.252"
 metallb_range = "192.168.0.240-192.168.0.249"
 nginx_metallb_ip = "192.168.0.240"
 domain        = "pr.inferencebros.com"
-
+root_ca_crt = <<EOF
+...
+EOF
+root_ca_key = <<EOF
+...
+EOF
 ssh_private_key = <<EOF
 ...
 EOF
@@ -27,6 +32,7 @@ location          = "pr"
 
 dex_users = [{
   email = "someone@inferencebros.com"
-  password = "..."
   username = "someone"
 }]
+
+dex_passwords = [ "..." ]

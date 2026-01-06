@@ -1,9 +1,9 @@
 locals {
   dex_static_passwords = [
-    for u in var.dex_users : {
+    for idx, u in var.dex_users : {
       email    = u.email
       username = u.username
-      hash     = bcrypt(u.password)
+      hash     = bcrypt(var.dex_passwords[idx])
       userID   = substr(sha1(u.username), 0, 8)
     }
   ]
@@ -23,7 +23,7 @@ resource "helm_release" "dex" {
     <<-EOT
       ingress:
         annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
+          cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
           nginx.ingress.kubernetes.io/ssl-redirect: 'true'
         className: nginx
         enabled: true

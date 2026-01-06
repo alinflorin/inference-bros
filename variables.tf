@@ -8,6 +8,16 @@ variable "ssh_public_key" {
   sensitive = true
 }
 
+variable "root_ca_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "root_ca_crt" {
+  type      = string
+  sensitive = true
+}
+
 variable "letsencrypt_email" {
   type      = string
   sensitive = true
@@ -48,6 +58,10 @@ variable "dex_users" {
   type = list(object({
     email = string
     username = string
-    password = string
   }))
+}
+
+variable "dex_passwords" {
+  type      = list(string)
+  sensitive = true
 }
