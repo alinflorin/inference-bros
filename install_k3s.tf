@@ -61,7 +61,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
 
   commands = [
     "apk update",
-    "apk add curl jq iptables",
+    "apk add curl jq iptables open-iscsi",
     "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | sh -",
     "curl -sfL https://get.k3s.io | sh -",
     "sleep 30",
@@ -237,7 +237,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 
   commands = [
     "apk update",
-    "apk add curl jq iptables",
+    "apk add curl jq iptables open-iscsi",
     "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | sh -",
     "curl -sfL https://get.k3s.io | sh -",
     "echo OK",
@@ -286,7 +286,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
 
   commands = [
     "apk update",
-    "apk add curl jq iptables",
+    "apk add curl jq iptables open-iscsi",
     "curl -sfL https://get.k3s.io | sh -s - agent",
     "echo OK",
   ]
