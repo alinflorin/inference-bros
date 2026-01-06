@@ -10,6 +10,7 @@ servers = [
 ]
 k3s_vip         = "192.168.0.252"
 metallb_range   = "192.168.0.240-192.168.0.249"
+nginx_metallb_ip = "192.168.0.240"
 domain          = "stalpeni.inferencebros.com"
 ssh_private_key = <<EOF
 #{SSH_PRIVATE_KEY}

@@ -40,11 +40,14 @@ variable "metallb_range" {
   type = string
 }
 
+variable "nginx_metallb_ip" {
+  type = string
+}
+
 variable "dex_users" {
   type = list(object({
     email = string
     username = string
     password = string
   }))
-  sensitive = true
 }

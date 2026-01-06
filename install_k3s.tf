@@ -99,6 +99,7 @@ locals {
           - --oidc-extra-scope=profile
           - --oidc-extra-scope=email
           - --oidc-extra-scope=offline_access
+          ${var.location == "local" ? "- --insecure-skip-tls-verify" : ""}
           command: kubectl
           env: null
           provideClusterInfo: false
