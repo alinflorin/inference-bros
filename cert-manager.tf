@@ -52,19 +52,29 @@ resource "helm_release" "cert_manager_issuer" {
   depends_on = [helm_release.cert_manager]
 }
 
-resource "kubernetes_manifest" "root_ca_issuer" {
-  manifest = {
-    "apiVersion" = "cert-manager.io/v1"
-    "kind"       = "ClusterIssuer"
-    "metadata" = {
-      "name"      = "root-ca-issuer"
-    }
-    spec = {
-      ca = {
-        secretName = "root-ca"
-      }
-    }
-  }
+resource "helm_release" "cert_manager_self_signed_issuer" {
+  name       = "cert-manager-self-signed-issuer"
+  repository = "https://dasmeta.github.io/helm/"
+  chart      = "resource"
+  namespace  = "cert-manager"
+  create_namespace = true
+  version = "0.1.0"
+  atomic          = true
+  wait            = true
 
-  depends_on = [ helm_release.cert_manager ]
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: cert-manager.io/v1
+        kind: ClusterIssuer
+        metadata:
+          name: root-ca-issuer
+        spec:
+          ca:
+            secretName: root-ca
+    EOT
+
+  ]
+
+  depends_on = [helm_release.cert_manager]
 }
