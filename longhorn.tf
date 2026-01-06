@@ -27,6 +27,8 @@ resource "helm_release" "longhorn" {
       metrics:
         serviceMonitor:
           enabled: true
+      persistence:
+        defaultClassReplicaCount: 1
       defaultSettings:
         storageReservedPercentageForDefaultDisk: 1
         guaranteedInstanceManagerCPU: 0
