@@ -180,6 +180,37 @@ resource "helm_release" "kube_vip" {
   depends_on = [ssh_sensitive_resource.install_k3s_first_master]
 }
 
+resource "helm_release" "coredns_custom_config" {
+  name       = "coredns-custom-config"
+  repository = "https://dasmeta.github.io/helm/"
+  chart      = "resource"
+  namespace  = "kube-system"
+  create_namespace = true
+  version = "0.1.0"
+  atomic          = true
+  wait            = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: coredns-custom
+          namespace: kube-system
+        data:
+          ${var.domain}.override: |
+            template IN A ${var.domain} {
+                match (.*)\.${replace(var.domain, ".", "\\.")}
+                answer "{{.Name}} 60 IN A ${var.nginx_metallb_ip}"
+            }
+
+    EOT
+
+  ]
+
+  depends_on = [ssh_sensitive_resource.install_k3s_first_master]
+}
 
 # Install other masters
 resource "ssh_sensitive_resource" "install_k3s_other_masters" {

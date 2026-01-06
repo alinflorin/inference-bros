@@ -11,11 +11,6 @@ resource "helm_release" "ingress_nginx" {
   values = [
     <<-EOT
       controller:
-        hostAliases:
-          - ip: ${var.nginx_metallb_ip}
-            hostnames:
-              - dex.${var.domain}
-              - oauth2-proxy.${var.domain}
         service:
           loadBalancerIP: "${var.nginx_metallb_ip}"
         metrics:

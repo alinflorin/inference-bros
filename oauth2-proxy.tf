@@ -16,10 +16,6 @@ resource "helm_release" "oauth2_proxy" {
 
   values = [
     <<-EOT
-      hostAliases:
-        - ip: ${var.nginx_metallb_ip}
-          hostnames:
-            - dex.${var.domain}
       extraArgs:
         - --cookie-secure=false
         - --skip-provider-button
