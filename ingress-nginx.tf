@@ -11,6 +11,8 @@ resource "helm_release" "ingress_nginx" {
   values = [
     <<-EOT
       controller:
+        config:
+          annotations-risk-level: Critical
         allowSnippetAnnotations: true
         service:
           loadBalancerIP: "${var.nginx_metallb_ip}"
