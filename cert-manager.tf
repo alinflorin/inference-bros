@@ -51,3 +51,33 @@ resource "helm_release" "cert_manager_issuer" {
 
   depends_on = [helm_release.cert_manager]
 }
+
+resource "helm_release" "cert_manager_issuer_staging" {
+  name       = "cert-manager-issuer-staging"
+  repository = "https://radar-base.github.io/radar-helm-charts"
+  chart      = "cert-manager-letsencrypt"
+  namespace  = "cert-manager"
+  create_namespace = true
+  version = "0.2.1"
+  atomic          = true
+  wait            = true
+
+  values = [
+    <<-EOT
+      nameOverride: letsencrypt-stg
+      fullnameOverride: letsencrypt-stg
+      namespaceOverride: "cert-manager"
+      maintainerEmail: ${var.letsencrypt_email}
+      httpIssuer:
+        enabled: true
+        environment: staging
+        privateSecretRef: letsencrypt-stg
+        ingressMatchMethod: class
+        ingressMatchValue: nginx
+
+    EOT
+
+  ]
+
+  depends_on = [helm_release.cert_manager]
+}

@@ -23,7 +23,7 @@ resource "helm_release" "oauth2_proxy" {
         ${var.location == "local" ? "- --ssl-insecure-skip-verify" : ""}
       ingress:
         annotations:
-          cert-manager.io/cluster-issuer: letsencrypt
+          cert-manager.io/cluster-issuer: letsencrypt${var.location == "local" ? "-stg" : ""}
           nginx.ingress.kubernetes.io/ssl-redirect: 'true'
         className: nginx
         enabled: true
