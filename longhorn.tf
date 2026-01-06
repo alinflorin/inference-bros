@@ -30,17 +30,22 @@ resource "helm_release" "longhorn" {
       metrics:
         serviceMonitor:
           enabled: true
-      persistence:
-        defaultClassReplicaCount: 1
       defaultSettings:
         storageReservedPercentageForDefaultDisk: 1
         guaranteedInstanceManagerCPU: 0
         allowCollectingLonghornUsageMetrics: false
+        storageMinimalAvailablePercentage: 1
+        deletingConfirmationFlag: false
+        
+      csi:
+        attacherReplicaCount: 1
+        provisionerReplicaCount: 1
+        resizerReplicaCount: 1
+        snapshotterReplicaCount: 1
         
     EOT
 
   ]
 
-  count = var.enable_longhorn ? 1 : 0
   depends_on = [helm_release.oauth2_proxy]
 }
