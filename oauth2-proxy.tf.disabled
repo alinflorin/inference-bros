@@ -54,7 +54,7 @@ resource "helm_release" "oauth2_proxy" {
           set_xauthrequest = true
           client_id = "oauth2-proxy"
           client_secret = ""
-          oidc_issuer_url = "http://dex.${var.domain}"
+          oidc_issuer_url = "https://dex.${var.domain}"
           ssl_insecure_skip_verify = true
           code_challenge_method = "S256"
         cookieName: ""
