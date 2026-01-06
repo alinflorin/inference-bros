@@ -3,7 +3,7 @@ locals {
     for idx, u in var.dex_users : {
       email    = u.email
       username = u.username
-      hash     = bcrypt(var.dex_passwords[idx])
+      hash     = var.dex_passwords[idx]
       userID   = substr(sha1(u.username), 0, 8)
     }
   ]
