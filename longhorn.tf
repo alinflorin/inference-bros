@@ -26,12 +26,6 @@ resource "helm_release" "longhorn" {
           nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${var.domain}/oauth2/start?rd=$scheme://$host$request_uri"
           nginx.ingress.kubernetes.io/server-snippet: |
             resolver kube-dns.kube-system.svc.cluster.local valid=10s;
-          nginx.ingress.kubernetes.io/auth-response-headers: >
-            Authorization,
-            Set-Cookie,
-            X-Auth-Request-User,
-            X-Auth-Request-Email,
-            X-Auth-Request-Groups
           nginx.ingress.kubernetes.io/proxy-buffering: "off"
           nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
           nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
