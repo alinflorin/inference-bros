@@ -38,7 +38,7 @@ resource "helm_release" "oauth2_proxy" {
           secretName: oauth2-proxy-tls
       config:
         clientID: oauth2-proxy
-        clientSecret: ""
+        clientSecret: "-"
         configFile: |-
           email_domains = [ "*" ]
           upstreams = [ "static://200" ]
@@ -53,7 +53,7 @@ resource "helm_release" "oauth2_proxy" {
           whitelist_domains = [".${var.domain}"]
           set_xauthrequest = true
           client_id = "oauth2-proxy"
-          client_secret = ""
+          client_secret = "-"
           oidc_issuer_url = "https://dex.${var.domain}"
           ssl_insecure_skip_verify = ${var.location == "local" ? "true" : "false"}
           code_challenge_method = "S256"
