@@ -66,7 +66,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     "curl -sfL https://get.k3s.io | sh -",
     "sleep 30",
     "k3s kubectl create namespace cert-manager",
-    "k3s kubectl create secret generic root-ca --from-file=ca.crt=/var/lib/rancher/k3s/server/tls/root-ca.pem --from-file=ca.key=/var/lib/rancher/k3s/server/tls/root-ca.key -n cert-manager",
+    "k3s kubectl create secret generic root-ca --from-file=tls.crt=/var/lib/rancher/k3s/server/tls/root-ca.pem --from-file=tls.key=/var/lib/rancher/k3s/server/tls/root-ca.key -n cert-manager",
     <<-EOCMD
       jq -n \
         --arg token "$(cat /var/lib/rancher/k3s/server/token)" \

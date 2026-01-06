@@ -34,7 +34,7 @@ resource "helm_release" "oauth2_proxy" {
         pathType: ImplementationSpecific
         tls:
         - hosts:
-          - oauth2-proxy.${var.domain}
+            - oauth2-proxy.${var.domain}
           secretName: oauth2-proxy-tls
       config:
         clientID: oauth2-proxy
