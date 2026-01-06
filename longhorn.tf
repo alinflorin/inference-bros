@@ -7,6 +7,7 @@ resource "helm_release" "longhorn" {
   version = "1.10.1"
   atomic          = true
   wait            = true
+  timeout = 500
 
   values = [
     <<-EOT
