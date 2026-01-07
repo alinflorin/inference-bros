@@ -11,14 +11,14 @@ resource "random_string" "oauth2_proxy_client_secret" {
 }
 
 resource "helm_release" "oauth2_proxy" {
-  name       = "oauth2-proxy"
-  repository = "https://oauth2-proxy.github.io/manifests"
-  chart      = "oauth2-proxy"
-  namespace  = "oauth2-proxy"
+  name             = "oauth2-proxy"
+  repository       = "https://oauth2-proxy.github.io/manifests"
+  chart            = "oauth2-proxy"
+  namespace        = "oauth2-proxy"
   create_namespace = true
-  version = "8.5.1"
-  atomic          = true
-  wait            = true
+  version          = "8.5.1"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT

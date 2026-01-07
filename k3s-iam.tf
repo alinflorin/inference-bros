@@ -5,7 +5,7 @@ locals {
 }
 
 resource "helm_release" "cluster_admins" {
-  for_each = local.dex_users_map
+  for_each         = local.dex_users_map
   name             = "cluster-admin-${each.key}"
   repository       = "https://ameijer.github.io/k8s-as-helm/"
   chart            = "clusterrolebinding"

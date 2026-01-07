@@ -9,7 +9,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   when = "create"
 
   triggers = {
-    
+
   }
 
   file {
@@ -23,13 +23,13 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   }
 
   file {
-    content = var.root_ca_crt
+    content     = var.root_ca_crt
     destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
     permissions = "0700"
   }
 
   file {
-    content = var.root_ca_key
+    content     = var.root_ca_key
     destination = "/var/lib/rancher/k3s/server/tls/root-ca.key"
     permissions = "0700"
   }
@@ -98,8 +98,8 @@ locals {
   k3s_kubeconfig = replace(base64decode(jsondecode(
     ssh_sensitive_resource.install_k3s_first_master.result
   ).kubeconfig_b64), "127.0.0.1", local.first_master.ip)
-  k3s_kubeconfig_url    = "https://${local.first_master.ip}:6443"
-  k3s_kubeconfig_object = yamldecode(local.k3s_kubeconfig)
+  k3s_kubeconfig_url       = "https://${local.first_master.ip}:6443"
+  k3s_kubeconfig_object    = yamldecode(local.k3s_kubeconfig)
   k3s_kubeconfig_for_users = <<-EOT
     apiVersion: v1
     clusters:
@@ -139,14 +139,14 @@ locals {
 
 # Install kube-vip on first master
 resource "helm_release" "kube_vip" {
-  name       = "kube-vip"
-  repository = "https://kube-vip.github.io/helm-charts/"
-  chart      = "kube-vip"
-  namespace  = "kube-system"
-  version = "0.9.3"
+  name             = "kube-vip"
+  repository       = "https://kube-vip.github.io/helm-charts/"
+  chart            = "kube-vip"
+  namespace        = "kube-system"
+  version          = "0.9.3"
   create_namespace = true
-  atomic          = true
-  wait            = true
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT
@@ -182,14 +182,14 @@ resource "helm_release" "kube_vip" {
 }
 
 resource "helm_release" "coredns_custom_config" {
-  name       = "coredns-custom-config"
-  repository = "https://dasmeta.github.io/helm/"
-  chart      = "resource"
-  namespace  = "kube-system"
+  name             = "coredns-custom-config"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "kube-system"
   create_namespace = true
-  version = "0.1.0"
-  atomic          = true
-  wait            = true
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT
@@ -220,7 +220,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   }
 
   triggers = {
-    
+
   }
 
   host        = each.value.ip
@@ -236,19 +236,19 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
       #!/bin/sh
       mount --make-rshared /
     EOT
-    
+
     destination = "/etc/local.d/mount.rshared.start"
     permissions = "0755"
   }
 
   file {
-    content = var.root_ca_crt
+    content     = var.root_ca_crt
     destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
     permissions = "0700"
   }
 
   file {
-    content = var.root_ca_key
+    content     = var.root_ca_key
     destination = "/var/lib/rancher/k3s/server/tls/root-ca.key"
     permissions = "0700"
   }
@@ -312,7 +312,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   }
 
   triggers = {
-    
+
   }
 
   host        = each.value.ip
@@ -328,7 +328,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
       #!/bin/sh
       mount --make-rshared /
     EOT
-    
+
     destination = "/etc/local.d/mount.rshared.start"
     permissions = "0755"
   }
@@ -386,7 +386,7 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
 }
 
 resource "null_resource" "k3s_installed" {
-  depends_on = [ 
+  depends_on = [
     ssh_sensitive_resource.install_k3s_first_master,
     ssh_sensitive_resource.install_k3s_other_masters,
     ssh_sensitive_resource.install_k3s_workers

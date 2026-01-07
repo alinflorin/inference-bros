@@ -1,12 +1,12 @@
 resource "helm_release" "grafana" {
-  name       = "grafana"
-  repository = "https://grafana.github.io/helm-charts"
-  chart      = "grafana"
-  namespace  = "monitoring"
+  name             = "grafana"
+  repository       = "https://grafana.github.io/helm-charts"
+  chart            = "grafana"
+  namespace        = "monitoring"
   create_namespace = true
-  version = "10.5.3"
-  atomic          = true
-  wait            = true
+  version          = "10.5.3"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT

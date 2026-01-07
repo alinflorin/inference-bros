@@ -1,12 +1,12 @@
 resource "helm_release" "headlamp" {
-  name       = "headlamp"
-  repository = "https://kubernetes-sigs.github.io/headlamp/"
-  chart      = "headlamp"
-  namespace  = "headlamp"
+  name             = "headlamp"
+  repository       = "https://kubernetes-sigs.github.io/headlamp/"
+  chart            = "headlamp"
+  namespace        = "headlamp"
   create_namespace = true
-  version = "0.39.0"
-  atomic          = true
-  wait            = true
+  version          = "0.39.0"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT

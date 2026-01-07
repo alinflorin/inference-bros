@@ -1,13 +1,13 @@
 resource "helm_release" "longhorn" {
-  name       = "longhorn"
-  repository = "https://charts.longhorn.io"
-  chart      = "longhorn"
-  namespace  = "longhorn-system"
+  name             = "longhorn"
+  repository       = "https://charts.longhorn.io"
+  chart            = "longhorn"
+  namespace        = "longhorn-system"
   create_namespace = true
-  version = "1.10.1"
-  atomic          = true
-  wait            = true
-  timeout = 500
+  version          = "1.10.1"
+  atomic           = true
+  wait             = true
+  timeout          = 500
 
   values = [
     <<-EOT

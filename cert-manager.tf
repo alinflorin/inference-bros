@@ -1,12 +1,12 @@
 resource "helm_release" "cert_manager" {
-  name       = "cert-manager"
-  repository = "https://charts.jetstack.io"
-  chart      = "cert-manager"
-  namespace  = "cert-manager"
+  name             = "cert-manager"
+  repository       = "https://charts.jetstack.io"
+  chart            = "cert-manager"
+  namespace        = "cert-manager"
   create_namespace = true
-  version = "1.19.2"
-  atomic          = true
-  wait            = true
+  version          = "1.19.2"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT
@@ -23,14 +23,14 @@ resource "helm_release" "cert_manager" {
 }
 
 resource "helm_release" "cert_manager_issuer" {
-  name       = "cert-manager-issuer"
-  repository = "https://radar-base.github.io/radar-helm-charts"
-  chart      = "cert-manager-letsencrypt"
-  namespace  = "cert-manager"
+  name             = "cert-manager-issuer"
+  repository       = "https://radar-base.github.io/radar-helm-charts"
+  chart            = "cert-manager-letsencrypt"
+  namespace        = "cert-manager"
   create_namespace = true
-  version = "0.2.1"
-  atomic          = true
-  wait            = true
+  version          = "0.2.1"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT
@@ -53,14 +53,14 @@ resource "helm_release" "cert_manager_issuer" {
 }
 
 resource "helm_release" "cert_manager_self_signed_issuer" {
-  name       = "cert-manager-self-signed-issuer"
-  repository = "https://dasmeta.github.io/helm/"
-  chart      = "resource"
-  namespace  = "cert-manager"
+  name             = "cert-manager-self-signed-issuer"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "cert-manager"
   create_namespace = true
-  version = "0.1.0"
-  atomic          = true
-  wait            = true
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT

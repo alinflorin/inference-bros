@@ -56,7 +56,7 @@ variable "nginx_metallb_ip" {
 
 variable "dex_users" {
   type = list(object({
-    email = string
+    email    = string
     username = string
   }))
 }
@@ -67,13 +67,13 @@ variable "dex_passwords" {
 }
 
 variable "prometheus_storage_gb" {
-  type    = number
+  type = number
 }
 
 variable "loki_storage_gb" {
-  type    = number
+  type = number
 }
 
 variable "grafana_storage_gb" {
-  type    = number
+  type = number
 }

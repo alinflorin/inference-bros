@@ -1,12 +1,12 @@
 resource "helm_release" "metallb" {
-  name       = "metallb"
-  repository = "https://metallb.github.io/metallb"
-  chart      = "metallb"
-  namespace  = "metallb-system"
+  name             = "metallb"
+  repository       = "https://metallb.github.io/metallb"
+  chart            = "metallb"
+  namespace        = "metallb-system"
   create_namespace = true
-  version = "0.15.3"
-  atomic          = true
-  wait            = true
+  version          = "0.15.3"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT
@@ -22,14 +22,14 @@ resource "helm_release" "metallb" {
 }
 
 resource "helm_release" "metallb_config" {
-  name       = "metallb-config"
-  repository = "https://georgelucker.github.io/fx-reg/"
-  chart      = "MetalLB-address-pool"
-  namespace  = "metallb-system"
+  name             = "metallb-config"
+  repository       = "https://georgelucker.github.io/fx-reg/"
+  chart            = "MetalLB-address-pool"
+  namespace        = "metallb-system"
   create_namespace = true
-  version = "0.1.2"
-  atomic          = true
-  wait            = true
+  version          = "0.1.2"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT

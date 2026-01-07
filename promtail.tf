@@ -1,12 +1,12 @@
 resource "helm_release" "promtail" {
-  name       = "promtail"
-  repository = "https://grafana.github.io/helm-charts"
-  chart      = "promtail"
-  namespace  = "monitoring"
+  name             = "promtail"
+  repository       = "https://grafana.github.io/helm-charts"
+  chart            = "promtail"
+  namespace        = "monitoring"
   create_namespace = true
-  version = "6.17.1"
-  atomic          = true
-  wait            = true
+  version          = "6.17.1"
+  atomic           = true
+  wait             = true
 
   values = [
     <<-EOT
