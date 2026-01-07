@@ -4,7 +4,7 @@
 - 1 or more Alpine Linux servers with root access
 - Public SSH key added to trusted keys
 - All servers in the same LAN with static IPs configured each.
-- At least 2 free IP addresses on the LAN subnet (one for kube_vip and one for MetalLB - NGINX)
+- At least 2 free IP adasdasdasdasdresses on the LAN subnet (one for kube_vip and one for MetalLB - NGINX)
 - Public IP address in LAN router. Ports for SSH (2201, 2202, 2203, etc to each server IP port 22) , 80/443 (to NGINX MetalLB service IP) and 6443 (to kube_vip) to be forwarded.
 - Domain and DNS management
 - A type record for domain.com and *.domain.com (or with CNAMES) to point to public IP.
