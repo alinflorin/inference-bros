@@ -30,40 +30,40 @@ resource "helm_release" "kserve" {
 
   values = [
     <<-EOT
-kserve:
-  controller:
-    deploymentMode: Standard
-    gateway:
-      domain: "kserve.${var.domain}"
-      disableIstioVirtualHost: true
-      ingressGateway:
-        className: "nginx"
-    resources:
-      limits:
-        cpu: ''
-        memory: ''
-      requests:
-        cpu: ''
-        memory: ''
-    rbacProxy:
-      resources:
-        limits:
-          cpu: ''
-          memory: ''
-        requests:
-          cpu: '
-          memory: ''
-  storage:
-    resources:
-      requests:
-        memory: ''
-        cpu: ''
-      limits:
-        memory: ''
-        cpu: ''
-  metricsaggregator:
-    enableMetricAggregation: "true"
-    enablePrometheusScraping: "true"
+      kserve:
+        controller:
+          deploymentMode: Standard
+          gateway:
+            domain: "kserve.${var.domain}"
+            disableIstioVirtualHost: true
+            ingressGateway:
+              className: "nginx"
+          resources:
+            limits:
+              cpu: ''
+              memory: ''
+            requests:
+              cpu: ''
+              memory: ''
+          rbacProxy:
+            resources:
+              limits:
+                cpu: ''
+                memory: ''
+              requests:
+                cpu: '
+                memory: ''
+        storage:
+          resources:
+            requests:
+              memory: ''
+              cpu: ''
+            limits:
+              memory: ''
+              cpu: ''
+        metricsaggregator:
+          enableMetricAggregation: "true"
+          enablePrometheusScraping: "true"
     EOT
 
   ]
