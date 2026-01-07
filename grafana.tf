@@ -17,6 +17,7 @@ resource "helm_release" "grafana" {
         auth.basic:
           enabled: false
         auth.generic_oauth:
+          enabled: true
           auto_login: true
           role_attribute_path: 'GrafanaAdmin'
           allow_assign_grafana_admin: true
