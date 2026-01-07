@@ -19,7 +19,7 @@ resource "helm_release" "grafana" {
         auth.generic_oauth:
           enabled: true
           auto_login: true
-          role_attribute_path: contains(roles[*], 'admin') && 'GrafanaAdmin' || 'GrafanaAdmin'
+          role_attribute_path: "'GrafanaAdmin'"
           allow_assign_grafana_admin: true
           scopes: 'openid profile email offline_access'
           client_id: grafana
