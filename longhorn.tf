@@ -35,7 +35,7 @@ resource "helm_release" "longhorn" {
         guaranteedInstanceManagerCPU: 0
         allowCollectingLonghornUsageMetrics: false
         storageMinimalAvailablePercentage: 1
-        deletingConfirmationFlag: false
+        deletingConfirmationFlag: true
         
       csi:
         attacherReplicaCount: 1
