@@ -73,3 +73,7 @@ variable "prometheus_storage_gb" {
 variable "loki_storage_gb" {
   type    = number
 }
+
+variable "grafana_storage_gb" {
+  type    = number
+}
