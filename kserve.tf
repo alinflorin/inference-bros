@@ -1,10 +1,10 @@
 resource "helm_release" "kserve_crd" {
   name             = "kserve-crd"
-  repository       = "oci://ghcr.io/kserve/charts/kserve-crd"
+  repository       = "oci://ghcr.io/kserve/charts"
   chart            = "kserve-crd"
   namespace        = "kserve"
   create_namespace = true
-  version          = "0.15.0"
+  version          = "v0.15.0"
   atomic           = true
   wait             = true
 
@@ -20,11 +20,11 @@ resource "helm_release" "kserve_crd" {
 
 resource "helm_release" "kserve" {
   name             = "kserve"
-  repository       = "oci://ghcr.io/kserve/charts/kserve"
+  repository       = "oci://ghcr.io/kserve/charts"
   chart            = "kserve"
   namespace        = "kserve"
   create_namespace = true
-  version          = "0.15.0"
+  version          = "v0.15.0"
   atomic           = true
   wait             = true
 
