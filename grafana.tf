@@ -10,27 +10,6 @@ resource "helm_release" "grafana" {
 
   values = [
     <<-EOT
-      alerting:
-        contactpoints.yaml:
-          apiVersion: 1
-          contactPoints:
-            - orgId: 1
-              name: slack-default
-              type: slack
-              isDefault: true
-              settings:
-                url: ${var.slack_webhook_url}
-                sendResolved: true
-
-        policies.yaml:
-          apiVersion: 1
-          policies:
-            - orgId: 1
-              name: "Default Policy"
-              receiver: slack-default
-              isDefault: true
-              frequency: 5m
-              
       useStatefulSet: true
       dashboardProviders:
         dashboardproviders.yaml:
@@ -95,8 +74,6 @@ resource "helm_release" "grafana" {
                 implementation: prometheus
       assertNoLeakedSecrets: false
       grafana.ini:
-        unified_alerting:
-          enabled: true
         auth:
           disable_login_form: true
         auth.generic_oauth:
