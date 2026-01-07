@@ -12,15 +12,19 @@ resource "helm_release" "grafana" {
     <<-EOT
       assertNoLeakedSecrets: false
       grafana.ini:
+        users:
+          auto_assign_org_role: GrafanaAdmin
         auth:
           disable_login_form: true
+          auto_assign_org_role: GrafanaAdmin
         auth.basic:
           enabled: false
         auth.generic_oauth:
+          auto_assign_org_role: GrafanaAdmin
           enabled: true
           auto_login: true
           role_attribute_path: "'GrafanaAdmin'"
-          role_attribute_strict: true
+          role_attribute_strict: false
           allow_assign_grafana_admin: true
           scopes: 'openid profile email offline_access'
           client_id: grafana
