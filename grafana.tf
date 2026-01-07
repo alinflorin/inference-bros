@@ -64,6 +64,14 @@ resource "helm_release" "grafana" {
               access: proxy
               url: http://loki.monitoring.svc.cluster.local:3100
               editable: false
+            - name: Alertmanager
+              type: alertmanager
+              uid: alertmanager
+              access: proxy
+              url: http://alertmanager.monitoring.svc.cluster.local:9093
+              editable: false
+              jsonData:
+                implementation: prometheus
       assertNoLeakedSecrets: false
       grafana.ini:
         auth:
