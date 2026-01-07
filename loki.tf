@@ -24,6 +24,7 @@ resource "helm_release" "loki" {
       lokiCanary:
         enabled: false
       loki:
+        auth_enabled: false
         commonConfig:
           replication_factor: 1
         schemaConfig:
