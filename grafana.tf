@@ -29,6 +29,8 @@ resource "helm_release" "grafana" {
               name: "Default Policy"
               receiver: slack-default
               isDefault: true
+              frequency: 5m
+              
       useStatefulSet: true
       dashboardProviders:
         dashboardproviders.yaml:
