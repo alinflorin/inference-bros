@@ -10,6 +10,21 @@ resource "helm_release" "grafana" {
 
   values = [
     <<-EOT
+      datasources:
+        datasources.yaml:
+          apiVersion: 1
+          datasources:
+            - name: Prometheus
+              type: prometheus
+              access: proxy
+              url: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+              isDefault: true
+              editable: false
+            - name: Loki
+              type: loki
+              access: proxy
+              url: http://loki.monitoring.svc.cluster.local:3100
+              editable: false
       assertNoLeakedSecrets: false
       grafana.ini:
         auth:
