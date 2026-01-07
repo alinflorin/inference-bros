@@ -4,7 +4,7 @@ resource "helm_release" "kserve_crd" {
   chart            = "kserve-crd"
   namespace        = "kserve"
   create_namespace = true
-  version          = "v0.15.0"
+  version          = "0.15.0"
   atomic           = true
   wait             = true
 
@@ -24,7 +24,7 @@ resource "helm_release" "kserve" {
   chart            = "kserve"
   namespace        = "kserve"
   create_namespace = true
-  version          = "v0.15.0"
+  version          = "0.15.0"
   atomic           = true
   wait             = true
 
