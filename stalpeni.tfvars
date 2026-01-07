@@ -51,3 +51,4 @@ dex_passwords = [
 ]
 
 prometheus_storage_gb = 10
+loki_storage_gb = 5

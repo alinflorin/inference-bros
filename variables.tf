@@ -69,3 +69,7 @@ variable "dex_passwords" {
 variable "prometheus_storage_gb" {
   type    = number
 }
+
+variable "loki_storage_gb" {
+  type    = number
+}
