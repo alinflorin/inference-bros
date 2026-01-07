@@ -10,48 +10,48 @@ resource "helm_release" "grafana" {
 
   values = [
     <<-EOT
-assertNoLeakedSecrets: false
-grafana.ini:
-  auth:
-    disable_login_form: true
-  auth.basic:
-    enabled: false
-  auth.generic_oauth:
-    auto_login: true
-    role_attribute_path: 'GrafanaAdmin'
-    allow_assign_grafana_admin: true
-    scopes: openid profile email offline_access
-    client_id: grafana
-    name: dex
-    auth_url: https://dex.${var.domain}/auth
-    token_url: https://dex.${var.domain}/token
-    api_url: https://dex.${var.domain}/userinfo
-    use_pkce: true
-    use_refresh_token: true
-    name_attribute_path: 'name'
-    login_attribute_path: 'name'
-    email_attribute_path: 'email'
-    email_attribute_name: 'email'
-    ${var.location == "local" ? "tls_skip_verify_insecure: true" : ""}
-  analytics:
-    check_for_updates: false
-  server:
-    root_url: https://grafana.${var.domain}
-ingress:
-  annotations:
-    cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-  enabled: true
-  hosts:
-    - grafana.${var.domain}
-  ingressClassName: nginx
-  tls:
-    - hosts:
-        - grafana.${var.domain}
-      secretName: grafana-tls
-persistence:
-  enabled: true
-  size: ${var.grafana_storage_gb}Gi
+      assertNoLeakedSecrets: false
+      grafana.ini:
+        auth:
+          disable_login_form: true
+        auth.basic:
+          enabled: false
+        auth.generic_oauth:
+          auto_login: true
+          role_attribute_path: 'GrafanaAdmin'
+          allow_assign_grafana_admin: true
+          scopes: openid profile email offline_access
+          client_id: grafana
+          name: dex
+          auth_url: https://dex.${var.domain}/auth
+          token_url: https://dex.${var.domain}/token
+          api_url: https://dex.${var.domain}/userinfo
+          use_pkce: true
+          use_refresh_token: true
+          name_attribute_path: 'name'
+          login_attribute_path: 'name'
+          email_attribute_path: 'email'
+          email_attribute_name: 'email'
+          ${var.location == "local" ? "tls_skip_verify_insecure: true" : ""}
+        analytics:
+          check_for_updates: false
+        server:
+          root_url: https://grafana.${var.domain}
+      ingress:
+        annotations:
+          cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+          nginx.ingress.kubernetes.io/ssl-redirect: "true"
+        enabled: true
+        hosts:
+          - grafana.${var.domain}
+        ingressClassName: nginx
+        tls:
+          - hosts:
+              - grafana.${var.domain}
+            secretName: grafana-tls
+      persistence:
+        enabled: true
+        size: ${var.grafana_storage_gb}Gi
     EOT
   ]
 
