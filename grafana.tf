@@ -45,14 +45,10 @@ resource "helm_release" "grafana" {
             gnetId: 16888
             datasource: Prometheus
             revision: 11
-          k8s:
-            gnetId: 15661
+          k3s:
+            gnetId: 16450
             datasource: Prometheus
-            revision: 2
-          metallb:
-            gnetId: 20162
-            revision: 6
-            datasource: Prometheus
+            revision: 3
       datasources:
         datasources.yaml:
           apiVersion: 1
