@@ -51,7 +51,7 @@ resource "helm_release" "kserve" {
                 cpu: ''
                 memory: ''
               requests:
-                cpu: '
+                cpu: ''
                 memory: ''
         storage:
           resources:
