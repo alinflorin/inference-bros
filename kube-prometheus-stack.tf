@@ -10,6 +10,30 @@ resource "helm_release" "kube_prometheus_stack" {
 
   values = [
     <<-EOT
+      alertmanager:
+        config:
+          global:
+            resolve_timeout: 5m
+            slack_api_url: ${var.slack_webhook_url}
+          inhibit_rules: []
+          receivers:
+          - name: "null"
+          - name: slack-default
+            slack_configs:
+            - channel: '#grafana-alerts'
+              send_resolved: true
+          route:
+            group_by:
+            - cluster
+            - alertname
+            group_interval: 5m
+            group_wait: 30s
+            receiver: slack-default
+            repeat_interval: 12h
+            routes:
+            - matchers:
+              - alertname = "Watchdog"
+              receiver: "null"
       crds:
         enabled: false
       grafana:
