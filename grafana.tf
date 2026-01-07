@@ -11,6 +11,32 @@ resource "helm_release" "grafana" {
   values = [
     <<-EOT
       useStatefulSet: true
+      dashboards:
+        default:
+          node-exporter:
+            gnetId: 1860
+            datasource: Prometheus
+            revision: 42
+          cert-manager:
+            gnetId: 22184
+            datasource: Prometheus
+            revision: 3
+          logs-app:
+            gnetId: 13639
+            datasource: Loki
+            revision: 2
+          ingress-nginx:
+            gnetId: 14314
+            datasource: Prometheus
+            revision: 2
+          longhorn:
+            gnetId: 16888
+            datasource: Prometheus
+            revision: 11
+          k8s:
+            gnetId: 15661
+            datasource: Prometheus
+            revision: 2
       datasources:
         datasources.yaml:
           apiVersion: 1
