@@ -65,3 +65,7 @@ variable "dex_passwords" {
   type      = list(string)
   sensitive = true
 }
+
+variable "prometheus_storage_gb" {
+  type    = number
+}

@@ -37,3 +37,4 @@ dex_users = [{
 
 dex_passwords = [ "..." ]
 
+prometheus_storage_gb = 10
