@@ -10,6 +10,7 @@ resource "helm_release" "grafana" {
 
   values = [
     <<-EOT
+      useStatefulSet: true
       datasources:
         datasources.yaml:
           apiVersion: 1
