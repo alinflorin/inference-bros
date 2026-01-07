@@ -10,6 +10,25 @@ resource "helm_release" "grafana" {
 
   values = [
     <<-EOT
+      alerting:
+        contactpoints.yaml:
+          apiVersion: 1
+          contactPoints:
+            - orgId: 1
+              name: slack-default
+              type: slack
+              isDefault: true
+              settings:
+                url: ${var.slack_webhook_url}
+                sendResolved: true
+
+        policies.yaml:
+          apiVersion: 1
+          policies:
+            - orgId: 1
+              name: "Default Policy"
+              receiver: slack-default
+              isDefault: true
       useStatefulSet: true
       dashboardProviders:
         dashboardproviders.yaml:
@@ -68,12 +87,14 @@ resource "helm_release" "grafana" {
               type: alertmanager
               uid: alertmanager
               access: proxy
-              url: http://alertmanager.monitoring.svc.cluster.local:9093
+              url: http://alertmanager-operated.monitoring.svc.cluster.local:9093
               editable: false
               jsonData:
                 implementation: prometheus
       assertNoLeakedSecrets: false
       grafana.ini:
+        unified_alerting:
+          enabled: true
         auth:
           disable_login_form: true
         auth.generic_oauth:

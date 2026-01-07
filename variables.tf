@@ -77,3 +77,8 @@ variable "loki_storage_gb" {
 variable "grafana_storage_gb" {
   type = number
 }
+
+variable "slack_webhook_url" {
+  type      = string
+  sensitive = true
+}
