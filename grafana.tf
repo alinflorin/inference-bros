@@ -11,6 +11,18 @@ resource "helm_release" "grafana" {
   values = [
     <<-EOT
       useStatefulSet: true
+      dashboardProviders:
+        dashboardproviders.yaml:
+          apiVersion: 1
+          providers:
+            - name: "default"
+              orgId: 1
+              folder: ""
+              type: file
+              disableDeletion: true
+              editable: false
+              options:
+                path: /var/lib/grafana/dashboards/default
       dashboards:
         default:
           node-exporter:
