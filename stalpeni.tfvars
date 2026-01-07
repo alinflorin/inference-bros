@@ -55,3 +55,4 @@ loki_storage_gb       = 5
 grafana_storage_gb    = 5
 
 slack_webhook_url = "#{SLACK_WEBHOOK_URL}"
+huggingface_token = "#{HF_TOKEN}"
