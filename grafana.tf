@@ -19,9 +19,10 @@ resource "helm_release" "grafana" {
         auth.generic_oauth:
           enabled: true
           auto_login: true
-          role_attribute_path: 'GrafanaAdmin'
+          role_attribute_path: "'GrafanaAdmin'"
+          skip_org_role_sync: false
           allow_assign_grafana_admin: true
-          scopes: openid profile email offline_access
+          scopes: 'openid profile email offline_access'
           client_id: grafana
           name: dex
           auth_url: https://dex.${var.domain}/auth
