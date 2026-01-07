@@ -1,9 +1,3 @@
-resource "random_string" "grafana_password" {
-  length  = 32
-  special = false
-  upper   = false
-}
-
 resource "helm_release" "grafana" {
   name       = "grafana"
   repository = "https://grafana.github.io/helm-charts"
@@ -16,8 +10,6 @@ resource "helm_release" "grafana" {
 
   values = [
     <<-EOT
-      adminPassword: ${random_string.grafana_password.result}
-      adminUser: admin
       assertNoLeakedSecrets: false
       grafana.ini:
         auth:
@@ -25,8 +17,7 @@ resource "helm_release" "grafana" {
         auth.generic_oauth:
           enabled: true
           auto_login: true
-          role_attribute_path: "'GrafanaAdmin'"
-          role_attribute_strict: false
+          role_attribute_path: false || 'GrafanaAdmin'
           allow_assign_grafana_admin: true
           scopes: 'openid profile email offline_access'
           client_id: grafana
