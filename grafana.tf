@@ -20,6 +20,7 @@ resource "helm_release" "grafana" {
           enabled: true
           auto_login: true
           role_attribute_path: "'GrafanaAdmin'"
+          role_attribute_strict: true
           allow_assign_grafana_admin: true
           scopes: 'openid profile email offline_access'
           client_id: grafana
