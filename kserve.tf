@@ -113,3 +113,45 @@ resource "helm_release" "models_web_app" {
 
   depends_on = [helm_release.kserve]
 }
+
+resource "helm_release" "llms_namespace" {
+  name             = "llms"
+  repository       = "https://ameijer.github.io/k8s-as-helm"
+  chart            = "namespace"
+  namespace        = "llms"
+  create_namespace = false
+  version          = "1.1.0"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      nameOverride: llms
+    EOT
+
+  ]
+
+  depends_on = [helm_release.kserve]
+}
+
+resource "helm_release" "hf_secret" {
+  name             = "hf-secret"
+  repository       = "https://ameijer.github.io/k8s-as-helm"
+  chart            = "secret"
+  namespace        = "llms"
+  create_namespace = false
+  version          = "1.0.4"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      nameOverride: hf-secret
+      secretData:
+        HF_TOKEN: ${var.huggingface_token}
+    EOT
+
+  ]
+
+  depends_on = [helm_release.llms_namespace]
+}
