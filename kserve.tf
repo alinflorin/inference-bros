@@ -92,7 +92,7 @@ resource "helm_release" "models_web_app" {
   chart            = "models-web-app"
   namespace        = "kserve"
   create_namespace = true
-  version          = "0.1.0"
+  version          = "0.1.1"
   atomic           = true
   wait             = true
 
