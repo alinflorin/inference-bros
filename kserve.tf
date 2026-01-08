@@ -85,3 +85,24 @@ resource "helm_release" "kserve" {
 
   depends_on = [helm_release.kserve_crd]
 }
+
+resource "helm_release" "models_web_app" {
+  name             = "models-web-app"
+  repository       = "oci://ghcr.io/alinflorin/charts"
+  chart            = "models-web-app"
+  namespace        = "kserve"
+  create_namespace = true
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      tlsIssuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+      host: kserve-models.${var.domain}
+    EOT
+
+  ]
+
+  depends_on = [helm_release.kserve]
+}

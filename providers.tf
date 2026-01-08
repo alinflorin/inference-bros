@@ -16,9 +16,14 @@ provider "helm" {
     client_key             = base64decode(local.k3s_kubeconfig_object.users[0].user.client-key-data)
     cluster_ca_certificate = base64decode(local.k3s_kubeconfig_object.clusters[0].cluster.certificate-authority-data)
   }
-  registries = [ {
-    url = "oci://ghcr.io/kserve/charts"
+  registries = [{
+    url      = "oci://ghcr.io/kserve/charts"
     username = "alinflorin"
     password = var.github_token
-  } ]
+    },
+    {
+      url      = "oci://ghcr.io/alinflorin/charts"
+      username = "alinflorin"
+      password = var.github_token
+  }]
 }
