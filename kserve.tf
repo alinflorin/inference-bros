@@ -92,13 +92,20 @@ resource "helm_release" "models_web_app" {
   chart            = "models-web-app"
   namespace        = "kserve"
   create_namespace = true
-  version          = "0.1.1"
+  version          = "0.1.2"
   atomic           = true
   wait             = true
 
   values = [
     <<-EOT
-      tlsIssuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+      ingressAnnotations:
+        nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+        cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+        nginx.ingress.kubernetes.io/auth-url: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
+        nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${var.domain}/oauth2/start?rd=$scheme://$host$request_uri"
+        nginx.ingress.kubernetes.io/proxy-buffering: "off"
+        nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+        nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
       host: kserve-models.${var.domain}
     EOT
 
