@@ -118,7 +118,7 @@ resource "helm_release" "llms_namespace" {
   name             = "llms"
   repository       = "https://ameijer.github.io/k8s-as-helm"
   chart            = "namespace"
-  namespace        = "llms"
+  namespace        = "default"
   create_namespace = false
   version          = "1.1.0"
   atomic           = true
