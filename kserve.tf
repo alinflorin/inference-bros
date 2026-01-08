@@ -92,12 +92,13 @@ resource "helm_release" "models_web_app" {
   chart            = "models-web-app"
   namespace        = "kserve"
   create_namespace = true
-  version          = "0.1.2"
+  version          = "0.1.3"
   atomic           = true
   wait             = true
 
   values = [
     <<-EOT
+      allowedNamespaces: llms
       ingressAnnotations:
         nginx.ingress.kubernetes.io/ssl-redirect: 'true'
         cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
