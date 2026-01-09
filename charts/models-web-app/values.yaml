@@ -1,4 +1,0 @@
-replicaCount: 1
-ingressAnnotations: {}
-host: kserve-models.local.inferencebros.com
-allowedNamespaces: llms
