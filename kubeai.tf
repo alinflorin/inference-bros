@@ -10,12 +10,9 @@ resource "helm_release" "kubeai" {
 
   values = [
     <<-EOT
-      resourceProfiles:
-        cpu:
-          imageName: "cpu"
-          requests:
-            cpu: "0"
-            memory: "0"
+      modelAutoscaling:
+        interval: 15s
+        timeWindow: 10m
       secrets:
         huggingface:
           token: ${var.huggingface_token}
