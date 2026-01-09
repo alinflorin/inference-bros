@@ -88,11 +88,6 @@ variable "huggingface_token" {
   sensitive = true
 }
 
-variable "github_token" {
-  type      = string
-  sensitive = true
-}
-
 variable "kubeai_compute_processor" {
   type = string
 }
