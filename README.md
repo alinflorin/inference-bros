@@ -1,7 +1,7 @@
 # inference-bros
 
 ## Requirements
-- 1 or more Alpine Linux servers with root access
+- 1 or more Alpine Linux servers with root access and gpu drivers installed, if any
 - Public SSH key added to trusted keys
 - All servers in the same LAN with static IPs configured each.
 - At least 2 free IP addresses on the LAN subnet (one for kube_vip and one for MetalLB - NGINX)
