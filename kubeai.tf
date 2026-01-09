@@ -1,51 +1,3 @@
-locals {
-  nvidia_kubeai_values = <<-EOT
-    resourceProfiles:
-      nvidia-gpu-a16:
-        nodeSelector:
-          nvidia.com/gpu.family: "ampere"
-          nvidia.com/gpu.memory: "16384"
-      nvidia-gpu-l4:
-        nodeSelector:
-          nvidia.com/gpu.family: "ada-lovelace"
-          nvidia.com/gpu.memory: "23034"
-      nvidia-gpu-h100:
-        nodeSelector:
-          nvidia.com/gpu.family: "hopper"
-          nvidia.com/gpu.memory: "81920"
-      nvidia-gpu-gh200:
-        nodeSelector:
-          nvidia.com/gpu.family: "hopper"
-          nvidia.com/gpu.memory: "97871"
-      nvidia-gpu-a100-80gb:
-        nodeSelector:
-          nvidia.com/gpu.family: "ampere"
-          nvidia.com/gpu.memory: "81920"
-      nvidia-gpu-a100-40gb:
-        nodeSelector:
-          nvidia.com/gpu.family: "ampere"
-          nvidia.com/gpu.memory: "40960"
-      nvidia-gpu-rtx4070-8gb:
-        nodeSelector:
-          nvidia.com/gpu.family: "ampere"
-          nvidia.com/gpu.memory: "8188"
-      nvidia-gpu-rtx4090-24gb:
-        nodeSelector:
-          nvidia.com/gpu.family: "ampere"
-          nvidia.com/gpu.memory: "24564"
-  EOT
-
-  amd_kubeai_values = <<-EOT
-    resourceProfiles:
-      amd-gpu-mi300x:
-        nodeSelector:
-          # Source: https://gitlab.freedesktop.org/mesa/drm/-/blob/main/data/amdgpu.ids#L569
-          amd.com/gpu.device-id: 74a1
-          amd.com/gpu.vram: "192G"
-          amd.com/gpu.family: "AI"
-  EOT
-
-}
 resource "helm_release" "kubeai" {
   name             = "kubeai"
   repository       = "https://www.kubeai.org"
@@ -58,6 +10,12 @@ resource "helm_release" "kubeai" {
 
   values = [
     <<-EOT
+      resourceProfiles:
+        cpu:
+          imageName: "cpu"
+          requests:
+            cpu: "0"
+            memory: "0"
       secrets:
         huggingface:
           token: ${var.huggingface_token}
@@ -66,9 +24,25 @@ resource "helm_release" "kubeai" {
           vLLMPodMonitor:
             enabled: true
             labels: {}
+      open-webui:
+        enabled: false
+    ingress:
+      enabled: true
+      className: "nginx"
+      annotations:
+        nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+        cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+        
+      rules:
+        - host: kubeai.${var.domain}
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+      tls:
+        - secretName: kubeai-tls
+          hosts:
+            - kubeai.${var.domain}
     EOT
-    ,
-    var.kubeai_compute_processor == "nvidia" ? local.nvidia_kubeai_values : ""
 
   ]
 
