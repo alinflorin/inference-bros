@@ -156,3 +156,25 @@ resource "helm_release" "hf_secret" {
 
   depends_on = [helm_release.llms_namespace]
 }
+
+
+resource "helm_release" "hf_csc" {
+  name             = "hf-csc"
+  repository       = "oci://ghcr.io/alinflorin/charts"
+  chart            = "hf-csc"
+  namespace        = "llms"
+  create_namespace = false
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      secretName: hf-secret
+      secretKey: HF_TOKEN
+    EOT
+
+  ]
+
+  depends_on = [helm_release.hf_secret]
+}
