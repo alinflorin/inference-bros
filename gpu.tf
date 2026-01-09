@@ -10,7 +10,8 @@ resource "helm_release" "nvidia_gpu_operator" {
 
   values = [
     <<-EOT
-
+      driver:
+        enabled: false
     EOT
 
   ]
@@ -32,7 +33,7 @@ resource "helm_release" "amd_gpu_operator" {
 
   values = [
     <<-EOT
-
+    
     EOT
 
   ]
