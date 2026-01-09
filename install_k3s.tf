@@ -1,4 +1,19 @@
+locals {
+  masters = [
+    for s in var.servers : s if s.master
+  ]
+
+  workers = [
+    for s in var.servers : s if !s.master
+  ]
+
+  first_master  = local.masters[0]
+  other_masters = slice(local.masters, 1, length(local.masters))
+}
+
+
 # Install first master
+
 resource "ssh_sensitive_resource" "install_k3s_first_master" {
   host        = local.first_master.ip
   user        = local.first_master.user
@@ -90,6 +105,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
 
   depends_on = [ssh_sensitive_resource.destroy_k3s_all]
 }
+
 
 locals {
   k3s_token = jsondecode(
