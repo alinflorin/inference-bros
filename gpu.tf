@@ -18,7 +18,7 @@ resource "helm_release" "nvidia_gpu_operator" {
 
   count = var.kubeai_compute_processor == "nvidia" ? 1 : 0
 
-  depends_on = [helm_release.cert_manager_self_signed_issuer
+  depends_on = [helm_release.cert_manager_self_signed_issuer]
 }
 
 resource "helm_release" "amd_gpu_operator" {
@@ -40,5 +40,5 @@ resource "helm_release" "amd_gpu_operator" {
 
   count = var.kubeai_compute_processor == "amd" ? 1 : 0
 
-  depends_on = [helm_release.cert_manager_self_signed_issuer
+  depends_on = [helm_release.cert_manager_self_signed_issuer]
 }
