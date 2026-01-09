@@ -18,7 +18,7 @@ resource "helm_release" "nvidia_gpu_operator" {
 
   count = var.kubeai_compute_processor == "nvidia" ? 1 : 0
 
-  depends_on = [null_resource.k3s_installed]
+  depends_on = [helm_release.cert_manager_self_signed_issuer
 }
 
 resource "helm_release" "amd_gpu_operator" {
@@ -33,12 +33,12 @@ resource "helm_release" "amd_gpu_operator" {
 
   values = [
     <<-EOT
-    
+
     EOT
 
   ]
 
   count = var.kubeai_compute_processor == "amd" ? 1 : 0
 
-  depends_on = [null_resource.k3s_installed]
+  depends_on = [helm_release.cert_manager_self_signed_issuer
 }
