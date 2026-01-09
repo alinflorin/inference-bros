@@ -32,12 +32,12 @@ resource "helm_release" "kubeai" {
         annotations:
           nginx.ingress.kubernetes.io/ssl-redirect: 'true'
           cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
-          
+
         rules:
           - host: kubeai.${var.domain}
-        paths:
-          - path: /
-            pathType: ImplementationSpecific
+            paths:
+              - path: /
+                pathType: ImplementationSpecific
         tls:
           - secretName: kubeai-tls
             hosts:
