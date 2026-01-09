@@ -88,11 +88,9 @@ resource "helm_release" "kserve" {
 
 resource "helm_release" "models_web_app" {
   name             = "models-web-app"
-  repository       = "oci://ghcr.io/alinflorin/charts"
-  chart            = "models-web-app"
+  chart            = "${path.module}/charts/models-web-app"
   namespace        = "kserve"
   create_namespace = true
-  version          = "0.1.3"
   atomic           = true
   wait             = true
 
@@ -150,6 +148,25 @@ resource "helm_release" "hf_secret" {
       nameOverride: hf-secret
       secretData:
         HF_TOKEN: ${var.huggingface_token}
+    EOT
+
+  ]
+
+  depends_on = [helm_release.llms_namespace]
+}
+
+resource "helm_release" "hf_csc" {
+  name             = "hf-csc"
+  chart            = "${path.module}/charts/hf-csc"
+  namespace        = "llms"
+  create_namespace = false
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      secretName: hf-secret
+      secretKey: HF_TOKEN
     EOT
 
   ]

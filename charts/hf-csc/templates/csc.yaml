@@ -1,0 +1,19 @@
+apiVersion: "serving.kserve.io/v1alpha1"
+kind: ClusterStorageContainer
+metadata:
+  name: hf-hub
+  namespace: {{ .Release.Namespace }}
+spec:
+  container:
+    name: storage-initializer
+    image: kserve/storage-initializer:latest
+    env:
+    - name: HF_TOKEN
+      valueFrom:
+        secretKeyRef:
+          name: {{ .Values.secretName }}
+          key: {{ .Values.secretKey }}
+          optional: false
+  supportedUriFormats:
+    - prefix: hf://
+  workloadType: localModelDownloadJob
