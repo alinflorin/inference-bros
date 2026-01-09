@@ -14,7 +14,7 @@ resource "helm_release" "headlamp" {
         baseURL: ""
         enableHelm: true
         extraArgs:
-        - --oidc-skip-tls-verify
+        ${var.location == "local" ? "- --oidc-skip-tls-verify" : ""}
         inCluster: true
         oidc:
           callbackURL: ""
