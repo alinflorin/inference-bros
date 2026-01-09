@@ -25,6 +25,9 @@ resource "helm_release" "grafana" {
                 path: /var/lib/grafana/dashboards/default
       dashboards:
         default:
+          kubeai:
+            url: https://raw.githubusercontent.com/kubeai-project/kubeai/refs/heads/main/examples/observability/vllm-grafana-dashboard.json
+            datasource: Prometheus
           node-exporter:
             gnetId: 1860
             datasource: Prometheus

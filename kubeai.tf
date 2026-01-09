@@ -61,6 +61,11 @@ resource "helm_release" "kubeai" {
       secrets:
         huggingface:
           token: ${var.huggingface_token}
+      metrics:
+        prometheusOperator:
+          vLLMPodMonitor:
+            enabled: true
+            labels: {}
     EOT
     ,
     var.kubeai_compute_processor == "nvidia" ? local.nvidia_kubeai_values : ""
