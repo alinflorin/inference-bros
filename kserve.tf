@@ -31,16 +31,6 @@ resource "helm_release" "kserve" {
   values = [
     <<-EOT
       kserve:
-        storage:
-          resources:
-            requests:
-              memory: "0"
-              cpu: "0"
-            limits:
-              memory: "0"
-              cpu: "0"
-          cpuModelcar: "0"
-          memoryModelcar: "0"
         controller:
           deploymentMode: RawDeployment
           resources:
