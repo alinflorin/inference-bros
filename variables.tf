@@ -90,3 +90,11 @@ variable "huggingface_token" {
 variable "kubeai_compute_processor" {
   type = string
 }
+
+variable "longhorn_replica_count" {
+  type = number
+}
+
+variable "longhorn_enabled" {
+  type = bool
+}

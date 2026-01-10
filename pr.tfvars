@@ -43,3 +43,5 @@ grafana_storage_gb    = 5
 slack_webhook_url = "..."
 huggingface_token = "..."
 kubeai_compute_processor = "cpu"
+longhorn_replica_count = 1
+longhorn_enabled = false

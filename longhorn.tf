@@ -36,6 +36,11 @@ resource "helm_release" "longhorn" {
         allowCollectingLonghornUsageMetrics: false
         storageMinimalAvailablePercentage: 1
         deletingConfirmationFlag: true
+        detachManuallyAttachedVolumesWhenCordoned: true
+        allowVolumeCreationWithDegradedAvailability: true
+        defaultReplicaCount: ${var.longhorn_replica_count}
+      persistence:
+        defaultClassReplicaCount: ${var.longhorn_replica_count}
         
       csi:
         attacherReplicaCount: 1
@@ -46,5 +51,8 @@ resource "helm_release" "longhorn" {
     EOT
 
   ]
+
+  count = var.longhorn_enabled ? 1 : 0
+
   depends_on = [helm_release.oauth2_proxy]
 }
