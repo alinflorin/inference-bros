@@ -73,7 +73,9 @@ resource "helm_release" "dex" {
           - https://grafana.${var.domain}/login/generic_oauth
         staticPasswords: []
         storage:
-          type: memory
+          type: kubernetes
+          config:
+            inCluster: true
         web:
           http: 0.0.0.0:5556
 
