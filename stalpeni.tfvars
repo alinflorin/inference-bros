@@ -56,4 +56,3 @@ grafana_storage_gb    = 5
 slack_webhook_url = "#{SLACK_WEBHOOK_URL}"
 huggingface_token = "#{HF_TOKEN}"
 kubeai_compute_processor = "nvidia"
-enable_longhorn_storage = true

@@ -46,6 +46,5 @@ resource "helm_release" "longhorn" {
     EOT
 
   ]
-  count = var.enable_longhorn_storage == true ? 1 : 0
   depends_on = [helm_release.oauth2_proxy]
 }

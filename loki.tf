@@ -75,5 +75,5 @@ resource "helm_release" "loki" {
     EOT
   ]
 
-  depends_on = [helm_release.longhorn[0]]
+  depends_on = [helm_release.longhorn]
 }
