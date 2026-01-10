@@ -28,16 +28,6 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   }
 
   file {
-    content = <<-EOT
-      #!/bin/sh
-      mount --make-rshared /
-    EOT
-
-    destination = "/etc/local.d/mount.rshared.start"
-    permissions = "0755"
-  }
-
-  file {
     content     = var.root_ca_crt
     destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
     permissions = "0700"
@@ -85,10 +75,8 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   ]
 
   commands = [
-    "mount --make-rshared /",
-    "rc-update add local default",
-    "apk update",
-    "apk add curl jq iptables open-iscsi",
+    "apt-get update",
+    "apt-get install -y curl jq iptables open-iscsi",
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
     "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | sh -",
     "curl -sfL https://get.k3s.io | sh -",
@@ -248,16 +236,6 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   when = "create"
 
   file {
-    content = <<-EOT
-      #!/bin/sh
-      mount --make-rshared /
-    EOT
-
-    destination = "/etc/local.d/mount.rshared.start"
-    permissions = "0755"
-  }
-
-  file {
     content     = var.root_ca_crt
     destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
     permissions = "0700"
@@ -306,10 +284,8 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   ]
 
   commands = [
-    "mount --make-rshared /",
-    "rc-update add local default",
-    "apk update",
-    "apk add curl jq iptables open-iscsi",
+    "apt-get update",
+    "apt-get install -y curl jq iptables open-iscsi",
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
     "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | sh -",
     "curl -sfL https://get.k3s.io | sh -",
@@ -368,10 +344,8 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   ]
 
   commands = [
-    "mount --make-rshared /",
-    "rc-update add local default",
-    "apk update",
-    "apk add curl jq iptables open-iscsi",
+    "apt-get update",
+    "apt-get install -y curl jq iptables open-iscsi",
     "curl -sfL https://get.k3s.io | sh -s - agent",
     "echo OK",
   ]

@@ -1,7 +1,7 @@
 # inference-bros
 
 ## Requirements
-- 1 or more Alpine Linux servers with root access and gpu drivers installed, if any
+- 1 or more Debian Linux servers with root access and gpu drivers installed, if any
 - Public SSH key added to trusted keys
 - All servers in the same LAN with static IPs configured each.
 - At least 2 free IP addresses on the LAN subnet (one for kube_vip and one for MetalLB - NGINX)
@@ -15,6 +15,7 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 - Install VirtualBox + Extension Pack
 - Download terraform.tfvars from Google Drive and add it to the root of this repo.
 - Download root-ca.crt and root-ca.key from Google Drive/Certificates and add to dev machine trust store.
+- Download ssh key from Google Drive/SSH Keys and add them into .ssh folder.
 - Download OVA file from Google Drive and import.
 - User root password root. SSH working only with keys. Pubkey already included.
 - Boot it, run ifconfig and take note of the IP. Add the IP to the terraform input file in the servers section.
