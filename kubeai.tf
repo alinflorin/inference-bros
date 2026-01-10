@@ -11,6 +11,11 @@ resource "helm_release" "kubeai" {
   values = [
     <<-EOT
       resourceProfiles:
+        cpu-bagabonti:
+          imageName: "cpu"
+          requests:
+            cpu: "0"
+            memory: "0"
         nvidia-bagabonti:
           limits:
             nvidia.com/gpu: "1"
