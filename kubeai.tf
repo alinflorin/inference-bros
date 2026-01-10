@@ -10,6 +10,17 @@ resource "helm_release" "kubeai" {
 
   values = [
     <<-EOT
+      resourceProfiles:
+        nvidia-bagabonti:
+          limits:
+            nvidia.com/gpu: "1"
+          requests:
+            nvidia.com/gpu: "1"
+        amd-bagabonti:
+          limits:
+            amd.com/gpu: "1"
+          requests:
+            amd.com/gpu: "1"
       modelAutoscaling:
         interval: 15s
         timeWindow: 10m
