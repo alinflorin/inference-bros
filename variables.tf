@@ -38,7 +38,6 @@ variable "servers" {
     port     = number
     user     = string
     master   = bool
-    iface    = string
   }))
 }
 

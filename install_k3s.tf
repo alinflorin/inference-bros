@@ -43,7 +43,6 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     content = <<-EOT
       write-kubeconfig-mode: "0644"
       node-ip: ${local.first_master.ip}
-      flannel-iface: ${local.first_master.iface}
       flannel-backend: "vxlan"
       node-name: ${local.first_master.hostname}
       tls-san:
@@ -158,7 +157,6 @@ resource "helm_release" "kube_vip" {
         address: "${var.k3s_vip}"
 
       env:
-        vip_interface: "${local.first_master.iface}"
         vip_arp: "true"
         lb_enable: "true"
         lb_port: "6443"
@@ -251,7 +249,6 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
     content = <<-EOT
       write-kubeconfig-mode: "0644"
       node-ip: ${each.value.ip}
-      flannel-iface: ${each.value.iface}
       flannel-backend: "vxlan"
       node-name: ${each.value.hostname}
       tls-san:

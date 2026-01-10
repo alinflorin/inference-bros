@@ -5,7 +5,6 @@ servers = [
     user     = "root"
     master   = true
     hostname = "k3s-master-1"
-    iface    = "eth0"
   }
 ]
 k3s_vip          = "192.168.0.252"
