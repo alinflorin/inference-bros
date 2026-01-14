@@ -54,15 +54,9 @@ resource "helm_release" "headlamp" {
       pluginsManager:
         baseImage: node:lts-alpine
         configContent: |
-          plugins:
-            - name: cert-manager
-              source: https://artifacthub.io/packages/headlamp/headlamp-plugins/headlamp_cert-manager
-              version: 0.1.0
-            - name: kompose
-              source: https://artifacthub.io/packages/headlamp/headlamp-plugins/headlamp_kompose
-              version: 0.1.0-beta-1
+          plugins: []
         configFile: plugin.yml
-        enabled: true
+        enabled: false
         securityContext: {}
         version: latest
     EOT
