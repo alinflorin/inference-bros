@@ -98,3 +98,6 @@ Use https://kubeai.local.inferencebros.com/openai/v1 as base URL and AnythingLLM
 https://docs.anythingllm.com/installation-desktop/windows  
 
 Use your API key.  
+
+## OpenRouter endpoint
+Available at https://kmm.local.inferencebros.com/api/openrouter/models  
