@@ -101,9 +101,8 @@ spec:
 
 ## Local testing
 Set an environment variable on your machine: NODE_OPTIONS=--use-system-ca  
-You can use Jan app > set remote provider  
 Use https://kubeai.local.inferencebros.com/openai/v1/... as OpenAI API  
-Use your API key  
+Use header Authorization: Bearer your_api_key  
 
 ## OpenRouter endpoint
 Available at https://kmm.local.inferencebros.com/api/openrouter/models  
