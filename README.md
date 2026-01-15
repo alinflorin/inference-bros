@@ -94,7 +94,7 @@ spec:
 
 
 ## Local testing
-Use https://kubeai.local.inferencebros.com/openai/v1 as base URL and Cherry Studio  
+Use https://kubeai.local.inferencebros.com/openai as base URL and Cherry Studio  (register a new provider of type OpenAI)
 
 Use your API key.  
 
