@@ -94,8 +94,7 @@ spec:
 
 
 ## Local testing
-Use https://kubeai.local.inferencebros.com/openai/v1 as base URL and AnythingLLM Desktop:  
-https://docs.anythingllm.com/installation-desktop/windows  
+Use https://kubeai.local.inferencebros.com/openai/v1 as base URL and Cherry Studio  
 
 Use your API key.  
 
