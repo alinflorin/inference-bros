@@ -37,7 +37,10 @@ resource "helm_release" "kubeai" {
         annotations:
           nginx.ingress.kubernetes.io/ssl-redirect: 'true'
           cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
-
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+                if ($http_authorization != "Bearer ${var.api_key}") {
+                  return 401 "Unauthorized";
+                }
         rules:
           - host: kubeai.${var.domain}
             paths:
@@ -72,10 +75,6 @@ resource "helm_release" "kmm" {
         annotations:
           nginx.ingress.kubernetes.io/ssl-redirect: 'true'
           cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
-          nginx.ingress.kubernetes.io/configuration-snippet: |
-                if ($http_authorization != "Bearer ${var.api_key}") {
-                  return 401 "Unauthorized";
-                }
         hosts:
           - host: kmm.${var.domain}
             paths:
