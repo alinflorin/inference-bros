@@ -5,7 +5,8 @@
 # Created by git for backups. To disable backups in Git:
 # $ git config --global mergetool.keepBackup false
 *.orig
-*.dot
+/*.dot
+/*.svg
 # Created by git when using merge tools for conflicts
 *.BACKUP.*
 *.BASE.*
