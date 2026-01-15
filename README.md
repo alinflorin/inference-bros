@@ -104,7 +104,7 @@ spec:
 Use https://kubeai.local.inferencebros.com/openai/v1/... as OpenAI API  
 Use header Authorization: Bearer your_api_key  
 
-With desktop based chat apps you will get invalid SSL cert (which is normal, it's self signed). Use http://kubeai-insecure.local.inferencebros.com/openai/v1 as URL. Recommended app: Cherry Studio, register a new provider OpenAI compatible.  
+With desktop based chat apps you will get invalid SSL cert (which is normal, it's self signed). Use http://kubeai-insecure.local.inferencebros.com/openai/v1 as URL. Recommended app: Cherry Studio, Settings > Model Provider > Add.  
 
 ## OpenRouter endpoint
 Available at https://kmm.local.inferencebros.com/api/openrouter/models  
