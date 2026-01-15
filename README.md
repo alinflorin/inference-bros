@@ -94,8 +94,8 @@ spec:
 
 
 ## Local testing
-Use https://kubeai.local.inferencebros.com/openai as base URL and Cherry Studio  (register a new provider of type OpenAI)
-
+Use kubeai.local.inferencebros.com/openai as base URL and https://chatboxai.app/en/#download  
+Model: gemma2-2b  
 Use your API key.  
 
 ## OpenRouter endpoint
