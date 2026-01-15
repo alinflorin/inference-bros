@@ -94,11 +94,8 @@ spec:
 
 
 ## Local testing
-Use kubeai.local.inferencebros.com/openai as base URL and https://chatboxai.app/en/#download  
-Add new provider  
-Tick Network Compatibility  
-Model: gemma2-2b  
-Use your API key.  
+Use https://kubeai.local.inferencebros.com/openai/v1/... as OpenAI API  
+Use header Authorization: Bearer your_api_key  
 
 ## OpenRouter endpoint
 Available at https://kmm.local.inferencebros.com/api/openrouter/models  
