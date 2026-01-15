@@ -90,3 +90,10 @@ spec:
   minReplicas: 1
   replicas: 1
 ```
+
+
+## Local testing
+Use https://kubeai.local.inferencebros.com/openai/v1 as base URL and AnythingLLM Desktop:  
+https://docs.anythingllm.com/installation-desktop/windows  
+
+Use your API key.  
