@@ -103,3 +103,7 @@ variable "longhorn_replica_count" {
 variable "longhorn_enabled" {
   type = bool
 }
+
+variable "kubeai_insecure_enable" {
+  type = bool
+}

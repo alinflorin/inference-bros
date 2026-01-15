@@ -90,3 +90,44 @@ resource "helm_release" "kmm" {
 
   depends_on = [helm_release.kubeai]
 }
+
+resource "helm_release" "kubeai_insecure_ingress" {
+  name             = "kubeai-insecure-ingress"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "kubeai"
+  create_namespace = false
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: kubeai-insecure
+          namespace: kubeai
+        spec:
+          ingressClassName: nginx
+          rules:
+          - host: kubeai-insecure.${var.domain}
+            http:
+              paths:
+              - pathType: Prefix
+                path: "/"
+                backend:
+                  service:
+                    name: kubeai
+                    port: 
+                      number: 80
+
+    EOT
+
+  ]
+
+  count = var.kubeai_insecure_enable == true ? 1 : 0
+
+  depends_on = [helm_release.kubeai]
+}
