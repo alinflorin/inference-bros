@@ -45,43 +45,44 @@ kind: Model
 metadata:
   name: gemma2-2b
   namespace: kubeai
-  openrouter.ai/json: |
-    {
-      "id": "gemma/gemma2-2b",
-      "hugging_face_id": "",
-      "name": "Gemma 2 - 2B",
-      "created": 1690502400,
-      "input_modalities": ["text", "image", "file"],
-      "output_modalities": ["text", "image", "file"],
-      "quantization": "fp8",
-      "context_length": 1000000,
-      "max_output_length": 128000,
-      "pricing": {
-        "prompt": "0.000008",
-        "completion": "0.000024",
-        "image": "0", 
-        "request": "0",
-        "input_cache_read": "0", 
-        "input_cache_write": "0"
-      },
-      "supported_sampling_parameters": ["temperature", "stop"],
-      "supported_features": [
-        "tools",
-        "json_mode",
-        "structured_outputs",
-        "web_search",
-        "reasoning"
-      ],
-      "description": "gemma/gemma2-2b",
-      "openrouter": {
-        "slug": "gemma/gemma2-2b"
-      },
-      "datacenters": [
-        {
-          "country_code": "RO"
-        }
-      ]
-    }
+  annotations:
+    openrouter.ai/json: |
+      {
+        "id": "gemma/gemma2-2b",
+        "hugging_face_id": "",
+        "name": "Gemma 2 - 2B",
+        "created": 1690502400,
+        "input_modalities": ["text", "image", "file"],
+        "output_modalities": ["text", "image", "file"],
+        "quantization": "fp8",
+        "context_length": 1000000,
+        "max_output_length": 128000,
+        "pricing": {
+            "prompt": "0.000008",
+            "completion": "0.000024",
+            "image": "0", 
+            "request": "0",
+            "input_cache_read": "0", 
+            "input_cache_write": "0"
+        },
+        "supported_sampling_parameters": ["temperature", "stop"],
+        "supported_features": [
+            "tools",
+            "json_mode",
+            "structured_outputs",
+            "web_search",
+            "reasoning"
+        ],
+        "description": "gemma/gemma2-2b",
+        "openrouter": {
+            "slug": "gemma/gemma2-2b"
+        },
+        "datacenters": [
+            {
+            "country_code": "RO"
+            }
+        ]
+      }
 spec:
   features: [TextGeneration]
   url: ollama://gemma2:2b
