@@ -1,3 +1,5 @@
+https://gist.github.com/Artefact2/b5f810600771265fc1e39442288e8ec9  
+
 # Which GGUF is right for me? (Opinionated)
 
 Good question! I am collecting human data on how quantization affects outputs. See here for more information: https://github.com/ggerganov/llama.cpp/discussions/5962
