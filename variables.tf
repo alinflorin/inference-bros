@@ -65,6 +65,11 @@ variable "dex_passwords" {
   sensitive = true
 }
 
+variable "api_key" {
+  type      = string
+  sensitive = true
+}
+
 variable "prometheus_storage_gb" {
   type = number
 }
