@@ -95,6 +95,8 @@ spec:
 
 ## Local testing
 Use kubeai.local.inferencebros.com/openai as base URL and https://chatboxai.app/en/#download  
+Add new provider  
+Tick Network Compatibility  
 Model: gemma2-2b  
 Use your API key.  
 
