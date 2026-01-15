@@ -39,6 +39,12 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 
 
 ## Sample model
+Use kubeai namespace to deploy models. Use headlamp CRD manager:  
+https://headlamp.local.inferencebros.com/c/main/customresources/models.kubeai.org?namespace=kubeai
+
+Checking workloads:  
+https://headlamp.local.inferencebros.com/c/main/pods?namespace=kubeai  
+
 ```
 apiVersion: kubeai.org/v1
 kind: Model
