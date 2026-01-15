@@ -103,7 +103,7 @@ spec:
 Set an environment variable on your machine: NODE_OPTIONS=--use-system-ca  
 You can use Jan app > set remote provider  
 Use https://kubeai.local.inferencebros.com/openai/v1/... as OpenAI API  
-Use header Authorization: Bearer your_api_key  
+Use your API key  
 
 ## OpenRouter endpoint
 Available at https://kmm.local.inferencebros.com/api/openrouter/models  
