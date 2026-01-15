@@ -101,7 +101,7 @@ spec:
 
 ## Local testing
 Set an environment variable on your machine: NODE_OPTIONS=--use-system-ca  
-You can use Cherry Studio  
+You can use Jan app
 Use https://kubeai.local.inferencebros.com/openai/v1/... as OpenAI API  
 Use header Authorization: Bearer your_api_key  
 
