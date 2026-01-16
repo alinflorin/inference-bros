@@ -47,4 +47,4 @@ huggingface_token        = "..."
 kubeai_compute_processor = "cpu"
 longhorn_replica_count   = 1
 longhorn_enabled         = false
-kubeai_insecure_enable = false
+kubeai_insecure_enable   = false
