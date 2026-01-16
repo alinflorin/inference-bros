@@ -94,8 +94,9 @@ jobs:
           framework: terraform,helm,kubernetes
           output_format: sarif
           output_file_path: checkov.sarif
-          quiet: true
+          quiet: false
         env:
+          CHECKOV_EXPERIMENTAL_PARSER: 1
           CHECKOV_SKIP_CHECK: CKV_TF_1
 
       - name: Upload Checkov SARIF
