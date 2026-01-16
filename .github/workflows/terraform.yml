@@ -99,7 +99,7 @@ jobs:
           CHECKOV_SKIP_CHECK: CKV_TF_1
 
       - name: Upload Checkov SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: checkov.sarif
 
