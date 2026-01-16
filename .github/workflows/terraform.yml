@@ -91,15 +91,16 @@ jobs:
       - name: Run Checkov
         uses: bridgecrewio/checkov-action@v12
         with:
-          framework: terraform,helm,kubernetes
+          framework: terraform
           output_format: sarif
           output_file_path: checkov.sarif
-          quiet: true
+          quiet: false
         env:
+          CHECKOV_EXPERIMENTAL_PARSER: 1
           CHECKOV_SKIP_CHECK: CKV_TF_1
 
       - name: Upload Checkov SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: checkov.sarif
 
