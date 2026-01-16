@@ -22,6 +22,7 @@ permissions:
   contents: read
   pull-requests: write
   issues: write
+  security-events: write
 
 concurrency:
   group: terraform-${{ github.event.inputs.environment || github.run_id }}
@@ -86,6 +87,21 @@ jobs:
 
       - name: Terraform validate
         run: terraform validate
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          framework: terraform,helm,kubernetes
+          output_format: sarif
+          output_file_path: checkov.sarif
+          quiet: true
+        env:
+          CHECKOV_SKIP_CHECK: CKV_TF_1
+
+      - name: Upload Checkov SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: checkov.sarif
 
       - name: Substitute Secrets
         uses: faradaytrs/substitute-secrets-action@2.6
