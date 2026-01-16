@@ -10,6 +10,9 @@
 - A type record for domain.com and *.domain.com (or with CNAMES) to point to public IP.
 
 
+
+
+
 ## Local dev
 Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcyquWPW4AF9pN?usp=share_link   
 - Install VirtualBox + Extension Pack
