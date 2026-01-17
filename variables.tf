@@ -65,7 +65,7 @@ variable "dex_passwords" {
   sensitive = true
 }
 
-variable "api_key" {
+variable "kubeai_api_key" {
   type      = string
   sensitive = true
 }

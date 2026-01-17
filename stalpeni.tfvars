@@ -49,7 +49,7 @@ dex_passwords = [
   "#{SORIN_PASSWORD}"
 ]
 
-api_key = "#{API_KEY}"
+kubeai_api_key = "#{KUBEAI_API_KEY}"
 
 prometheus_storage_gb = 10
 loki_storage_gb       = 5
