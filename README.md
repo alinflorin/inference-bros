@@ -21,7 +21,7 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 - Boot it, run ifconfig and take note of the IP. Add the IP to the terraform input file in the servers section.
 - Add another IP for kube_vip in terraform.tfvars, any free IP on your network.
 - Set metallb_range to a free range of IPs in your LAN
-- Edit your hosts file on dev machine AND VM!!! and add: k3s.local.inferencebros.com -> k3s vip, kubeai-insecure/kmm/kubeai/longhorn/dex/oauth2-proxy/grafana/etc .local.inferencebros.com -> nginx metallb ip.
+- Edit your hosts file on dev machine AND VM!!! and add: k3s.local.inferencebros.com -> k3s vip, bifrost/kmm/longhorn/dex/oauth2-proxy/grafana/etc .local.inferencebros.com -> nginx metallb ip.
 
 ```
 192.168.1.252 k3s.local.inferencebros.com
@@ -30,9 +30,8 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 192.168.1.240 headlamp.local.inferencebros.com
 192.168.1.240 grafana.local.inferencebros.com
 192.168.1.240 longhorn.local.inferencebros.com
-192.168.1.240 kubeai.local.inferencebros.com
-192.168.1.240 kubeai-insecure.local.inferencebros.com #for development
 192.168.1.240 kmm.local.inferencebros.com
+192.168.1.240 bifrost.local.inferencebros.com
 ```
 
 - Run terraform plan and apply
@@ -101,10 +100,7 @@ spec:
 
 
 ## Local testing
-Use https://kubeai.local.inferencebros.com/openai/v1/... as OpenAI API  
-Use header Authorization: Bearer your_api_key  
 
-With desktop based chat apps you will get invalid SSL cert (which is normal, it's self signed). Use http://kubeai-insecure.local.inferencebros.com/openai/v1 as URL. Recommended app: Cherry Studio, Settings > Model Provider > Add.  
 
 ## OpenRouter endpoint
 Available at https://kmm.local.inferencebros.com/api/openrouter/models  

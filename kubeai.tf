@@ -10,6 +10,7 @@ resource "helm_release" "kubeai" {
 
   values = [
     <<-EOT
+      replicaCount: 1
       resourceProfiles:
         nvidia:
           limits:
@@ -31,25 +32,6 @@ resource "helm_release" "kubeai" {
             labels: {}
       open-webui:
         enabled: false
-      ingress:
-        enabled: true
-        className: "nginx"
-        annotations:
-          nginx.ingress.kubernetes.io/ssl-redirect: 'true'
-          cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
-          nginx.ingress.kubernetes.io/configuration-snippet: |
-                if ($http_authorization != "Bearer ${var.kubeai_api_key}") {
-                  return 401 "Unauthorized";
-                }
-        rules:
-          - host: kubeai.${var.domain}
-            paths:
-              - path: /
-                pathType: ImplementationSpecific
-        tls:
-          - secretName: kubeai-tls
-            hosts:
-              - kubeai.${var.domain}
     EOT
 
   ]
@@ -87,47 +69,6 @@ resource "helm_release" "kmm" {
     EOT
 
   ]
-
-  depends_on = [helm_release.kubeai]
-}
-
-resource "helm_release" "kubeai_insecure_ingress" {
-  name             = "kubeai-insecure-ingress"
-  repository       = "https://dasmeta.github.io/helm/"
-  chart            = "resource"
-  namespace        = "kubeai"
-  create_namespace = false
-  version          = "0.1.0"
-  atomic           = true
-  wait             = true
-
-  values = [
-    <<-EOT
-      resource:
-        apiVersion: networking.k8s.io/v1
-        kind: Ingress
-        metadata:
-          name: kubeai-insecure
-          namespace: kubeai
-        spec:
-          ingressClassName: nginx
-          rules:
-          - host: kubeai-insecure.${var.domain}
-            http:
-              paths:
-              - pathType: Prefix
-                path: "/"
-                backend:
-                  service:
-                    name: kubeai
-                    port: 
-                      number: 80
-
-    EOT
-
-  ]
-
-  count = var.kubeai_insecure_enable == true ? 1 : 0
 
   depends_on = [helm_release.kubeai]
 }

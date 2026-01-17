@@ -36,8 +36,6 @@ dex_users = [{
 
 dex_passwords = ["..."]
 
-kubeai_api_key = "..."
-
 prometheus_storage_gb = 10
 loki_storage_gb       = 5
 grafana_storage_gb    = 5
@@ -47,4 +45,3 @@ huggingface_token        = "..."
 kubeai_compute_processor = "cpu"
 longhorn_replica_count   = 1
 longhorn_enabled         = false
-kubeai_insecure_enable   = false

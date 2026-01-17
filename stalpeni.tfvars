@@ -60,4 +60,3 @@ huggingface_token        = "#{HF_TOKEN}"
 kubeai_compute_processor = "nvidia"
 longhorn_replica_count   = 3
 longhorn_enabled         = true
-kubeai_insecure_enable   = false

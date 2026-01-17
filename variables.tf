@@ -65,11 +65,6 @@ variable "dex_passwords" {
   sensitive = true
 }
 
-variable "kubeai_api_key" {
-  type      = string
-  sensitive = true
-}
-
 variable "prometheus_storage_gb" {
   type = number
 }
@@ -101,9 +96,5 @@ variable "longhorn_replica_count" {
 }
 
 variable "longhorn_enabled" {
-  type = bool
-}
-
-variable "kubeai_insecure_enable" {
   type = bool
 }
