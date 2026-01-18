@@ -54,6 +54,7 @@ kubeai_api_key = "#{KUBEAI_API_KEY}"
 prometheus_storage_gb = 10
 loki_storage_gb       = 5
 grafana_storage_gb    = 5
+tempo_storage_gb    = 5
 
 slack_webhook_url        = "#{SLACK_WEBHOOK_URL}"
 huggingface_token        = "#{HF_TOKEN}"

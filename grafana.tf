@@ -62,6 +62,12 @@ resource "helm_release" "grafana" {
               url: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
               isDefault: true
               editable: false
+            - name: Tempo
+              type: tempo
+              access: proxy
+              url: http://tempo.monitoring.svc.cluster.local:3200
+              isDefault: true
+              editable: false
             - name: Loki
               type: loki
               access: proxy
@@ -116,5 +122,5 @@ resource "helm_release" "grafana" {
     EOT
   ]
 
-  depends_on = [helm_release.loki, helm_release.promtail, helm_release.kube_prometheus_stack]
+  depends_on = [helm_release.loki, helm_release.promtail, helm_release.kube_prometheus_stack, helm_release.tempo]
 }

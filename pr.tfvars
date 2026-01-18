@@ -39,6 +39,7 @@ dex_passwords = ["..."]
 prometheus_storage_gb = 10
 loki_storage_gb       = 5
 grafana_storage_gb    = 5
+tempo_storage_gb    = 5
 
 slack_webhook_url        = "..."
 huggingface_token        = "..."
