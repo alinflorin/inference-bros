@@ -85,6 +85,10 @@ variable "mail_storage_gb" {
   type = number
 }
 
+variable "bifrost_storage_gb" {
+  type = number
+}
+
 variable "smtp_allowed_domain" {
   type = string
 }
@@ -124,4 +128,26 @@ variable "longhorn_replica_count" {
 
 variable "longhorn_enabled" {
   type = bool
+}
+
+variable "bifrost_user" {
+  type = string
+  sensitive = true
+}
+
+variable "bifrost_password" {
+  type = string
+  sensitive = true
+}
+
+variable "bifrost_replicas" {
+  type = number
+}
+
+variable "kubeai_proxy_replicas" {
+  type = number
+}
+
+variable "nginx_replicas" {
+  type = number
 }

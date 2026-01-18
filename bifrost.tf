@@ -1,3 +1,15 @@
+resource "random_string" "bifrost_pg_password" {
+  length  = 32
+  special = false
+  upper   = false
+}
+
+resource "random_string" "bifrost_enc_key" {
+  length  = 32
+  special = false
+  upper   = false
+}
+
 resource "helm_release" "bifrost" {
   name             = "bifrost"
   repository       = "https://maximhq.github.io/bifrost/helm-charts"
@@ -10,13 +22,48 @@ resource "helm_release" "bifrost" {
 
   values = [
     <<-EOT
+      bifrost:
+        encryptionKey: ${random_string.bifrost_enc_key.result}
+        logLevel: info
+        
+        client:
+          dropExcessRequests: true
+          enableLogging: true
+          enableGovernance: true
+        
+        plugins:
+          telemetry:
+            enabled: true
+          logging:
+            enabled: true
+          governance:
+            enabled: true
       image:
         tag: 'v1.3.63'
-      replicaCount: 1
+      replicaCount: ${var.bifrost_replicas}
       storage:
-        mode: sqlite
-        persistence:
-          size: 5Gi
+        mode: postgres
+      resources:
+        requests:
+          cpu: '0'
+          memory: '0'
+        limits:
+          cpu: '0'
+          memory: '0'
+      postgresql:
+        enabled: true
+        auth:
+          password: ${random_string.bifrost_pg_password.result}
+        primary:
+          persistence:
+            size: ${var.bifrost_storage_gb}Gi
+          resources:
+            requests:
+              cpu: '0'
+              memory: '0'
+            limits:
+              cpu: '0'
+              memory: '0'
       ingress:
         enabled: true
         className: nginx

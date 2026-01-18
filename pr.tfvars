@@ -41,6 +41,7 @@ loki_storage_gb       = 5
 grafana_storage_gb    = 5
 tempo_storage_gb    = 5
 mail_storage_gb = 1
+bifrost_storage_gb = 50
 
 smtp_username = "..."
 smtp_password = "..."
@@ -50,5 +51,11 @@ smtp_allowed_domain = "inferencebros.com"
 slack_webhook_url        = "..."
 huggingface_token        = "..."
 kubeai_compute_processor = "cpu"
-longhorn_replica_count   = 1
+longhorn_replica_count   = 3
 longhorn_enabled         = false
+bifrost_user = "..."
+bifrost_password = "..."
+
+nginx_replicas = 5
+kubeai_proxy_replicas = 5
+bifrost_replicas = 5

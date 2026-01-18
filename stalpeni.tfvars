@@ -56,6 +56,7 @@ loki_storage_gb       = 5
 grafana_storage_gb    = 5
 tempo_storage_gb    = 5
 mail_storage_gb = 1
+bifrost_storage_gb = 50
 
 smtp_username = "#{SMTP_USERNAME}"
 smtp_password = "#{SMTP_PASSWORD}"
@@ -67,3 +68,10 @@ huggingface_token        = "#{HF_TOKEN}"
 kubeai_compute_processor = "nvidia"
 longhorn_replica_count   = 3
 longhorn_enabled         = true
+
+bifrost_user = "#{BIFROST_USER}"
+bifrost_password = "#{BIFROST_PASSWORD}"
+
+nginx_replicas = 5
+kubeai_proxy_replicas = 5
+bifrost_replicas = 5

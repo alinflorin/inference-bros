@@ -11,6 +11,14 @@ resource "helm_release" "ingress_nginx" {
   values = [
     <<-EOT
       controller:
+        resources:
+          requests:
+            cpu: '0'
+            memory: '0'
+          limits:
+            cpu: '0'
+            memory: '0'
+        replicaCount: ${var.nginx_replicas}
         config:
           annotations-risk-level: Critical
           enable-opentelemetry: "true"

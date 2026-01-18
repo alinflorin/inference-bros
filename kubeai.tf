@@ -10,7 +10,7 @@ resource "helm_release" "kubeai" {
 
   values = [
     <<-EOT
-      replicaCount: 1
+      replicaCount: ${var.kubeai_proxy_replicas}
       resourceProfiles:
         nvidia:
           limits:
