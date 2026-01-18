@@ -39,13 +39,13 @@ dex_passwords = ["..."]
 prometheus_storage_gb = 10
 loki_storage_gb       = 5
 grafana_storage_gb    = 5
-tempo_storage_gb    = 5
-mail_storage_gb = 1
-bifrost_storage_gb = 50
+tempo_storage_gb      = 5
+mail_storage_gb       = 1
+bifrost_storage_gb    = 50
 
-smtp_username = "..."
-smtp_password = "..."
-smtp_host = "..."
+smtp_username       = "..."
+smtp_password       = "..."
+smtp_host           = "..."
 smtp_allowed_domain = "inferencebros.com"
 
 slack_webhook_url        = "..."
@@ -54,6 +54,8 @@ kubeai_compute_processor = "cpu"
 longhorn_replica_count   = 3
 longhorn_enabled         = false
 
-nginx_replicas = 5
+nginx_replicas        = 5
 kubeai_proxy_replicas = 5
-bifrost_replicas = 5
+bifrost_replicas      = 5
+
+customers = ["openrouter"]

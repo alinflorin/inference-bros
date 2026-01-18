@@ -3,3 +3,9 @@ output "k3s_kubeconfig_for_users" {
   value       = local.k3s_kubeconfig_for_users
   sensitive   = true
 }
+
+output "customer_keys" {
+  description = "Customer keys"
+  value       = random_password.virtual_keys.result
+  sensitive   = true
+}

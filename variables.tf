@@ -94,17 +94,17 @@ variable "smtp_allowed_domain" {
 }
 
 variable "smtp_host" {
-  type = string
+  type      = string
   sensitive = true
-} 
+}
 
 variable "smtp_username" {
-  type = string
+  type      = string
   sensitive = true
 }
 
 variable "smtp_password" {
-  type = string
+  type      = string
   sensitive = true
 }
 
@@ -140,4 +140,8 @@ variable "kubeai_proxy_replicas" {
 
 variable "nginx_replicas" {
   type = number
+}
+
+variable "customers" {
+  type = list(string)
 }

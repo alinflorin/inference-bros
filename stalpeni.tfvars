@@ -54,13 +54,13 @@ kubeai_api_key = "#{KUBEAI_API_KEY}"
 prometheus_storage_gb = 10
 loki_storage_gb       = 5
 grafana_storage_gb    = 5
-tempo_storage_gb    = 5
-mail_storage_gb = 1
-bifrost_storage_gb = 50
+tempo_storage_gb      = 5
+mail_storage_gb       = 1
+bifrost_storage_gb    = 50
 
-smtp_username = "#{SMTP_USERNAME}"
-smtp_password = "#{SMTP_PASSWORD}"
-smtp_host = "#{SMTP_HOST}"
+smtp_username       = "#{SMTP_USERNAME}"
+smtp_password       = "#{SMTP_PASSWORD}"
+smtp_host           = "#{SMTP_HOST}"
 smtp_allowed_domain = "inferencebros.com"
 
 slack_webhook_url        = "#{SLACK_WEBHOOK_URL}"
@@ -69,6 +69,8 @@ kubeai_compute_processor = "nvidia"
 longhorn_replica_count   = 3
 longhorn_enabled         = true
 
-nginx_replicas = 5
+nginx_replicas        = 5
 kubeai_proxy_replicas = 5
-bifrost_replicas = 5
+bifrost_replicas      = 5
+
+customers = ["openrouter"]
