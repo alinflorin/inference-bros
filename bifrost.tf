@@ -58,7 +58,7 @@ resource "helm_release" "bifrost" {
               trace_type: "otel"
               protocol: "grpc"
       image:
-        tag: 'v1.3.63'
+        tag: 'latest'
       replicaCount: ${var.bifrost_replicas}
       storage:
         mode: postgres
