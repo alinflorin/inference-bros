@@ -66,7 +66,7 @@ resource "helm_release" "grafana" {
               type: tempo
               access: proxy
               url: http://tempo.monitoring.svc.cluster.local:3200
-              isDefault: true
+              isDefault: false
               editable: false
             - name: Loki
               type: loki
