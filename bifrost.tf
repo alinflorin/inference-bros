@@ -25,7 +25,7 @@ resource "helm_release" "bifrost" {
       bifrost:
         governance:
           authConfig:
-            enabled: true
+            isEnabled: true
             adminUsername: "${var.bifrost_user}"
             adminPassword: "${var.bifrost_password}"
         encryptionKey: ${random_string.bifrost_enc_key.result}
@@ -35,6 +35,8 @@ resource "helm_release" "bifrost" {
           dropExcessRequests: true
           enableLogging: true
           enableGovernance: true
+          disableContentLogging: true
+          logRetentionDays: 60
         
         plugins:
           telemetry:
