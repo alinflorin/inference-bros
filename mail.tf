@@ -10,18 +10,21 @@ resource "helm_release" "mail" {
 
   values = [
     <<-EOT
-metrics:
-  enabled: true
-  serviceMonitor:
-    enabled: true
-config:
-  general:
-    ALLOWED_SENDER_DOMAINS: ${var.smtp_allowed_domain}
-    RELAYHOST: ${var.smtp_host}
-    RELAYHOST_PASSWORD: ${var.smtp_password}
-    RELAYHOST_USERNAME: ${var.smtp_username}
-  postfix:
-    smtp_tls_security_level: none
+      metrics:
+        enabled: true
+        serviceMonitor:
+          enabled: true
+      config:
+        general:
+          ALLOWED_SENDER_DOMAINS: ${var.smtp_allowed_domain}
+          RELAYHOST: ${var.smtp_host}
+          RELAYHOST_PASSWORD: ${var.smtp_password}
+          RELAYHOST_USERNAME: ${var.smtp_username}
+        postfix:
+          smtp_tls_security_level: none
+      persistence:
+        enabled: true
+        size: ${var.mail_storage_gb}Gi
     EOT
   ]
 
