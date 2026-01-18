@@ -34,6 +34,18 @@ resource "helm_release" "bifrost" {
           allowDirectKeys: true
           disableContentLogging: true
           logRetentionDays: 60
+
+        providers:
+          kubeai:
+            network_config:
+              base_url: http://kubeai.kubeai/openai
+              default_request_timeout_in_seconds: 60
+            custom_provider_config:
+              base_provider_type: openai
+              allowed_requests:
+                chat_completion: true
+                chat_completion_stream: true
+
         
         plugins:
           telemetry:
