@@ -28,6 +28,10 @@ resource "helm_release" "grafana" {
           kubeai:
             url: https://raw.githubusercontent.com/kubeai-project/kubeai/refs/heads/main/examples/observability/vllm-grafana-dashboard.json
             datasource: Prometheus
+          postfix:
+            gnetId: 10013
+            datasource: Prometheus
+            revision: 2
           node-exporter:
             gnetId: 1860
             datasource: Prometheus

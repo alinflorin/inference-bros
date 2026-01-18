@@ -95,7 +95,7 @@ variable "smtp_host" {
 } 
 
 variable "smtp_username" {
-  type = number
+  type = string
   sensitive = true
 }
 

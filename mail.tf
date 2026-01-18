@@ -10,6 +10,10 @@ resource "helm_release" "mail" {
 
   values = [
     <<-EOT
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
 config:
   general:
     ALLOWED_SENDER_DOMAINS: ${var.smtp_allowed_domain}
