@@ -23,12 +23,6 @@ resource "helm_release" "bifrost" {
   values = [
     <<-EOT
       bifrost:
-        governance:
-          authConfig:
-            isEnabled: true
-            adminUsername: "${var.bifrost_user}"
-            adminPassword: "${var.bifrost_password}"
-            disableAuthOnInference: true
 
         encryptionKey: ${random_string.bifrost_enc_key.result}
         logLevel: info
@@ -58,7 +52,7 @@ resource "helm_release" "bifrost" {
               trace_type: "otel"
               protocol: "grpc"
       image:
-        tag: 'v1.3.63'
+        tag: 'v1.4.0'
       replicaCount: ${var.bifrost_replicas}
       storage:
         mode: postgres
@@ -88,6 +82,11 @@ resource "helm_release" "bifrost" {
         className: nginx
         annotations:
           cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+          nginx.ingress.kubernetes.io/auth-url: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${var.domain}/oauth2/start?rd=$scheme://$host$request_uri"
+          nginx.ingress.kubernetes.io/proxy-buffering: "off"
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+          nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
         hosts:
           - host: bifrost.${var.domain}
             paths:

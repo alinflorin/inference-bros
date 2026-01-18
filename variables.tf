@@ -130,16 +130,6 @@ variable "longhorn_enabled" {
   type = bool
 }
 
-variable "bifrost_user" {
-  type = string
-  sensitive = true
-}
-
-variable "bifrost_password" {
-  type = string
-  sensitive = true
-}
-
 variable "bifrost_replicas" {
   type = number
 }

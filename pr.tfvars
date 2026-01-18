@@ -53,8 +53,6 @@ huggingface_token        = "..."
 kubeai_compute_processor = "cpu"
 longhorn_replica_count   = 3
 longhorn_enabled         = false
-bifrost_user = "..."
-bifrost_password = "..."
 
 nginx_replicas = 5
 kubeai_proxy_replicas = 5

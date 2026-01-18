@@ -69,9 +69,6 @@ kubeai_compute_processor = "nvidia"
 longhorn_replica_count   = 3
 longhorn_enabled         = true
 
-bifrost_user = "#{BIFROST_USER}"
-bifrost_password = "#{BIFROST_PASSWORD}"
-
 nginx_replicas = 5
 kubeai_proxy_replicas = 5
 bifrost_replicas = 5
