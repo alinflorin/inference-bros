@@ -34,6 +34,8 @@ resource "helm_release" "bifrost" {
           allowDirectKeys: true
           disableContentLogging: true
           logRetentionDays: 60
+          isVkMandatory: true
+          is_vk_mandatory: true
 
         providers:
           kubeai:
@@ -42,10 +44,32 @@ resource "helm_release" "bifrost" {
               default_request_timeout_in_seconds: 60
             custom_provider_config:
               base_provider_type: openai
+              is_key_less: true
+
               allowed_requests:
+                list_models: true
+                text_completion: true
+                text_completion_stream: true
                 chat_completion: true
                 chat_completion_stream: true
-
+                responses: true
+                responses_stream: true
+                count_tokens: true
+                embedding: true
+                speech: true
+                speech_stream: true
+                transcription: true
+                transcription_stream: true
+                batch_create: true
+                batch_list: true
+                batch_retrieve: true
+                batch_cancel: true
+                batch_results: true
+                file_upload: true
+                file_list: true
+                file_retrieve: true
+                file_delete: true
+                file_content: true
         
         plugins:
           telemetry:
