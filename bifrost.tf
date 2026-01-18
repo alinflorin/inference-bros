@@ -23,6 +23,11 @@ resource "helm_release" "bifrost" {
   values = [
     <<-EOT
       bifrost:
+        governance:
+          authConfig:
+            enabled: true
+            adminUsername: "${var.bifrost_user}"
+            adminPassword: "${var.bifrost_password}"
         encryptionKey: ${random_string.bifrost_enc_key.result}
         logLevel: info
         
@@ -38,6 +43,15 @@ resource "helm_release" "bifrost" {
             enabled: true
           governance:
             enabled: true
+            config:
+              is_vk_mandatory: true
+          otel:
+            enabled: true
+            config:
+              service_name: "bifrost"
+              collector_url: "http://tempo.monitoring.svc.cluster.local:4317"
+              trace_type: "otel"
+              protocol: "grpc"
       image:
         tag: 'v1.3.63'
       replicaCount: ${var.bifrost_replicas}
