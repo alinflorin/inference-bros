@@ -31,7 +31,6 @@ resource "helm_release" "bifrost" {
           dropExcessRequests: true
           enableLogging: false
           enableGovernance: true
-          enforceGovernanceHeader: true
           allowDirectKeys: true
           disableContentLogging: true
           logRetentionDays: 60
