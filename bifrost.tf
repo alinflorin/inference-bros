@@ -82,7 +82,7 @@ resource "helm_release" "bifrost" {
             enabled: true
             config:
               service_name: "bifrost"
-              collector_url: "http://tempo.monitoring.svc.cluster.local:4317"
+              collector_url: "tempo.monitoring.svc.cluster.local:4317"
               trace_type: "otel"
               protocol: "grpc"
       image:
