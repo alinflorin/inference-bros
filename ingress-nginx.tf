@@ -13,6 +13,11 @@ resource "helm_release" "ingress_nginx" {
       controller:
         config:
           annotations-risk-level: Critical
+          enable-opentelemetry: "true"
+          otlp-collector-host: tempo.monitoring.svc.cluster.local
+          otlp-collector-port: "4317"
+          otel-service-name: ingress-nginx
+          otel-sampler: AlwaysOn
         allowSnippetAnnotations: true
         service:
           loadBalancerIP: "${var.nginx_metallb_ip}"
