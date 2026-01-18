@@ -55,7 +55,7 @@ resource "helm_release" "bifrost" {
         
         client:
           dropExcessRequests: true
-          enableLogging: false
+          enableLogging: true
           enableGovernance: true
           enforceGovernanceHeader: true
           allowDirectKeys: true
