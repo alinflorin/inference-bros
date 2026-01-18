@@ -28,12 +28,14 @@ resource "helm_release" "bifrost" {
             isEnabled: true
             adminUsername: "${var.bifrost_user}"
             adminPassword: "${var.bifrost_password}"
+            disableAuthOnInference: true
+
         encryptionKey: ${random_string.bifrost_enc_key.result}
         logLevel: info
         
         client:
           dropExcessRequests: true
-          enableLogging: true
+          enableLogging: false
           enableGovernance: true
           disableContentLogging: true
           logRetentionDays: 60
@@ -98,6 +100,6 @@ resource "helm_release" "bifrost" {
     EOT
 
   ]
-
+  
   depends_on = [helm_release.kmm]
 }
