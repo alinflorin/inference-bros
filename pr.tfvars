@@ -40,6 +40,12 @@ prometheus_storage_gb = 10
 loki_storage_gb       = 5
 grafana_storage_gb    = 5
 tempo_storage_gb    = 5
+mail_storage_gb = 1
+
+smtp_username = "..."
+smtp_password = "..."
+smtp_host = "..."
+smtp_allowed_domain = "inferencebros.com"
 
 slack_webhook_url        = "..."
 huggingface_token        = "..."

@@ -81,6 +81,29 @@ variable "tempo_storage_gb" {
   type = number
 }
 
+variable "mail_storage_gb" {
+  type = number
+}
+
+variable "smtp_allowed_domain" {
+  type = string
+}
+
+variable "smtp_host" {
+  type = string
+  sensitive = true
+} 
+
+variable "smtp_username" {
+  type = number
+  sensitive = true
+}
+
+variable "smtp_password" {
+  type = string
+  sensitive = true
+}
+
 variable "slack_webhook_url" {
   type      = string
   sensitive = true
