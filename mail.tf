@@ -4,7 +4,7 @@ resource "helm_release" "mail" {
   chart            = "mail"
   namespace        = "mail"
   create_namespace = true
-  version          = "5.1.0"
+  version          = "4.4.0"
   atomic           = true
   wait             = true
 
