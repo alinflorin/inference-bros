@@ -87,6 +87,7 @@ resource "helm_release" "bifrost" {
           nginx.ingress.kubernetes.io/proxy-buffering: "off"
           nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
           nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+          nginx.ingress.kubernetes.io/ssl-redirect: 'true'
         hosts:
           - host: bifrost.${var.domain}
             paths:
@@ -102,4 +103,57 @@ resource "helm_release" "bifrost" {
   ]
   
   depends_on = [helm_release.kmm]
+}
+
+resource "helm_release" "bifrost_openai_ingress" {
+  name             = "bifrost-openai-ingress"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "bifrost"
+  create_namespace = true
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: bifrost-public-v1
+          namespace: bifrost
+          labels:
+            app.kubernetes.io/instance: bifrost
+            app.kubernetes.io/name: bifrost
+          annotations:
+            cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+            nginx.ingress.kubernetes.io/proxy-buffering: "off"
+            nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+            nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+        spec:
+          ingressClassName: nginx
+
+          tls:
+            - hosts:
+                - bifrost.${var.domain}
+              secretName: bifrost-tls
+
+          rules:
+            - host: bifrost.${var.domain}
+              http:
+                paths:
+                  - path: /v1
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: bifrost
+                        port:
+                          number: 8080
+    EOT
+
+  ]
+
+  depends_on = [helm_release.bifrost]
 }
