@@ -50,12 +50,12 @@ https://headlamp.local.inferencebros.com/c/main/pods?namespace=kubeai
 apiVersion: kubeai.org/v1
 kind: Model
 metadata:
-  name: frogmini
+  name: gpt-neo-125m
   namespace: kubeai
   annotations:
     openrouter.ai/json: |
       {
-        "id": "microsoft/frogmini",
+        "id": "eleutherai/gpt-neo-125m",
         "hugging_face_id": "",
         "name": "frogmini",
         "created": 1690502400,
@@ -80,9 +80,9 @@ metadata:
             "web_search",
             "reasoning"
         ],
-        "description": "microsoft/frogmini",
+        "description": "eleutherai/gpt-neo-125m",
         "openrouter": {
-            "slug": "microsoft/frogmini"
+            "slug": "eleutherai/gpt-neo-125m"
         },
         "datacenters": [
             {
@@ -92,7 +92,7 @@ metadata:
       }
 spec:
   features: [TextGeneration]
-  url: hf://microsoft/FrogMini-14B-2510
+  url: hf://EleutherAI/gpt-neo-125m
   engine: VLLM
   resourceProfile: cpu:2
   minReplicas: 1
