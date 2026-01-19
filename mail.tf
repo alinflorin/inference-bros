@@ -30,7 +30,7 @@ resource "helm_release" "mail" {
           cpu: 100m
           memory: 128Mi
         limits:
-          cpu: 150m
+          cpu: 200m
           memory: 256Mi
     EOT
   ]
