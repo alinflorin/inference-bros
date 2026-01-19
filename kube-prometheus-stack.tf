@@ -111,6 +111,22 @@ resource "helm_release" "kube_prometheus_stack" {
             limits:
               cpu: 200m
               memory: 256Mi
+      nodeExporter:
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+      kube-state-metrics:
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
     EOT
 
   ]
