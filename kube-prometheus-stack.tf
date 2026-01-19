@@ -58,7 +58,7 @@ resource "helm_release" "kube_prometheus_stack" {
               gnetId: 16450
               datasource: Prometheus
               revision: 3
-        additionalDatasources:
+        additionalDataSources:
           - name: Tempo
             type: tempo
             access: proxy
