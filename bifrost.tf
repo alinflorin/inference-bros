@@ -110,9 +110,9 @@ resource "helm_release" "bifrost" {
             enabled: true
             config:
               service_name: "bifrost"
-              collector_url: "tempo.monitoring.svc.cluster.local:4317"
+              collector_url: "tempo.monitoring.svc.cluster.local:4318"
               trace_type: "otel"
-              protocol: "grpc"
+              protocol: "http"
       image:
         tag: 'v1.4.0'
       replicaCount: ${var.bifrost_replicas}
