@@ -268,7 +268,7 @@ resource "helm_release" "kube_prometheus_stack" {
             group_by: ['alertname', 'cluster', 'service']
             group_wait: 30s
             group_interval: 5m
-            repeat_interval: 12h
+            repeat_interval: 30m
             receiver: 'slack' # default receiver
             routes:
               # Ensure alerting pipeline is functional
