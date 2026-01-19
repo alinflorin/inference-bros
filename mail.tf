@@ -27,7 +27,7 @@ resource "helm_release" "mail" {
         size: ${var.mail_storage_gb}Gi
       resources:
         requests:
-          cpu: 100m
+          cpu: 150m
           memory: 128Mi
         limits:
           cpu: 200m
