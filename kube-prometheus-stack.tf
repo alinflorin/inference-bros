@@ -138,7 +138,7 @@ resource "helm_release" "kube_prometheus_stack" {
             - alertmanager.${var.domain}
           paths:
             - /
-          pathType: ImplementationSpecific
+          pathType: Prefix
 
           tls: 
             - secretName: alertmanager-tls
@@ -354,7 +354,7 @@ resource "helm_release" "kube_prometheus_stack" {
             - prometheus.${var.domain}
           paths:
             - /
-          pathType: ImplementationSpecific
+          pathType: Prefix
 
           tls: 
             - secretName: prometheus-tls
