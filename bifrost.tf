@@ -94,11 +94,11 @@ resource "helm_release" "bifrost" {
         mode: postgres
       resources:
         requests:
-          cpu: '0'
-          memory: '0'
+          cpu: 200m
+          memory: 256Mi
         limits:
-          cpu: '0'
-          memory: '0'
+          cpu: 2000m
+          memory: 2Gi
       postgresql:
         enabled: true
         auth:
@@ -108,11 +108,11 @@ resource "helm_release" "bifrost" {
             size: ${var.bifrost_storage_gb}Gi
           resources:
             requests:
-              cpu: '0'
-              memory: '0'
+              cpu: 200m
+              memory: 256Mi
             limits:
-              cpu: '0'
-              memory: '0'
+              cpu: 1000m
+              memory: 1Gi
       ingress:
         enabled: true
         className: nginx
