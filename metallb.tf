@@ -18,15 +18,15 @@ resource "helm_release" "metallb" {
         resources:
           requests:
             cpu: 100m
-            memory: 100Mi
+            memory: 128Mi
           limits:
-            cpu: 100m
-            memory: 100Mi
+            cpu: 200m
+            memory: 256Mi
       speaker:
         resources:
           requests:
             cpu: 100m
-            memory: 100Mi
+            memory: 128Mi
           limits:
             cpu: 200m
             memory: 256Mi
