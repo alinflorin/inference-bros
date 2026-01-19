@@ -57,6 +57,7 @@ grafana_storage_gb    = 5
 tempo_storage_gb      = 5
 mail_storage_gb       = 1
 bifrost_storage_gb    = 50
+alertmanager_storage_gb = 1
 
 smtp_username       = "#{SMTP_USERNAME}"
 smtp_password       = "#{SMTP_PASSWORD}"

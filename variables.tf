@@ -89,6 +89,10 @@ variable "bifrost_storage_gb" {
   type = number
 }
 
+variable "alertmanager_storage_gb" {
+  type = number
+}
+
 variable "smtp_allowed_domain" {
   type = string
 }
