@@ -10,32 +10,6 @@ resource "random_string" "bifrost_enc_key" {
   upper   = false
 }
 
-resource "random_password" "virtual_keys" {
-  for_each = toset(var.customers)
-
-  length  = 48
-  special = false
-}
-
-locals {
-  customers = [
-    for name in var.customers : {
-      id   = "customer-${name}"
-      name = name
-    }
-  ]
-
-  virtual_keys = [
-    for name in var.customers : {
-      id          = "vk-${name}"
-      name        = "vk-${name}"
-      value       = random_password.virtual_keys[name].result
-      is_active   = true
-      customer_id = "customer-${name}"
-    }
-  ]
-}
-
 resource "helm_release" "bifrost" {
   name             = "bifrost"
   repository       = "https://maximhq.github.io/bifrost/helm-charts"
@@ -161,15 +135,7 @@ resource "helm_release" "bifrost" {
               - bifrost.${var.domain}
 
     EOT
-    ,
-    yamlencode({
-      bifrost = {
-        governance = {
-          customers   = local.customers
-          virtualKeys = local.virtual_keys
-        }
-      }
-    })
+
   ]
 
   depends_on = [helm_release.kmm]

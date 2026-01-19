@@ -74,5 +74,3 @@ kubeai_proxy_replicas = 5
 bifrost_replicas      = 5
 
 bifrost_insecure_enable = false
-
-customers = ["openrouter"]
