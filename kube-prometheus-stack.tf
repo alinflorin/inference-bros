@@ -361,7 +361,7 @@ resource "helm_release" "kube_prometheus_stack" {
               hosts:
                 - prometheus.${var.domain}
         prometheusSpec:
-          externalUrl: prometheus.${var.domain}
+          externalUrl: https://prometheus.${var.domain}
           serviceMonitorSelectorNilUsesHelmValues: false
           podMonitorSelectorNilUsesHelmValues: false
           namespaceMonitorSelectorNilUsesHelmValues: false
