@@ -17,16 +17,16 @@ resource "helm_release" "kube_prometheus_stack" {
           dashboardproviders.yaml:
             apiVersion: 1
             providers:
-              - name: "default"
+              - name: "grafana-com-dashboards"
                 orgId: 1
                 folder: ""
                 type: file
                 disableDeletion: true
-                editable: false
+                editable: true
                 options:
-                  path: /var/lib/grafana/dashboards/default
+                  path: /var/lib/grafana/dashboards/grafana-com
         dashboards:
-          default:
+          grafana-com:
             kubeai:
               url: https://raw.githubusercontent.com/kubeai-project/kubeai/refs/heads/main/examples/observability/vllm-grafana-dashboard.json
               datasource: Prometheus
