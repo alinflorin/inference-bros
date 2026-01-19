@@ -13,6 +13,9 @@ resource "helm_release" "kube_prometheus_stack" {
       grafana:
         enabled: true
         useStatefulSet: true
+        datasources:
+          alertmanager:
+            handleGrafanaManagedAlerts: true
         dashboardProviders:
           dashboardproviders.yaml:
             apiVersion: 1
