@@ -49,16 +49,16 @@ resource "helm_release" "metallb" {
         frrMetrics:
           resources:
             requests:
-              cpu: 10m
-              memory: 20Mi
+              cpu: 50m
+              memory: 30Mi
             limits:
               cpu: 100m
-              memory: 30Mi
+              memory: 50Mi
         initContainers:
           cpFrrFiles:
             resources:
               requests:
-                cpu: 10m
+                cpu: 50m
                 memory: 20Mi
               limits:
                 cpu: 100m
