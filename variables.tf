@@ -145,3 +145,7 @@ variable "nginx_replicas" {
 variable "customers" {
   type = list(string)
 }
+
+variable "bifrost_insecure_enable" {
+  type = bool
+}

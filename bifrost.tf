@@ -226,3 +226,48 @@ resource "helm_release" "bifrost_openai_ingress" {
 
   depends_on = [helm_release.bifrost]
 }
+
+
+resource "helm_release" "bifrost_openai_ingress_insecure" {
+  name             = "bifrost-openai-ingress-insecure"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "bifrost"
+  create_namespace = true
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: networking.k8s.io/v1
+        kind: Ingress
+        metadata:
+          name: bifrost-public-v1-insecure
+          namespace: bifrost
+          labels:
+            app.kubernetes.io/instance: bifrost
+            app.kubernetes.io/name: bifrost
+        spec:
+          ingressClassName: nginx
+
+          rules:
+            - host: bifrost-insecure.${var.domain}
+              http:
+                paths:
+                  - path: /v1
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: bifrost
+                        port:
+                          number: 8080
+    EOT
+
+  ]
+
+  count = var.bifrost_insecure_enable == true ? 1 : 0
+
+  depends_on = [helm_release.bifrost]
+}
