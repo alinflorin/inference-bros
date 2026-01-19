@@ -71,11 +71,11 @@ resource "helm_release" "kube_prometheus_stack" {
                     storage: ${var.prometheus_storage_gb}Gi
           resources:
             requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
               cpu: 200m
               memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
       prometheusOperator:
         resources:
           requests:
