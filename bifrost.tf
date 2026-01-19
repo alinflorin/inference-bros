@@ -48,10 +48,6 @@ resource "helm_release" "bifrost" {
 
   values = [
     <<-EOT
-      serviceMonitor:
-        enabled: true
-        interval: 30s
-        scrapeTimeout: 10s
       bifrost:
 
         encryptionKey: ${random_string.bifrost_enc_key.result}
@@ -178,6 +174,44 @@ resource "helm_release" "bifrost" {
 
   depends_on = [helm_release.kmm]
 }
+
+resource "helm_release" "bifrost_service_monitor" {
+  name             = "bifrost-openai-ingress"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "bifrost"
+  create_namespace = true
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: monitoring.coreos.com/v1
+        kind: ServiceMonitor
+        metadata:
+          name: bifrost
+          namespace: bifrost
+        spec:
+          endpoints:
+          - interval: 30s
+            port: http
+            path: /metrics
+          namespaceSelector:
+            matchNames:
+            - bifrost
+          selector:
+            matchLabels:
+              app.kubernetes.io/instance: bifrost
+              app.kubernetes.io/name: bifrost
+    EOT
+
+  ]
+
+  depends_on = [helm_release.bifrost]
+}
+
 
 resource "helm_release" "bifrost_openai_ingress" {
   name             = "bifrost-openai-ingress"
