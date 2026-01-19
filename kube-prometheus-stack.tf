@@ -33,9 +33,6 @@ resource "helm_release" "kube_prometheus_stack" {
               hosts:
                 - alertmanager.${var.domain}
         config:
-          global:
-            resolve_timeout: 5m
-            slack_api_url: ${var.slack_webhook_url}
           inhibit_rules: []
           route:
             receiver: 'slack' # default receiver
@@ -50,10 +47,11 @@ resource "helm_release" "kube_prometheus_stack" {
                   - severity =~ info|critical|warning
           receivers:
           - name: "null"
-          - name: slack-default
+          - name: slack
             slack_configs:
             - channel: '#grafana-alerts'
               send_resolved: true
+              api_url: ${var.slack_webhook_url}
               # Alert template
               title: |
                 [{{ .Status | toUpper -}}
