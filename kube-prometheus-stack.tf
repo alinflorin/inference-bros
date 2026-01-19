@@ -11,6 +11,7 @@ resource "helm_release" "kube_prometheus_stack" {
   values = [
     <<-EOT
       alertmanager:
+        externalUrl: https://alertmanager.${var.domain}
         templateFiles:
             monzo-templates.tmpl: |-
               # This builds the silence URL.  We exclude the alertname in the range
@@ -20,10 +21,10 @@ resource "helm_release" "kube_prometheus_stack" {
                   {{ .ExternalURL }}/#/silences/new?filter=%7B
                   {{- range .CommonLabels.SortedPairs -}}
                       {{- if ne .Name "alertname" -}}
-                          {{- .Name }}%3D"{{- .Value -}}"%2C%20
+                          {{- .Name }}%3D"{{- urlquery .Value | reReplaceAll "\\+" "%20" -}}"%2C%20
                       {{- end -}}
                   {{- end -}}
-                  alertname%3D"{{ .CommonLabels.alertname }}"%7D
+                  alertname%3D"{{- urlquery .CommonLabels.alertname | reReplaceAll "\\+" "%20" -}}"%7D
               {{- end }}
 
 
