@@ -50,14 +50,14 @@ https://headlamp.local.inferencebros.com/c/main/pods?namespace=kubeai
 apiVersion: kubeai.org/v1
 kind: Model
 metadata:
-  name: gemma2-2b
+  name: frogmini
   namespace: kubeai
   annotations:
     openrouter.ai/json: |
       {
-        "id": "gemma/gemma2-2b",
+        "id": "microsoft/frogmini",
         "hugging_face_id": "",
-        "name": "Gemma 2 - 2B",
+        "name": "frogmini",
         "created": 1690502400,
         "input_modalities": ["text", "image", "file"],
         "output_modalities": ["text", "image", "file"],
@@ -80,9 +80,9 @@ metadata:
             "web_search",
             "reasoning"
         ],
-        "description": "gemma/gemma2-2b",
+        "description": "microsoft/frogmini",
         "openrouter": {
-            "slug": "gemma/gemma2-2b"
+            "slug": "microsoft/frogmini"
         },
         "datacenters": [
             {
@@ -92,8 +92,8 @@ metadata:
       }
 spec:
   features: [TextGeneration]
-  url: ollama://gemma2:2b
-  engine: OLlama
+  url: hf://microsoft/FrogMini-14B-2510
+  engine: VLLM
   resourceProfile: cpu:2
   minReplicas: 1
   replicas: 1

@@ -44,6 +44,7 @@ resource "helm_release" "kube_prometheus_stack" {
           podMonitorSelectorNilUsesHelmValues: false
           namespaceMonitorSelectorNilUsesHelmValues: false
           ruleSelectorNilUsesHelmValues: false
+          probeSelectorNilUsesHelmValues: false
           retention: 3d
           storageSpec:
             volumeClaimTemplate:
