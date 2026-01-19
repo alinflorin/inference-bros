@@ -176,7 +176,7 @@ resource "helm_release" "bifrost" {
 }
 
 resource "helm_release" "bifrost_service_monitor" {
-  name             = "bifrost-openai-ingress"
+  name             = "bifrost-service-monitor"
   repository       = "https://dasmeta.github.io/helm/"
   chart            = "resource"
   namespace        = "bifrost"
