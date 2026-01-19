@@ -153,6 +153,10 @@ resource "helm_release" "kube_prometheus_stack" {
         config:
           inhibit_rules: []
           route:
+            group_by: ['alertname', 'cluster', 'service']
+            group_wait: 30s
+            group_interval: 5m
+            repeat_interval: 12h
             receiver: 'slack' # default receiver
             routes:
               # Ensure alerting pipeline is functional
@@ -171,7 +175,6 @@ resource "helm_release" "kube_prometheus_stack" {
               send_resolved: true
               api_url: ${var.slack_webhook_url}
               title: '{{ template "slack.monzo.title" . }}'
-              icon_emoji: '{{ template "slack.monzo.icon_emoji" . }}'
               color: '{{ template "slack.monzo.color" . }}'
               text: '{{ template "slack.monzo.text" . }}'
               actions:
