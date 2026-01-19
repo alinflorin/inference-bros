@@ -13,11 +13,11 @@ resource "helm_release" "ingress_nginx" {
       controller:
         resources:
           requests:
-            cpu: '0'
-            memory: '0'
+            cpu: 100m
+            memory: 90Mi
           limits:
-            cpu: '0'
-            memory: '0'
+            cpu: 250m
+            memory: 512Mi
         replicaCount: ${var.nginx_replicas}
         config:
           annotations-risk-level: Critical

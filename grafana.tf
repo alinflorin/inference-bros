@@ -123,6 +123,15 @@ resource "helm_release" "grafana" {
       persistence:
         enabled: true
         size: ${var.grafana_storage_gb}Gi
+      
+      # Added resource requests and limits for Grafana
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "256Mi"
+        limits:
+          cpu: "500m"
+          memory: "1Gi"
     EOT
   ]
 

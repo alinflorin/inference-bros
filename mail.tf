@@ -25,6 +25,13 @@ resource "helm_release" "mail" {
       persistence:
         enabled: true
         size: ${var.mail_storage_gb}Gi
+      resources:
+        requests:
+          cpu: 30m
+          memory: 128Mi
+        limits:
+          cpu: 50m
+          memory: 256Mi
     EOT
   ]
 

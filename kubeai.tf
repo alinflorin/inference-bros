@@ -32,10 +32,16 @@ resource "helm_release" "kubeai" {
             labels: {}
       open-webui:
         enabled: false
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+        limits:
+          cpu: "500m"
+          memory: "512Mi"
     EOT
 
   ]
 
   depends_on = [helm_release.grafana, helm_release.amd_gpu_operator, helm_release.nvidia_gpu_operator]
 }
-

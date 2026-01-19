@@ -14,6 +14,71 @@ resource "helm_release" "metallb" {
         rbacPrometheus: false
         serviceMonitor:
           enabled: true
+      controller:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+      speaker:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        frr:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+        reloader:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 100m
+              memory: 100Mi
+        frrMetrics:
+          resources:
+            requests:
+              cpu: 10m
+              memory: 20Mi
+            limits:
+              cpu: 100m
+              memory: 30Mi
+        initContainers:
+          cpFrrFiles:
+            resources:
+              requests:
+                cpu: 10m
+                memory: 20Mi
+              limits:
+                cpu: 100m
+                memory: 30Mi
+          cpReloader:
+            resources:
+              requests:
+                cpu: 10m
+                memory: 20Mi
+              limits:
+                cpu: 100m
+                memory: 30Mi
+          cpMetrics:
+            resources:
+              requests:
+                cpu: 10m
+                memory: 20Mi
+              limits:
+                cpu: 100m
+                memory: 30Mi
     EOT
 
   ]

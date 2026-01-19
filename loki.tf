@@ -47,6 +47,13 @@ resource "helm_release" "loki" {
           - ReadWriteOnce
           enabled: true
           size: ${var.loki_storage_gb}Gi
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 100m
+            memory: 256Mi
       backend:
         replicas: 0
       read:

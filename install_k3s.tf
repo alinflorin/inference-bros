@@ -176,6 +176,13 @@ resource "helm_release" "kube_vip" {
             - matchExpressions:
               - key: node-role.kubernetes.io/control-plane
                 operator: Exists
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
     EOT
 
   ]

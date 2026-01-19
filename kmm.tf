@@ -25,6 +25,13 @@ resource "helm_release" "kmm" {
           - secretName: kmm-tls
             hosts:
               - kmm.${var.domain}
+      resources:
+        requests:
+          cpu: "30m"
+          memory: "64Mi"
+        limits:
+          cpu: "50m"
+          memory: "128Mi"
     EOT
 
   ]

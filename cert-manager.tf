@@ -15,8 +15,30 @@ resource "helm_release" "cert_manager" {
       prometheus:
         servicemonitor:
           enabled: true
+      resources:
+        requests:
+          cpu: 25m
+          memory: 32Mi
+        limits:
+          cpu: 50m
+          memory: 128Mi
+      webhook:
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 50m
+            memory: 128Mi
+      cainjector:
+        resources:
+          requests:
+            cpu: 25m
+            memory: 32Mi
+          limits:
+            cpu: 50m
+            memory: 128Mi
     EOT
-
   ]
 
   depends_on = [helm_release.prometheus_operator_crds]

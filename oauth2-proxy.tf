@@ -65,6 +65,13 @@ resource "helm_release" "oauth2_proxy" {
           code_challenge_method = "S256"
         cookieName: ""
         cookieSecret: ${random_string.oauth2_proxy_cookie_secret.result}
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 50m
+          memory: 64Mi
     EOT
 
   ]

@@ -18,6 +18,13 @@ resource "helm_release" "tempo" {
           enabled: true
           remoteWriteUrl: http://prometheus-operated:9090/api/v1/write
         multitenancyEnabled: false
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 200m
+            memory: 512Mi
     EOT
   ]
 

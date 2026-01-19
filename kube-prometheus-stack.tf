@@ -34,8 +34,24 @@ resource "helm_release" "kube_prometheus_stack" {
             - matchers:
               - alertname = "Watchdog"
               receiver: "null"
+        alertmanagerSpec:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
       crds:
         enabled: false
+        upgradeJob:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
       grafana:
         enabled: false
       prometheus:
@@ -53,6 +69,48 @@ resource "helm_release" "kube_prometheus_stack" {
                 resources:
                   requests:
                     storage: ${var.prometheus_storage_gb}Gi
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+      prometheusOperator:
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        admissionWebhooks:
+          deployment:
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
+        prometheusConfigReloader:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+      thanosRuler:
+        enabled: false
+        thanosRulerSpec:
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
     EOT
 
   ]

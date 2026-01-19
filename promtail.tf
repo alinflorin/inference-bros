@@ -13,6 +13,13 @@ resource "helm_release" "promtail" {
       config:
         clients:
         - url: http://loki:3100/loki/api/v1/push
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
     EOT
   ]
 

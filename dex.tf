@@ -78,8 +78,13 @@ resource "helm_release" "dex" {
             inCluster: true
         web:
           http: 0.0.0.0:5556
-
-
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 100m
+          memory: 256Mi
 
     EOT
     ,

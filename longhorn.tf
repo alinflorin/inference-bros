@@ -32,7 +32,7 @@ resource "helm_release" "longhorn" {
           enabled: true
       defaultSettings:
         storageReservedPercentageForDefaultDisk: 1
-        guaranteedInstanceManagerCPU: 0
+        guaranteedInstanceManagerCPU: '{"v1":"3","v2":"3"}'
         allowCollectingLonghornUsageMetrics: false
         storageMinimalAvailablePercentage: 1
         deletingConfirmationFlag: true
@@ -41,15 +41,15 @@ resource "helm_release" "longhorn" {
         defaultReplicaCount: ${var.longhorn_replica_count}
       persistence:
         defaultClassReplicaCount: ${var.longhorn_replica_count}
-        
+
       csi:
         attacherReplicaCount: 1
         provisionerReplicaCount: 1
         resizerReplicaCount: 1
         snapshotterReplicaCount: 1
-        
-    EOT
 
+    EOT
+    
   ]
 
   count = var.longhorn_enabled ? 1 : 0
