@@ -220,6 +220,13 @@ resource "helm_release" "bifrost_openai_ingress" {
                         name: bifrost
                         port:
                           number: 8080
+                  - path: /metrics
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: bifrost
+                        port:
+                          number: 8080
     EOT
 
   ]
@@ -257,6 +264,13 @@ resource "helm_release" "bifrost_openai_ingress_insecure" {
               http:
                 paths:
                   - path: /v1
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: bifrost
+                        port:
+                          number: 8080
+                  - path: /metrics
                     pathType: Prefix
                     backend:
                       service:
