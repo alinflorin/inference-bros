@@ -63,6 +63,7 @@ resource "helm_release" "oauth2_proxy" {
           oidc_issuer_url = "https://dex.${var.domain}"
           ssl_insecure_skip_verify = ${var.location == "local" ? "true" : "false"}
           code_challenge_method = "S256"
+          approval_prompt = "none"
         cookieName: ""
         cookieSecret: ${random_string.oauth2_proxy_cookie_secret.result}
       resources:
