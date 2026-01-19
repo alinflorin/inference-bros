@@ -54,6 +54,7 @@ resource "helm_release" "bifrost" {
         logLevel: info
         
         client:
+          prometheusLabels: ["team", "environment", "organization", "project"]
           dropExcessRequests: true
           enableLogging: true
           enableGovernance: true
