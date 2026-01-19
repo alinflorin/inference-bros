@@ -50,14 +50,14 @@ https://headlamp.local.inferencebros.com/c/main/pods?namespace=kubeai
 apiVersion: kubeai.org/v1
 kind: Model
 metadata:
-  name: gpt-neo-125m
+  name: qwen-25-05b
   namespace: kubeai
   annotations:
     openrouter.ai/json: |
       {
-        "id": "eleutherai/gpt-neo-125m",
+        "id": "qwen-25-05b",
         "hugging_face_id": "",
-        "name": "frogmini",
+        "name": "qwen-25-05b",
         "created": 1690502400,
         "input_modalities": ["text", "image", "file"],
         "output_modalities": ["text", "image", "file"],
@@ -80,9 +80,9 @@ metadata:
             "web_search",
             "reasoning"
         ],
-        "description": "eleutherai/gpt-neo-125m",
+        "description": "qwen-25-05b",
         "openrouter": {
-            "slug": "eleutherai/gpt-neo-125m"
+            "slug": "qwen-25-05b"
         },
         "datacenters": [
             {
@@ -92,8 +92,8 @@ metadata:
       }
 spec:
   features: [TextGeneration]
-  url: hf://EleutherAI/gpt-neo-125m
-  engine: VLLM
+  url: ollama://qwen2.5:0.5b
+  engine: OLlama
   resourceProfile: cpu:2
   minReplicas: 1
   replicas: 1
