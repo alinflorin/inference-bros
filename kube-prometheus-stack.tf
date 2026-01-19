@@ -11,7 +11,27 @@ resource "helm_release" "kube_prometheus_stack" {
   values = [
     <<-EOT
       alertmanager:
-        externalUrl: https://alertmanager.${var.domain}
+        ingress:
+          enabled: true
+          ingressClassName: "nginx"
+          annotations:
+            nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+            cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+            nginx.ingress.kubernetes.io/auth-url: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
+            nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${var.domain}/oauth2/start?rd=$scheme://$host$request_uri"
+            nginx.ingress.kubernetes.io/proxy-buffering: "off"
+            nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+          hosts:
+            - alertmanager.${var.domain}
+          paths:
+            - /
+          pathType: ImplementationSpecific
+
+          tls: 
+            - secretName: alertmanager-tls
+              hosts:
+                - alertmanager.${var.domain}
         templateFiles:
             monzo-templates.tmpl: |-
               # This builds the silence URL.  We exclude the alertname in the range
@@ -209,7 +229,29 @@ resource "helm_release" "kube_prometheus_stack" {
       grafana:
         enabled: false
       prometheus:
+        ingress:
+          enabled: true
+          ingressClassName: "nginx"
+          annotations:
+            nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+            cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+            nginx.ingress.kubernetes.io/auth-url: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
+            nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${var.domain}/oauth2/start?rd=$scheme://$host$request_uri"
+            nginx.ingress.kubernetes.io/proxy-buffering: "off"
+            nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+          hosts:
+            - prometheus.${var.domain}
+          paths:
+            - /
+          pathType: ImplementationSpecific
+
+          tls: 
+            - secretName: prometheus-tls
+              hosts:
+                - prometheus.${var.domain}
         prometheusSpec:
+          externalUrl: prometheus.${var.domain}
           serviceMonitorSelectorNilUsesHelmValues: false
           podMonitorSelectorNilUsesHelmValues: false
           namespaceMonitorSelectorNilUsesHelmValues: false
