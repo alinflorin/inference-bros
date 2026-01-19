@@ -61,7 +61,7 @@ resource "helm_release" "bifrost" {
           enforceGovernanceHeader: true
           allowDirectKeys: true
           disableContentLogging: true
-          logRetentionDays: 60
+          logRetentionDays: 365
 
         providers:
           kubeai:
