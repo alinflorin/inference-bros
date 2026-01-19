@@ -143,6 +143,9 @@ resource "helm_release" "kube_prometheus_stack" {
               - receiver: 'null'
                 matchers:
                   - alertname = "Watchdog"
+              - receiver: 'null'
+                matchers:
+                  - alertname = "InfoInhibitor"
               # Redirect all severity to slack
               - receiver: 'slack'
                 matchers:
