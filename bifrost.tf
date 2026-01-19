@@ -48,6 +48,10 @@ resource "helm_release" "bifrost" {
 
   values = [
     <<-EOT
+      serviceMonitor:
+        enabled: true
+        interval: 30s
+        scrapeTimeout: 10s
       bifrost:
 
         encryptionKey: ${random_string.bifrost_enc_key.result}
