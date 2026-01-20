@@ -71,4 +71,5 @@ resource "helm_release" "headlamp" {
   ]
 
   depends_on = [helm_release.cluster_admins]
+  count = var.monitoring_enabled ? 1 : 0
 }

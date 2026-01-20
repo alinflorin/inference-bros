@@ -437,5 +437,7 @@ resource "helm_release" "kube_prometheus_stack" {
 
   ]
 
+  count = var.monitoring_enabled ? 1 : 0
+
   depends_on = [helm_release.longhorn[0]]
 }

@@ -22,6 +22,6 @@ resource "helm_release" "promtail" {
           memory: 128Mi
     EOT
   ]
-
-  depends_on = [helm_release.loki]
+  count = var.monitoring_enabled ? 1 : 0
+  depends_on = [helm_release.loki[0]]
 }

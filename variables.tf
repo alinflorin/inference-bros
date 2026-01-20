@@ -149,3 +149,7 @@ variable "nginx_replicas" {
 variable "bifrost_insecure_enable" {
   type = bool
 }
+
+variable "monitoring_enabled" {
+  type = bool
+}

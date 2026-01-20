@@ -81,6 +81,6 @@ resource "helm_release" "loki" {
         replicas: 0
     EOT
   ]
-
+  count = var.monitoring_enabled ? 1 : 0
   depends_on = [helm_release.longhorn[0]]
 }
