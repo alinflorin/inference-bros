@@ -64,3 +64,8 @@ variable "ingress_path" {
   type = string
   default = "/"
 }
+
+variable "termination_grace_period_seconds" {
+  type = number
+  default = 10
+}

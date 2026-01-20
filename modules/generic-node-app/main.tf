@@ -13,6 +13,7 @@ resource "helm_release" "generic" {
       applicationName: "${var.name}"
       deployment:
         enabled: true
+        terminationGracePeriodSeconds: ${var.termination_grace_period_seconds}
         resources:
           limits:
             cpu: ${var.cpu_limit != "" ? var.cpu_limit : "null"}
