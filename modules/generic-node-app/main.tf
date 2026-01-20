@@ -79,8 +79,8 @@ resource "helm_release" "generic" {
         enabled: true
         files:
          app:
-            index.js: |
-              ${indent(14, file("${path.root}/apps/${var.name}/index.js"))}
+            index.mjs: |
+              ${indent(14, file("${path.root}/apps/${var.name}/index.mjs"))}
             package.json: |
               ${indent(14, file("${path.root}/apps/${var.name}/package.json"))}
             package-lock.json: |
