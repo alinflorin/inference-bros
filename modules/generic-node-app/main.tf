@@ -66,15 +66,7 @@ resource "helm_release" "generic" {
         serviceAccount:
           enabled: true
           name: ${var.name}-sa
-        roles:
-          - name: read-configmaps
-            rules:
-              - apiGroups:
-                  - ""
-                resources:
-                  - configmaps
-                verbs:
-                  - get
+        roles: []
       configMap:
         enabled: true
         files:
