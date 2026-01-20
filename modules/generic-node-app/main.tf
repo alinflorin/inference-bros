@@ -13,6 +13,13 @@ resource "helm_release" "generic" {
       applicationName: "${var.name}"
       deployment:
         enabled: true
+        resources:
+          limits:
+            cpu: ${var.cpu_limit != "" ? var.cpu_limit : "null"}
+            memory: ${var.memory_limit != "" ? var.memory_limit : "null"}
+          requests:
+            cpu: ${var.cpu_request != "" ? var.cpu_request : "null"}
+            memory: ${var.memory_request != "" ? var.memory_request : "null"}
         containerSecurityContext:
           readOnlyRootFilesystem: false
           runAsNonRoot: false
