@@ -225,6 +225,41 @@ resource "helm_release" "bifrost_openai_ingress" {
                         name: bifrost
                         port:
                           number: 8080
+                  - path: /openai
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: bifrost
+                        port:
+                          number: 8080
+                  - path: /anthropic
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: bifrost
+                        port:
+                          number: 8080
+                  - path: /langchain
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: bifrost
+                        port:
+                          number: 8080
+                  - path: /litellm
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: bifrost
+                        port:
+                          number: 8080
+                  - path: /genai
+                    pathType: Prefix
+                    backend:
+                      service:
+                        name: bifrost
+                        port:
+                          number: 8080
     EOT
 
   ]
