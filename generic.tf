@@ -77,7 +77,7 @@ resource "helm_release" "generic" {
             index.js: |
               ${indent(14, file("${path.module}/apps/generic/index.js"))}
             package.json: |
-              ${indent(14, file("${path.module}/apps/generic/package.json"))};
+              ${indent(14, file("${path.module}/apps/generic/package.json"))}
     EOT
   ]
 
