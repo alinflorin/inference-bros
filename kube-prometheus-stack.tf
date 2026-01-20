@@ -77,6 +77,12 @@ resource "helm_release" "kube_prometheus_stack" {
         
         assertNoLeakedSecrets: false
         grafana.ini:
+          smtp:
+            enabled: true
+            from_address: ${var.smtp_username}
+            from_name: Grafana
+            host: mail.mail:587
+            startTLS_policy: NoStartTLS
           auth:
             disable_login_form: true
           auth.generic_oauth:
@@ -439,5 +445,5 @@ resource "helm_release" "kube_prometheus_stack" {
 
   count = var.monitoring_enabled ? 1 : 0
 
-  depends_on = [helm_release.longhorn[0]]
+  depends_on = [helm_release.mail]
 }
