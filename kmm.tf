@@ -4,7 +4,7 @@ resource "helm_release" "kmm" {
   chart            = "kmm"
   namespace        = "kubeai"
   create_namespace = false
-  version          = "1.1.4"
+  version          = "1.1.5"
   atomic           = true
   wait             = true
 
