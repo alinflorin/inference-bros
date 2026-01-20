@@ -1,4 +1,4 @@
-module "generic_app" {
+module "openrouter_api" {
   source         = "./modules/generic-node-app"
   namespace = "bifrost"
   name = "openrouter-api"
