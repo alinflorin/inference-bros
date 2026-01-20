@@ -13,6 +13,8 @@ resource "helm_release" "generic" {
       applicationName: "${var.name}"
       deployment:
         enabled: true
+        annotations:
+          terraform.io/app-checksum: "${md5(file("${path.root}/apps/${var.name}/index.mjs"))}"
         env:
           NODE_ENV:
             value: "production"
