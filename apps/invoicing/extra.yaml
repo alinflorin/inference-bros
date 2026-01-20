@@ -2,7 +2,7 @@ extraObjects:
   - apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRole
     metadata:
-      name: kubeai-model-admin
+      name: kubeai-model-admin2
     rules:
       - apiGroups:
           - kubeai.org
@@ -21,12 +21,12 @@ extraObjects:
   - apiVersion: rbac.authorization.k8s.io/v1
     kind: ClusterRoleBinding
     metadata:
-      name: kubeai-model-admin-binding-openrouter-api
+      name: kubeai-model-admin-binding-invoicing
     subjects:
       - kind: ServiceAccount
-        name: openrouter-api-sa
+        name: invoicing-sa
         namespace: control
     roleRef:
       kind: ClusterRole
-      name: kubeai-model-admin
+      name: kubeai-model-admin2
       apiGroup: rbac.authorization.k8s.io
