@@ -37,5 +37,5 @@ resource "helm_release" "ingress_nginx" {
 
   ]
 
-  depends_on = [helm_release.metallb_config]
+  depends_on = [helm_release.prometheus_operator_crds]
 }

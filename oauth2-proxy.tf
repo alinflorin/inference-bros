@@ -22,6 +22,9 @@ resource "helm_release" "oauth2_proxy" {
 
   values = [
     <<-EOT
+      metrics:
+        serviceMonitor:
+          enabled: true
       extraArgs:
         - --cookie-secure=false
         - --skip-provider-button
@@ -77,5 +80,5 @@ resource "helm_release" "oauth2_proxy" {
 
   ]
 
-  depends_on = [helm_release.dex]
+  depends_on = [helm_release.prometheus_operator_crds]
 }

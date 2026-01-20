@@ -43,5 +43,5 @@ resource "helm_release" "kubeai" {
 
   ]
 
-  depends_on = [helm_release.kube_prometheus_stack[0], helm_release.amd_gpu_operator, helm_release.nvidia_gpu_operator]
+  depends_on = [helm_release.prometheus_operator_crds]
 }

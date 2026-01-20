@@ -30,5 +30,5 @@ resource "helm_release" "cluster_admins" {
 
   ]
 
-  depends_on = [helm_release.dex]
+  depends_on = [null_resource.k3s_installed]
 }

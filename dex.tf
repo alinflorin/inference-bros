@@ -95,5 +95,5 @@ resource "helm_release" "dex" {
     })
   ]
 
-  depends_on = [helm_release.ingress_nginx, helm_release.cert_manager_issuer]
+  depends_on = [helm_release.prometheus_operator_crds]
 }
