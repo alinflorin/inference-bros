@@ -13,6 +13,9 @@ resource "helm_release" "generic" {
       applicationName: "${var.name}"
       deployment:
         enabled: true
+        env:
+          NODE_ENV:
+            value: "production"
         terminationGracePeriodSeconds: ${var.termination_grace_period_seconds}
         resources:
           limits:
