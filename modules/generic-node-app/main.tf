@@ -23,7 +23,7 @@ resource "helm_release" "generic" {
         volumeMounts:
           app:
              mountPath: /app
-        replica: 1
+        replica: ${var.replicas}
         image:
           repository: "node"
           tag: "25-alpine"
@@ -35,7 +35,7 @@ resource "helm_release" "generic" {
             name: http
             protocol: TCP
       service:
-        enabled: true
+        enabled: ${var.service_enabled == true ? "true" : "false"}
         ports:
           - port: 8080
             targetPort: http

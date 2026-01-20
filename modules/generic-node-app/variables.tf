@@ -17,8 +17,20 @@ variable "namespace" {
 
 variable "ingress_enabled" {
     type = bool
+    default = false
 }
 
 variable "enable_auth" {
     type = bool
+    default = false
+}
+
+variable "replicas" {
+    type = number
+    default = 1
+}
+
+variable "service_enabled" {
+  type = bool
+  default = true
 }

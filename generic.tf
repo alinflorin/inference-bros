@@ -4,8 +4,8 @@ module "generic_app" {
   name = "generic"
   location = var.location
   domain = var.domain
-  ingress_enabled = false
-  enable_auth = false
+  ingress_enabled = true
+  enable_auth = true
 
   depends_on = [ helm_release.longhorn[0] ]
 }
