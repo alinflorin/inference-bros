@@ -1,0 +1,32 @@
+extraObjects:
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: kubeai-model-admin
+    rules:
+      - apiGroups:
+          - kubeai.org
+        resources:
+          - models
+          - models/status
+          - models/finalizers
+        verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: kubeai-model-admin-binding
+    subjects:
+      - kind: ServiceAccount
+        name: kubeai-controller
+        namespace: bifrost
+    roleRef:
+      kind: ClusterRole
+      name: kubeai-model-admin
+      apiGroup: rbac.authorization.k8s.io
