@@ -68,12 +68,13 @@ resource "helm_release" "generic" {
           - secretName: "${var.name}-tls"
             hosts:
               - "${var.name}.${var.domain}"
+      ${indent(6, file("${path.root}/apps/${var.name}/extra.yaml"))}
       rbac:
         enabled: true
         serviceAccount:
           enabled: true
           name: ${var.name}-sa
-        roles: []
+        ${indent(8, file("${path.root}/apps/${var.name}/roles.yaml"))}
       configMap:
         enabled: true
         files:
