@@ -29,7 +29,7 @@ resource "helm_release" "generic" {
           tag: "25-alpine"
         command: ["/bin/sh", "-c"]
         args:
-          - cd /app && (npm ci || true) && npm start
+          - cd /app && node index.mjs
         ports:
           - containerPort: 8080
             name: http
@@ -81,10 +81,6 @@ resource "helm_release" "generic" {
          app:
             index.mjs: |
               ${indent(14, file("${path.root}/apps/${var.name}/index.mjs"))}
-            package.json: |
-              ${indent(14, file("${path.root}/apps/${var.name}/package.json"))}
-            package-lock.json: |
-              ${indent(14, file("${path.root}/apps/${var.name}/package-lock.json"))}
     EOT
   ]
 
