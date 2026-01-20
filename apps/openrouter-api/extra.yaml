@@ -25,7 +25,7 @@ extraObjects:
     subjects:
       - kind: ServiceAccount
         name: openrouter-api-sa
-        namespace: bifrost
+        namespace: kubeai
     roleRef:
       kind: ClusterRole
       name: kubeai-model-admin
