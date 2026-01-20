@@ -138,7 +138,7 @@ resource "helm_release" "bifrost" {
 
   ]
 
-  depends_on = [helm_release.kmm]
+  depends_on = [helm_release.kubeai]
 }
 
 resource "helm_release" "bifrost_service_monitor" {
