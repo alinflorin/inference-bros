@@ -13,7 +13,7 @@ module "openrouter_api" {
   memory_request = "128Mi"
   cpu_limit = "100m"
   memory_limit = "256Mi"
-  depends_on = [ helm_release.kubeai ]
+  depends_on = [ null_resource.k3s_installed ]
 }
 
 module "invoicing" {
@@ -30,5 +30,5 @@ module "invoicing" {
   memory_request = "128Mi"
   cpu_limit = "100m"
   memory_limit = "256Mi"
-  depends_on = [ helm_release.kubeai ]
+  depends_on = [ null_resource.k3s_installed ]
 }
