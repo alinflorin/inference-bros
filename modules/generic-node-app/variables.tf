@@ -54,3 +54,13 @@ variable "cpu_limit" {
   type = string
   default = ""
 }
+
+variable "ingress_subdomain" {
+  type = string
+  default = ""
+}
+
+variable "ingress_path" {
+  type = string
+  default = "/"
+}

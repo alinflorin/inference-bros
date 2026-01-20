@@ -60,14 +60,14 @@ resource "helm_release" "generic" {
           ${var.enable_auth == true ? "nginx.ingress.kubernetes.io/proxy-read-timeout: \"3600\"" : ""}
           ${var.enable_auth == true ? "nginx.ingress.kubernetes.io/proxy-send-timeout: \"3600\"" : ""}
         hosts:
-          - host: "${var.name}.${var.domain}"
+          - host: "${var.ingress_subdomain == "" ? var.name : var.ingress_subdomain}.${var.domain}"
             paths:
-              - path: "/"
+              - path: "${var.ingress_path}"
                 pathType: Prefix
         tls:
           - secretName: "${var.name}-tls"
             hosts:
-              - "${var.name}.${var.domain}"
+              - "${var.ingress_subdomain == "" ? var.name : var.ingress_subdomain}.${var.domain}"
       ${indent(6, file("${path.root}/apps/${var.name}/extra.yaml"))}
       rbac:
         enabled: true
