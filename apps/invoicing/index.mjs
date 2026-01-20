@@ -14,7 +14,7 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify(data));
     };
 
-    if (req.url === '/' && req.method === 'GET') {
+    if (req.url === '/invoicing/generate' && req.method === 'GET') {
         try {
             const token = fs.readFileSync(TOKEN_PATH, 'utf8');
             const ca = fs.readFileSync(CA_PATH);
