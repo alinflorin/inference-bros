@@ -16,7 +16,7 @@ resource "helm_release" "generic" {
         additionalPodAnnotations:
           terraform.io/app-checksum: "${md5(file("${path.root}/apps/${var.name}/index.mjs"))}"
         env:
-          ${indent(10, yamlencode(merge(
+          ${indent(4, yamlencode(merge(
           {
             NODE_ENV = { value = "production" }
             LOCATION = { value = var.location }
@@ -79,19 +79,19 @@ resource "helm_release" "generic" {
           - secretName: "${var.name}-tls"
             hosts:
               - "${var.ingress_subdomain == "" ? var.name : var.ingress_subdomain}.${var.domain}"
-      ${indent(6, file("${path.root}/apps/${var.name}/extra.yaml"))}
+      ${indent(0, file("${path.root}/apps/${var.name}/extra.yaml"))}
       rbac:
         enabled: true
         serviceAccount:
           enabled: true
           name: ${var.name}-sa
-        ${indent(8, file("${path.root}/apps/${var.name}/roles.yaml"))}
+        ${indent(2, file("${path.root}/apps/${var.name}/roles.yaml"))}
       configMap:
         enabled: true
         files:
          app:
             index.mjs: |
-              ${indent(14, file("${path.root}/apps/${var.name}/index.mjs"))}
+              ${indent(8, file("${path.root}/apps/${var.name}/index.mjs"))}
     EOT
   ]
 
