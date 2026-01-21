@@ -45,7 +45,7 @@ function getBillingRange() {
     const end = new Date(now);
     
     const start = new Date(now);
-    // 1. Go back exactly one month
+    // Go back exactly one month (no day subtraction)
     start.setMonth(start.getMonth() - 1);
 
     const format = (date) => {
@@ -166,28 +166,23 @@ async function generateInvoices() {
     return invoices.filter(inv => inv.total_tokens > 0);
 }
 
-/**
- * Aggregates and returns the final invoice structure with total cost breakdowns
- */
 function buildInvoice(customer, combinedUsage, pricing, start, end) {
     const inv = {
         customer_id: customer.id,
         customer_name: customer.name,
+        currency: 'EUR',
         period: { start, end },
         total_cost: 0,
         total_tokens: 0,
         total_prompt_tokens: 0,
         total_completion_tokens: 0,
-        total_prompt_cost: 0,      // New field
-        total_completion_cost: 0,  // New field
-        models: {},
-        currency: 'EUR'
+        total_prompt_cost: 0,
+        total_completion_cost: 0,
+        models: {}
     };
 
     for (const [mid, usage] of Object.entries(combinedUsage)) {
         const rates = pricing[mid];
-        
-        // Calculate sub-costs for this specific model
         const pCost = rates ? (usage.prompt * rates.prompt) : 0;
         const cCost = rates ? (usage.completion * rates.completion) : 0;
         const rCost = rates ? (usage.requests * rates.request) : 0;
@@ -203,7 +198,6 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
             cost: Number(totalModelCost.toFixed(6))
         };
 
-        // Aggregating Totals for the whole invoice
         inv.total_prompt_tokens += usage.prompt;
         inv.total_completion_tokens += usage.completion;
         inv.total_tokens += (usage.prompt + usage.completion);
@@ -213,7 +207,6 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
         inv.total_cost += totalModelCost;
     }
 
-    // Formatting top-level costs to 6 decimal places
     inv.total_prompt_cost = Number(inv.total_prompt_cost.toFixed(6));
     inv.total_completion_cost = Number(inv.total_completion_cost.toFixed(6));
     inv.total_cost = Number(inv.total_cost.toFixed(6));
@@ -224,9 +217,10 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
 const server = http.createServer(async (req, res) => {
     if (req.url === '/invoicing/generate' && req.method === 'GET') {
         try {
-            const data = await generateInvoices();
+            const invoices = await generateInvoices();
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ data }));
+            // Direct JSON Array output
+            res.end(JSON.stringify(invoices));
         } catch (e) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: e.message }));
