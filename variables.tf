@@ -162,3 +162,7 @@ variable "odoo_api_key" {
 variable "odoo_url" {
   type = string
 }
+
+variable "odoo_database" {
+  type = string
+}

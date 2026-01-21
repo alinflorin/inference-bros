@@ -62,3 +62,5 @@ bifrost_replicas      = 5
 bifrost_insecure_enable = false
 monitoring_enabled     = true
 odoo_api_key = "..."
+odoo_url     = "https://inferencebros.odoo.com"
+odoo_database = "inferencebros"

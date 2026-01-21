@@ -17,13 +17,15 @@ const CONFIG = IS_PRODUCTION ? {
     k8sHost: process.env.KUBERNETES_SERVICE_HOST,
     k8sPort: process.env.KUBERNETES_SERVICE_PORT,
     odooUrl: process.env.ODOO_URL || 'https://inferencebros.odoo.com',
-    odooApiKey: process.env.ODOO_API_KEY || ''
+    odooApiKey: process.env.ODOO_API_KEY || '',
+    odooDatabase: process.env.ODOO_DATABASE || 'inferencebros'
 } : {
     bifrostUrl: 'http://localhost:8082',
     useInClusterAuth: false,
     kubeconfig: process.env.KUBECONFIG || `${process.env.HOME}/.kube/config`,
     odooUrl: process.env.ODOO_URL || 'https://inferencebros.odoo.com',
-    odooApiKey: process.env.ODOO_API_KEY || ''
+    odooApiKey: process.env.ODOO_API_KEY || '',
+    odooDatabase: process.env.ODOO_DATABASE || 'inferencebros'
 };
 
 // --- UTILS ---

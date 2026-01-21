@@ -34,5 +34,6 @@ module "invoicing" {
   env = {
     "ODOO_URL" = var.odoo_url,
     "ODOO_API_KEY" = var.odoo_api_key
+    "ODOO_DATABASE" = var.odoo_database
   }
 }
