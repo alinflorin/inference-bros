@@ -79,3 +79,4 @@ monitoring_enabled     = true
 odoo_api_key = "#{ODOO_API_KEY}"
 odoo_url     = "https://inferencebros.odoo.com"
 odoo_database = "inferencebros"
+odoo_tax_id = 16

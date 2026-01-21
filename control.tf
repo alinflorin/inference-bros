@@ -35,5 +35,6 @@ module "invoicing" {
     "ODOO_URL" = var.odoo_url,
     "ODOO_API_KEY" = var.odoo_api_key
     "ODOO_DATABASE" = var.odoo_database
+    "ODOO_TAX_ID" = tostring(var.odoo_tax_id)
   }
 }

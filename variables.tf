@@ -166,3 +166,7 @@ variable "odoo_url" {
 variable "odoo_database" {
   type = string
 }
+
+variable "odoo_tax_id" {
+  type = number
+}
