@@ -18,6 +18,8 @@ resource "helm_release" "generic" {
         env:
           NODE_ENV:
             value: "production"
+          LOCATION:
+            value: "${var.location}"
         terminationGracePeriodSeconds: ${var.termination_grace_period_seconds}
         resources:
           limits:

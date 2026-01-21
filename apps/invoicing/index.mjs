@@ -171,6 +171,7 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
         customer_id: customer.id,
         customer_name: customer.name,
         currency: 'EUR',
+        location: process.env.LOCATION || 'local',
         period: { start, end },
         total_cost: 0,
         total_tokens: 0,
