@@ -20,7 +20,7 @@ const CONFIG = IS_PRODUCTION
       odooUrl: process.env.ODOO_URL || "https://inferencebros.odoo.com",
       odooApiKey: process.env.ODOO_API_KEY || "",
       odooDatabase: process.env.ODOO_DATABASE || "inferencebros",
-      odooTaxId: parseInt(process.env.ODOO_TAX_ID || "16"),
+      odooTaxId: parseInt(process.env.ODOO_TAX_ID || "11"),
     }
   : {
       bifrostUrl: "http://localhost:8082",
@@ -29,7 +29,7 @@ const CONFIG = IS_PRODUCTION
       odooUrl: process.env.ODOO_URL || "https://inferencebros.odoo.com",
       odooApiKey: process.env.ODOO_API_KEY || "",
       odooDatabase: process.env.ODOO_DATABASE || "inferencebros",
-      odooTaxId: parseInt(process.env.ODOO_TAX_ID || "16"),
+      odooTaxId: parseInt(process.env.ODOO_TAX_ID || "11"),
     };
 
 // --- UTILS ---
