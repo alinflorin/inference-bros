@@ -42,18 +42,24 @@ function request(url, options = {}) {
     });
 }
 
+/**
+ * Generates RFC3339 timestamps for Bifrost
+ * Start: Current Time - 1 Month - 1 Day
+ * End: Current Time
+ */
 function getBillingRange() {
-    const now = new Date();
-    const end = new Date(now);
-    const start = new Date(now);
+    const end = new Date();
+    const start = new Date(end);
+    
+    // 1. Go back exactly one month
     start.setMonth(start.getMonth() - 1);
-    const format = (date) => {
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, '0');
-        const d = String(date.getDate()).padStart(2, '0');
-        return `${y}-${m}-${d}`;
+    // 2. Subtract an additional day as requested
+    start.setDate(start.getDate() - 1);
+
+    return { 
+        start_date: start.toISOString(), 
+        end_date: end.toISOString() 
     };
-    return { start_date: format(start), end_date: format(end) };
 }
 
 // --- CORE LOGIC ---
@@ -95,8 +101,13 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
     let page = 1;
     let hasMore = true;
     const modelUsage = {}; 
+    
+    // URL Encode the RFC3339 strings for the query params
+    const startEnc = encodeURIComponent(startDate);
+    const endEnc = encodeURIComponent(endDate);
+
     while (hasMore) {
-        const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_date=${startDate}&end_date=${endDate}&page=${page}&limit=100`;
+        const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_date=${startEnc}&end_date=${endEnc}&page=${page}&limit=100`;
         try {
             const response = await request(url);
             const logs = response.logs || [];
@@ -118,6 +129,7 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
 
 async function generateInvoices() {
     const { start_date, end_date } = getBillingRange();
+    console.log(`Generating invoices for period: ${start_date} to ${end_date}`);
     const [modelPricing, vkResponse] = await Promise.all([
         getK8sModelPricing(),
         request(`${CONFIG.bifrostUrl}/api/governance/virtual-keys`)
@@ -153,7 +165,7 @@ async function generateInvoices() {
 function buildInvoice(customer, combinedUsage, pricing, start, end) {
     const location = process.env.LOCATION || 'local';
     
-    // Generate Invoice ID: Name_Start_End_Location
+    // Generate Invoice ID using the high-precision timestamps
     const cleanName = customer.name.replace(/\s+/g, '_');
     const invoice_id = `${cleanName}_${start}_${end}_${location}`;
 
