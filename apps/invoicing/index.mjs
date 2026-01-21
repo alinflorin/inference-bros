@@ -182,6 +182,7 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
         customer_id: customer.id,
         customer_name: customer.name,
         currency: 'EUR',
+        issued_at: end,
         location,
         period: { start, end },
         total_cost: 0,
