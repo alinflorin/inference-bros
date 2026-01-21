@@ -151,16 +151,25 @@ async function generateInvoices() {
 }
 
 function buildInvoice(customer, combinedUsage, pricing, start, end) {
+    const location = process.env.LOCATION || 'local';
+    
+    // Generate Invoice ID: Name_Start_End_Location
+    const cleanName = customer.name.replace(/\s+/g, '_');
+    const invoice_id = `${cleanName}_${start}_${end}_${location}`;
+
     const inv = {
+        invoice_id,
         customer_id: customer.id,
         customer_name: customer.name,
         currency: 'EUR',
-        location: process.env.LOCATION || 'local',
+        location,
         period: { start, end },
         total_cost: 0,
         total_tokens: 0,
         total_prompt_tokens: 0,
         total_completion_tokens: 0,
+        total_requests_count: 0,
+        total_requests_cost: 0,
         total_prompt_cost: 0,
         total_completion_cost: 0,
         models: {}
@@ -178,22 +187,29 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
             prompt_tokens: usage.prompt,
             completion_tokens: usage.completion,
             requests: usage.requests,
-            price_per_prompt_token: rates ? rates.prompt : 0,      // Added
-            price_per_completion_token: rates ? rates.completion : 0, // Added
+            price_per_prompt_token: rates ? rates.prompt : 0,
+            price_per_completion_token: rates ? rates.completion : 0,
+            price_per_request: rates ? rates.request : 0,
             prompt_cost: Number(pCost.toFixed(6)),
             completion_cost: Number(cCost.toFixed(6)),
+            requests_cost: Number(rCost.toFixed(6)),
             cost: Number(totalModelCost.toFixed(6))
         };
 
         inv.total_prompt_tokens += usage.prompt;
         inv.total_completion_tokens += usage.completion;
         inv.total_tokens += (usage.prompt + usage.completion);
+        inv.total_requests_count += usage.requests;
+        
         inv.total_prompt_cost += pCost;
         inv.total_completion_cost += cCost;
+        inv.total_requests_cost += rCost;
         inv.total_cost += totalModelCost;
     }
+
     inv.total_prompt_cost = Number(inv.total_prompt_cost.toFixed(6));
     inv.total_completion_cost = Number(inv.total_completion_cost.toFixed(6));
+    inv.total_requests_cost = Number(inv.total_requests_cost.toFixed(6));
     inv.total_cost = Number(inv.total_cost.toFixed(6));
     return inv;
 }
