@@ -321,47 +321,6 @@ async function checkInvoiceExists(invoiceRef) {
   }
 }
 
-async function sendOdooInvoice(odooId) {
-  try {
-    // First, get the invoice email template ID
-    const templateSearch = await odooCall("ir.model.data", "search", {
-      domain: [
-        ["name", "=", "email_template_edi_invoice"],
-        ["model", "=", "mail.template"],
-      ],
-      limit: 1,
-    });
-
-    if (!templateSearch || templateSearch.length === 0) {
-      logger("ERROR", `Email template not found for invoice ${odooId}`);
-      return false;
-    }
-
-    // Get the actual template record
-    const templateData = await odooCall("ir.model.data", "read", {
-      ids: templateSearch,
-      fields: ["res_id"],
-    });
-
-    const templateId = templateData[0].res_id;
-
-    // Send the email using message_post_with_template
-    await odooCall("account.move", "message_post_with_template", {
-      ids: [odooId],
-      kwargs: {
-        template_id: templateId,
-        composition_mode: "comment",
-        email_layout_xmlid: "mail.mail_notification_light",
-      },
-    });
-
-    logger("SUCCESS", `Invoice ${odooId} email sent successfully.`);
-    return true;
-  } catch (err) {
-    logger("ERROR", `Failed to send email for Invoice ${odooId}`, err.message);
-    return false;
-  }
-}
 
 // MODIFIED: pushToOdoo to include the sending step
 async function pushToOdoo(invoice) {
@@ -420,7 +379,7 @@ async function pushToOdoo(invoice) {
     });
 
     // 3. NEW: Send the invoice via Email
-    const sent = await sendOdooInvoice(odooId);
+    const sent = false;
 
     logger(
       "SUCCESS",
