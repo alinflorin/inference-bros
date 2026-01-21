@@ -155,6 +155,7 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
         customer_id: customer.id,
         customer_name: customer.name,
         currency: 'EUR',
+        location: process.env.LOCATION || 'local',
         period: { start, end },
         total_cost: 0,
         total_tokens: 0,
@@ -177,6 +178,8 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
             prompt_tokens: usage.prompt,
             completion_tokens: usage.completion,
             requests: usage.requests,
+            price_per_prompt_token: rates ? rates.prompt : 0,      // Added
+            price_per_completion_token: rates ? rates.completion : 0, // Added
             prompt_cost: Number(pCost.toFixed(6)),
             completion_cost: Number(cCost.toFixed(6)),
             cost: Number(totalModelCost.toFixed(6))
@@ -200,14 +203,12 @@ let lastRunMonth = -1;
 
 async function runScheduledJob() {
     const now = new Date();
-    // Double-check month to prevent multiple runs in the same hour if server restarts
     if (lastRunMonth === now.getUTCMonth()) return; 
 
     console.log(`[${now.toISOString()}] Starting scheduled monthly invoicing run...`);
     try {
         const invoices = await generateInvoices();
         console.log(`Successfully generated ${invoices.length} invoices.`);
-        // Note: In production, send these to a storage bucket or DB here.
         lastRunMonth = now.getUTCMonth();
     } catch (err) {
         console.error("Scheduled job failed:", err);
@@ -226,7 +227,7 @@ function initCron() {
         ) {
             runScheduledJob();
         }
-    }, 1000); // Check every second for 00:00:00 precision
+    }, 1000); 
 }
 
 // --- SERVER TRIGGER ---
