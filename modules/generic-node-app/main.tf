@@ -15,7 +15,8 @@ resource "helm_release" "generic" {
         enabled: true
         additionalPodAnnotations:
           terraform.io/app-checksum: "${md5(file("${path.root}/apps/${var.name}/index.mjs"))}"
-        env: ${indent(10, yamlencode(merge(
+        env:
+          ${indent(10, yamlencode(merge(
           {
             NODE_ENV = { value = "production" }
             LOCATION = { value = var.location }
