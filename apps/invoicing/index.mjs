@@ -49,12 +49,16 @@ function request(url, options = {}) {
  */
 function getBillingRange() {
     const end = new Date();
+    // Round end time to the start of the current minute/second
+    end.setUTCSeconds(0, 0); 
+
     const start = new Date(end);
-    
     // 1. Go back exactly one month
     start.setMonth(start.getMonth() - 1);
-    // 2. Subtract an additional day as requested
+    // 2. Subtract an additional day
     start.setDate(start.getDate() - 1);
+    // 3. Ensure start is also perfectly rounded
+    start.setUTCSeconds(0, 0);
 
     return { 
         start_date: start.toISOString(), 
