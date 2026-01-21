@@ -49,7 +49,29 @@ dex_passwords = [
   "#{SORIN_PASSWORD}"
 ]
 
-kubeai_api_key = "#{KUBEAI_API_KEY}"
+kubeai_hpa = {
+  cpu_utilization = 80
+  memory_utilization = 80
+  enabled = true
+  min_replicas = 1
+  max_replicas = 2
+}
+
+bifrost_hpa = {
+  cpu_utilization = 80
+  memory_utilization = 80
+  enabled = true
+  min_replicas = 1
+  max_replicas = 2
+}
+
+nginx_hpa = {
+  cpu_utilization = 80
+  memory_utilization = 80
+  enabled = true
+  min_replicas = 1
+  max_replicas = 2
+}
 
 prometheus_storage_gb = 10
 loki_storage_gb       = 5

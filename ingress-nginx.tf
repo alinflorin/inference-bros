@@ -11,6 +11,12 @@ resource "helm_release" "ingress_nginx" {
   values = [
     <<-EOT
       controller:
+        autoscaling:
+          enabled: ${var.nginx_hpa.enabled}
+          minReplicas: ${var.nginx_hpa.min_replicas}
+          maxReplicas: ${var.nginx_hpa.max_replicas}
+          targetCPUUtilizationPercentage: ${var.nginx_hpa.cpu_utilization}
+          targetMemoryUtilizationPercentage: ${var.nginx_hpa.memory_utilization}
         resources:
           requests:
             cpu: 100m

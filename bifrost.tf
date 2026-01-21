@@ -22,6 +22,12 @@ resource "helm_release" "bifrost" {
 
   values = [
     <<-EOT
+      autoscaling:
+        enabled: ${var.bifrost_hpa.enabled}
+        minReplicas: ${var.bifrost_hpa.min_replicas}
+        maxReplicas: ${var.bifrost_hpa.max_replicas}
+        targetCPUUtilizationPercentage: ${var.bifrost_hpa.cpu_utilization}
+        targetMemoryUtilizationPercentage: ${var.bifrost_hpa.memory_utilization}
       bifrost:
 
         encryptionKey: ${random_string.bifrost_enc_key.result}

@@ -45,3 +45,47 @@ resource "helm_release" "kubeai" {
 
   depends_on = [helm_release.prometheus_operator_crds]
 }
+
+resource "helm_release" "kubeai_hpa" {
+  count = var.kubeai_hpa.enabled ? 1 : 0
+
+  name             = "kubeai-hpa"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "kubeai"
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: autoscaling/v2
+        kind: HorizontalPodAutoscaler
+        metadata:
+          name: kubeai
+        spec:
+          scaleTargetRef:
+            apiVersion: apps/v1
+            kind: Deployment
+            name: kubeai
+          minReplicas: ${var.kubeai_hpa.min_replicas}
+          maxReplicas: ${var.kubeai_hpa.max_replicas}
+          metrics:
+            - type: Resource
+              resource:
+                name: cpu
+                target:
+                  type: Utilization
+                  averageUtilization: ${var.kubeai_hpa.cpu_utilization}
+            - type: Resource
+              resource:
+                name: memory
+                target:
+                  type: Utilization
+                  averageUtilization: ${var.kubeai_hpa.memory_utilization}
+    EOT
+  ]
+
+  depends_on = [helm_release.kubeai]
+}
