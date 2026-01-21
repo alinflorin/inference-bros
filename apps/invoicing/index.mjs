@@ -352,6 +352,7 @@ async function pushToOdoo(invoice) {
       name: `AI Usage: ${m.model_name} (${(m.prompt_tokens + m.completion_tokens).toLocaleString()} tokens)`,
       quantity: 1,
       price_unit: m.cost,
+      // tax_ids: [[6, 0, [16]]],
     },
   ]);
 
@@ -377,10 +378,34 @@ async function pushToOdoo(invoice) {
       ids: [odooId],
     });
 
-    // 3. Send invoice via email (Odoo-native)
-    await odooCall("account.move", "action_send_and_print", {
-      ids: [odooId],
+    const wizardIds = await odooCall("account.move.send.wizard", "create", {
+      vals_list: [
+        {
+          move_id: odooId,
+        },
+      ],
+      context: {
+        active_model: "account.move",
+        active_ids: [odooId],
+      },
     });
+
+    const wizardId = Array.isArray(wizardIds) ? wizardIds[0] : wizardIds;
+    console.log(wizardId);
+
+    const rr = await odooCall(
+      "account.move.send.wizard",
+      "action_send_and_print",
+      {
+        ids: [wizardId],
+        context: {
+          active_model: "account.move",
+          active_ids: [odooId],
+        },
+      },
+    );
+
+    console.log(rr);
 
     const sent = true;
 
