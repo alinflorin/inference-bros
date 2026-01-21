@@ -423,11 +423,29 @@ async function executeBillingRun(triggerType) {
       logger("INFO", "No billing data found for this period.");
     } else {
       for (const inv of invoices) {
-        const odooRes = await pushToOdoo(inv);
-        results.push({
-          invoice: inv,
-          sync_result: odooRes,
-        });
+        try {
+          const odooRes = await pushToOdoo(inv);
+          results.push({
+            invoice: inv,
+            sync_result: odooRes,
+          });
+        } catch (err) {
+          logger("ERROR", `Invoice processing failed, continuing with next`, {
+            invoice_id: inv.invoice_id,
+            customer: inv.customer_name,
+            error: err.message,
+          });
+
+          results.push({
+            invoice: inv,
+            sync_result: {
+              status: "fatal_error",
+              error: err.message,
+            },
+          });
+
+          // IMPORTANT: do NOT rethrow
+        }
       }
 
       const successCount = results.filter(
