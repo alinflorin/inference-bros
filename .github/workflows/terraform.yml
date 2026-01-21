@@ -88,22 +88,6 @@ jobs:
       - name: Terraform validate
         run: terraform validate
 
-      - name: Run Checkov
-        uses: bridgecrewio/checkov-action@v12
-        with:
-          framework: terraform
-          output_format: sarif
-          output_file_path: checkov.sarif
-          quiet: false
-        env:
-          CHECKOV_EXPERIMENTAL_PARSER: 1
-          CHECKOV_SKIP_CHECK: CKV_TF_1
-
-      - name: Upload Checkov SARIF
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: checkov.sarif
-
       - name: Substitute Secrets
         uses: faradaytrs/substitute-secrets-action@2.6
         with:

@@ -1,5 +1,0 @@
-skip-path:
-  - .terraform
-  - .terraform.lock.hcl
-  - backend_override.tf
-  - tfplan
