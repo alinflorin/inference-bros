@@ -153,3 +153,12 @@ variable "bifrost_insecure_enable" {
 variable "monitoring_enabled" {
   type = bool
 }
+
+variable "odoo_api_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "odoo_url" {
+  type = string
+}

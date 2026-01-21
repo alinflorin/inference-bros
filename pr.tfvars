@@ -61,3 +61,4 @@ bifrost_replicas      = 5
 
 bifrost_insecure_enable = false
 monitoring_enabled     = true
+odoo_api_key = "..."
