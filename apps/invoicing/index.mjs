@@ -1,255 +1,250 @@
 import http from 'http';
 import https from 'https';
 import fs from 'fs';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
+const execAsync = promisify(exec);
 const PORT = 8080;
-const TOKEN_PATH = '/var/run/secrets/kubernetes.io/serviceaccount/token';
-const CA_PATH = '/var/run/secrets/kubernetes.io/serviceaccount/ca.crt';
-const K8S_HOST = process.env.KUBERNETES_SERVICE_HOST;
-const K8S_PORT = process.env.KUBERNETES_SERVICE_PORT;
-const BIFROST_URL = process.env.BIFROST_URL || 'http://bifrost.bifrost:8080';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-const server = http.createServer((req, res) => {
-    const sendJSON = (status, data) => {
-        res.writeHead(status, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(data));
-    };
+const CONFIG = IS_PRODUCTION ? {
+    bifrostUrl: 'http://bifrost.bifrost:8080',
+    useInClusterAuth: true,
+    tokenPath: '/var/run/secrets/kubernetes.io/serviceaccount/token',
+    caPath: '/var/run/secrets/kubernetes.io/serviceaccount/ca.crt',
+    k8sHost: process.env.KUBERNETES_SERVICE_HOST,
+    k8sPort: process.env.KUBERNETES_SERVICE_PORT
+} : {
+    bifrostUrl: 'http://localhost:8082',
+    useInClusterAuth: false,
+    kubeconfig: process.env.KUBECONFIG || `${process.env.HOME}/.kube/config`
+};
 
-    if (req.url === '/invoicing/generate' && req.method === 'GET') {
-        generateInvoices()
-            .then(invoices => sendJSON(200, { data: invoices }))
-            .catch(err => sendJSON(500, { error: 'Invoice Generation Failed', msg: err.message }));
-    } else {
-        sendJSON(404, { error: 'Not Found' });
-    }
-});
-
-function getPreviousMonthRange() {
-    const now = new Date();
-    
-    // Get first day of current month
-    const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    
-    // Get last day of previous month (one day before first day of current month)
-    const lastDayPrevMonth = new Date(firstDayCurrentMonth - 1);
-    
-    // Get first day of previous month
-    const firstDayPrevMonth = new Date(lastDayPrevMonth.getFullYear(), lastDayPrevMonth.getMonth(), 1);
-    
-    // Format as YYYY-MM-DD
-    const formatDate = (date) => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
-    
-    return {
-        start_date: formatDate(firstDayPrevMonth),
-        end_date: formatDate(lastDayPrevMonth)
-    };
-}
-
-async function generateInvoices() {
-    // Get date range for previous month
-    const { start_date, end_date } = getPreviousMonthRange();
-    
-    console.log(`Generating invoices for period: ${start_date} to ${end_date}`);
-    
-    // Step 1: Get model pricing from Kubernetes
-    const modelPricing = await getModelPricing();
-    
-    // Step 2: Get aggregated usage stats from Bifrost
-    const usageStats = await getBifrostStats(start_date, end_date);
-    
-    // Step 3: Calculate invoices
-    const invoices = calculateInvoices(usageStats, modelPricing, start_date, end_date);
-    
-    return invoices;
-}
-
-function getModelPricing() {
+/**
+ * Helper to wrap http/https requests into Promises
+ */
+function request(url, options = {}) {
     return new Promise((resolve, reject) => {
-        try {
-            const token = fs.readFileSync(TOKEN_PATH, 'utf8');
-            const ca = fs.readFileSync(CA_PATH);
-
-            const options = {
-                hostname: K8S_HOST,
-                port: K8S_PORT,
-                path: '/apis/kubeai.org/v1/models',
-                method: 'GET',
-                ca: ca,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Accept': 'application/json'
-                }
-            };
-
-            const k8sReq = https.request(options, (k8sRes) => {
-                let body = '';
-                k8sRes.on('data', (chunk) => body += chunk);
-                k8sRes.on('end', () => {
-                    if (k8sRes.statusCode === 200) {
-                        const kubeData = JSON.parse(body);
-                        
-                        // Build pricing map: { modelId: { prompt: price, completion: price } }
-                        const pricingMap = {};
-                        
-                        kubeData.items
-                            .filter(item => 
-                                item.metadata.annotations && 
-                                item.metadata.annotations['openrouter.ai/json']
-                            )
-                            .forEach(item => {
-                                try {
-                                    const modelData = JSON.parse(item.metadata.annotations['openrouter.ai/json']);
-                                    pricingMap[modelData.id] = {
-                                        name: modelData.name,
-                                        prompt: parseFloat(modelData.pricing.prompt),
-                                        completion: parseFloat(modelData.pricing.completion),
-                                        image: parseFloat(modelData.pricing.image || 0),
-                                        request: parseFloat(modelData.pricing.request || 0)
-                                    };
-                                } catch (e) {
-                                    console.error(`Failed to parse annotation for ${item.metadata.name}`);
-                                }
-                            });
-
-                        resolve(pricingMap);
-                    } else {
-                        reject(new Error(`K8s API returned ${k8sRes.statusCode}: ${body}`));
-                    }
-                });
-            });
-
-            k8sReq.on('error', (err) => reject(err));
-            k8sReq.end();
-
-        } catch (err) {
-            reject(err);
-        }
-    });
-}
-
-function getBifrostStats(start_date, end_date) {
-    return new Promise((resolve, reject) => {
-        const url = new URL(`${BIFROST_URL}/api/logs/stats`);
-        
-        // Add query parameters for filtering/grouping
-        url.searchParams.append('group_by', 'customer,model');
-        url.searchParams.append('start_date', start_date);
-        url.searchParams.append('end_date', end_date);
-        
-        const protocol = url.protocol === 'https:' ? https : http;
-        
-        const options = {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                // Add auth header if Bifrost requires it
-                // 'Authorization': `Bearer ${process.env.BIFROST_API_KEY}`
-            }
-        };
-
-        const bifrostReq = protocol.request(url, options, (bifrostRes) => {
+        const protocol = url.startsWith('https') ? https : http;
+        const req = protocol.request(url, options, (res) => {
             let body = '';
-            bifrostRes.on('data', (chunk) => body += chunk);
-            bifrostRes.on('end', () => {
-                if (bifrostRes.statusCode === 200) {
-                    try {
-                        const data = JSON.parse(body);
-                        resolve(data.stats || data.data || data);
-                    } catch (e) {
-                        reject(new Error('Failed to parse Bifrost stats response'));
-                    }
+            res.on('data', (chunk) => body += chunk);
+            res.on('end', () => {
+                if (res.statusCode >= 200 && res.statusCode < 300) {
+                    try { resolve(JSON.parse(body)); } catch (e) { resolve(body); }
                 } else {
-                    reject(new Error(`Bifrost API returned ${bifrostRes.statusCode}: ${body}`));
+                    reject(new Error(`API Error (${res.statusCode}): ${body}`));
                 }
             });
         });
-
-        bifrostReq.on('error', (err) => reject(err));
-        bifrostReq.end();
+        req.on('error', reject);
+        req.end();
     });
 }
 
-function calculateInvoices(usageStats, modelPricing, start_date, end_date) {
-    // Group stats by customer
-    const customerInvoices = {};
+/**
+ * Strategy: Rolling Month. Start on the 25th of the previous month.
+ */
+function getBillingRange() {
+    const now = new Date();
+    const end = new Date(now);
+    const start = new Date(now);
+    start.setMonth(start.getMonth() - 1);
+    start.setDate(25); 
 
-    // Assuming stats response structure like:
-    // [
-    //   { customer_id: "cust1", model: "qwen-25-05b", total_prompt_tokens: 10000, total_completion_tokens: 5000 },
-    //   ...
-    // ]
-    
-    usageStats.forEach(stat => {
-        const customerId = stat.customer_id || stat.customer || 'unknown';
-        const model = stat.model;
-        const promptTokens = stat.total_prompt_tokens || stat.prompt_tokens || 0;
-        const completionTokens = stat.total_completion_tokens || stat.completion_tokens || 0;
+    const format = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
 
-        if (!customerInvoices[customerId]) {
-            customerInvoices[customerId] = {
-                customer_id: customerId,
-                billing_period: {
-                    start: start_date,
-                    end: end_date
-                },
-                total_cost: 0,
-                total_prompt_tokens: 0,
-                total_completion_tokens: 0,
-                models: {}
-            };
-        }
+    return { start_date: format(start), end_date: format(end) };
+}
 
-        if (!customerInvoices[customerId].models[model]) {
-            customerInvoices[customerId].models[model] = {
-                model_name: model,
-                prompt_tokens: 0,
-                completion_tokens: 0,
-                cost: 0
-            };
-        }
-
-        // Get pricing for this model
-        const pricing = modelPricing[model];
-        
-        if (pricing) {
-            const promptCost = promptTokens * pricing.prompt;
-            const completionCost = completionTokens * pricing.completion;
-            const totalCost = promptCost + completionCost;
-
-            customerInvoices[customerId].models[model].prompt_tokens += promptTokens;
-            customerInvoices[customerId].models[model].completion_tokens += completionTokens;
-            customerInvoices[customerId].models[model].cost += totalCost;
-            
-            customerInvoices[customerId].total_cost += totalCost;
-            customerInvoices[customerId].total_prompt_tokens += promptTokens;
-            customerInvoices[customerId].total_completion_tokens += completionTokens;
+/**
+ * Fetches Model Pricing from KubeAI Model CRD annotations
+ */
+async function getK8sModelPricing() {
+    let kubeData;
+    try {
+        if (!CONFIG.useInClusterAuth) {
+            const kubeconfigArg = CONFIG.kubeconfig ? `--kubeconfig=${CONFIG.kubeconfig}` : '';
+            const { stdout } = await execAsync(`kubectl ${kubeconfigArg} get models.kubeai.org -n kubeai -o json`);
+            kubeData = JSON.parse(stdout);
         } else {
-            console.warn(`No pricing found for model: ${model}`);
+            const token = fs.readFileSync(CONFIG.tokenPath, 'utf8');
+            const ca = fs.readFileSync(CONFIG.caPath);
+            kubeData = await request(`https://${CONFIG.k8sHost}:${CONFIG.k8sPort}/apis/kubeai.org/v1/models`, {
+                ca,
+                headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
+            });
         }
-    });
+    } catch (err) {
+        console.error("Failed to fetch K8s Models:", err.message);
+        return {};
+    }
 
-    // Convert to array format
-    return Object.values(customerInvoices).map(customer => ({
-        customer_id: customer.customer_id,
-        billing_period: customer.billing_period,
-        total_cost: parseFloat(customer.total_cost.toFixed(6)),
-        total_prompt_tokens: customer.total_prompt_tokens,
-        total_completion_tokens: customer.total_completion_tokens,
-        total_tokens: customer.total_prompt_tokens + customer.total_completion_tokens,
-        models: Object.values(customer.models).map(m => ({
-            ...m,
-            cost: parseFloat(m.cost.toFixed(6))
-        }))
-    }));
+    const pricingMap = {};
+    kubeData.items?.forEach(item => {
+        const raw = item.metadata.annotations?.['openrouter.ai/json'];
+        if (!raw) return;
+        try {
+            const m = JSON.parse(raw);
+            pricingMap[m.id] = {
+                name: m.name,
+                prompt: parseFloat(m.pricing.prompt || 0),
+                completion: parseFloat(m.pricing.completion || 0),
+                request: parseFloat(m.pricing.request || 0)
+            };
+        } catch (e) {}
+    });
+    return pricingMap;
 }
 
-server.listen(PORT, () => console.log(`Invoicing service listening on ${PORT}!`));
+/**
+ * Deep-scans logs for a key to get granular prompt/completion splits per model
+ */
+async function aggregateUsageFromLogs(vkId, startDate, endDate) {
+    let page = 1;
+    let hasMore = true;
+    const modelUsage = {}; 
 
-const shutdown = () => server.close(() => process.exit(0));
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+    while (hasMore) {
+        const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_date=${startDate}&end_date=${endDate}&page=${page}&limit=100`;
+        
+        try {
+            const response = await request(url);
+            const logs = response.logs || [];
+            
+            if (logs.length === 0) break;
+
+            logs.forEach(log => {
+                const mid = log.model || 'unknown';
+                if (!modelUsage[mid]) {
+                    modelUsage[mid] = { prompt: 0, completion: 0, requests: 0 };
+                }
+                // Bifrost puts these in the token_usage object
+                modelUsage[mid].prompt += (log.token_usage?.prompt_tokens || 0);
+                modelUsage[mid].completion += (log.token_usage?.completion_tokens || 0);
+                modelUsage[mid].requests += 1;
+            });
+
+            if (response.total_pages && page >= response.total_pages) hasMore = false;
+            else if (logs.length < 100) hasMore = false;
+            else page++;
+        } catch (err) {
+            console.error(`Error fetching logs for key ${vkId}:`, err.message);
+            hasMore = false;
+        }
+    }
+    return modelUsage;
+}
+
+/**
+ * Main logic to generate invoices
+ */
+async function generateInvoices() {
+    const { start_date, end_date } = getBillingRange();
+    console.log(`Processing logs from ${start_date} to ${end_date}`);
+
+    const [modelPricing, vkResponse] = await Promise.all([
+        getK8sModelPricing(),
+        request(`${CONFIG.bifrostUrl}/api/governance/virtual-keys`)
+    ]);
+
+    const allKeys = vkResponse.virtual_keys || [];
+    const keysByCustomer = allKeys.reduce((acc, vk) => {
+        const cid = vk.customer_id;
+        if (!cid) return acc;
+        if (!acc[cid]) {
+            acc[cid] = { id: cid, name: vk.customer?.name || `Customer ${cid}`, keys: [] };
+        }
+        acc[cid].keys.push(vk);
+        return acc;
+    }, {});
+
+    const invoicePromises = Object.values(keysByCustomer).map(async (group) => {
+        const usageResults = await Promise.all(
+            group.keys.map(vk => aggregateUsageFromLogs(vk.id, start_date, end_date))
+        );
+
+        const combinedUsage = {};
+        usageResults.forEach(res => {
+            for (const [mid, stats] of Object.entries(res)) {
+                if (!combinedUsage[mid]) combinedUsage[mid] = { prompt: 0, completion: 0, requests: 0 };
+                combinedUsage[mid].prompt += stats.prompt;
+                combinedUsage[mid].completion += stats.completion;
+                combinedUsage[mid].requests += stats.requests;
+            }
+        });
+
+        return buildInvoice(group, combinedUsage, modelPricing, start_date, end_date);
+    });
+
+    const invoices = await Promise.all(invoicePromises);
+    return invoices.filter(inv => inv.total_tokens > 0);
+}
+
+/**
+ * Aggregates and returns the final invoice structure
+ */
+function buildInvoice(customer, combinedUsage, pricing, start, end) {
+    const inv = {
+        customer_id: customer.id,
+        customer_name: customer.name,
+        period: { start, end },
+        total_cost: 0,
+        total_tokens: 0,
+        total_prompt_tokens: 0,
+        total_completion_tokens: 0,
+        models: {}
+    };
+
+    for (const [mid, usage] of Object.entries(combinedUsage)) {
+        const rates = pricing[mid];
+        
+        // Manual calculation since Bifrost returns total_cost: 0
+        const cost = rates ? 
+            (usage.prompt * rates.prompt) + 
+            (usage.completion * rates.completion) + 
+            (usage.requests * rates.request) : 0;
+
+        inv.models[mid] = {
+            model_name: rates?.name || mid,
+            prompt_tokens: usage.prompt,
+            completion_tokens: usage.completion,
+            requests: usage.requests,
+            cost: Number(cost.toFixed(6))
+        };
+
+        // Aggregating Totals
+        inv.total_prompt_tokens += usage.prompt;
+        inv.total_completion_tokens += usage.completion;
+        inv.total_tokens += (usage.prompt + usage.completion);
+        inv.total_cost += cost;
+    }
+
+    inv.total_cost = Number(inv.total_cost.toFixed(6));
+    return inv;
+}
+
+const server = http.createServer(async (req, res) => {
+    if (req.url === '/invoicing/generate' && req.method === 'GET') {
+        try {
+            const data = await generateInvoices();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ data }));
+        } catch (e) {
+            console.error(e);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+    } else {
+        res.writeHead(404);
+        res.end();
+    }
+});
+
+server.listen(PORT, () => console.log(`Invoicing Service Running on port ${PORT}`));
