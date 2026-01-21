@@ -128,6 +128,7 @@ https://kubeai.stalpeni.inferencebros.com  - custom endpoint for OpenRouter
 
 
 Installed software on k3s:  
+- GPU drivers  
 - MetalLB - LoadBalancer type services
 - Kube-VIP - K3S master HA
 - longhorn - CSI persistent volumes manager
