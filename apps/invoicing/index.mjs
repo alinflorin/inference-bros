@@ -273,35 +273,43 @@ async function checkInvoiceExists(invoiceRef) {
     }
 }
 
+// NEW: Helper to trigger the Odoo "Send by Email" action
+async function sendOdooInvoice(odooId) {
+    try {
+        // This triggers the standard Odoo email template for invoices
+        await odooCall("account.move", "action_invoice_sent", {
+            ids: [odooId]
+        });
+        logger('SUCCESS', `Invoice ${odooId} queued for email delivery.`);
+        return true;
+    } catch (err) {
+        logger('ERROR', `Failed to send email for Invoice ${odooId}`, err.message);
+        return false;
+    }
+}
+
+// MODIFIED: pushToOdoo to include the sending step
 async function pushToOdoo(invoice) {
     logger('INFO', `Syncing Customer: ${invoice.customer_name}`);
     
-    // FIXED: Deduplication check
     const existingInvoice = await checkInvoiceExists(invoice.invoice_id);
     if (existingInvoice) {
-        logger('INFO', `DUPLICATE: Invoice ${invoice.invoice_id} already exists in Odoo (ID: ${existingInvoice})`);
-        return { status: 'duplicate', odoo_id: existingInvoice, customer: invoice.customer_name };
+        logger('INFO', `DUPLICATE: Invoice ${invoice.invoice_id} already exists.`);
+        return { status: 'duplicate', odoo_id: existingInvoice };
     }
 
     const partnerId = await findOdooPartner(invoice.customer_name);
     if (!partnerId) {
-        logger('WARN', `MATCH-FAIL: "${invoice.customer_name}" not in Odoo. Skipping.`);
-        return { status: 'skipped', customer: invoice.customer_name };
+        logger('WARN', `MATCH-FAIL: "${invoice.customer_name}" not in Odoo.`);
+        return { status: 'skipped' };
     }
 
     const validModels = Object.values(invoice.models).filter(m => m.cost > 0);
-    
-    if (validModels.length === 0) {
-        logger('INFO', `SKIPPING: No billable usage for ${invoice.customer_name}`);
-        return { status: 'skipped', reason: 'zero_cost' };
-    }
+    if (validModels.length === 0) return { status: 'skipped', reason: 'zero_cost' };
 
     const issueDate = new Date(invoice.issued_at);
     const dueDate = new Date(issueDate);
     dueDate.setUTCDate(issueDate.getUTCDate() + 15); 
-    
-    const formattedIssueDate = issueDate.toISOString().split('T')[0];
-    const formattedDueDate = dueDate.toISOString().split('T')[0];
 
     const invoiceLines = validModels.map(m => [0, 0, {
         name: `AI Usage: ${m.model_name} (${(m.prompt_tokens + m.completion_tokens).toLocaleString()} tokens)`,
@@ -310,32 +318,36 @@ async function pushToOdoo(invoice) {
     }]);
 
     try {
-        // FIXED: Added retry logic via odooCall
+        // 1. Create the Invoice
         const result = await odooCall("account.move", "create", {
             vals_list: [{
                 'partner_id': partnerId,
                 'move_type': 'out_invoice',
                 'ref': String(invoice.invoice_id), 
-                'invoice_date': formattedIssueDate,
-                'invoice_date_due': formattedDueDate,
+                'invoice_date': issueDate.toISOString().split('T')[0],
+                'invoice_date_due': dueDate.toISOString().split('T')[0],
                 'invoice_line_ids': invoiceLines,
             }]
         });
         
         const odooId = Array.isArray(result) ? result[0] : result;
         
-        // FIXED: Post the invoice immediately to make it final
+        // 2. Post the invoice (Validates it)
         await odooCall("account.move", "action_post", {
             ids: [odooId]
         });
+
+        // 3. NEW: Send the invoice via Email
+        const sent = await sendOdooInvoice(odooId);
         
-        logger('SUCCESS', `Odoo Invoice Created & Posted (Due: ${formattedDueDate})`, { 
+        logger('SUCCESS', `Odoo Invoice Created, Posted & ${sent ? 'Sent' : 'Queue-Failed'}`, { 
             odoo_id: odooId, 
             customer: invoice.customer_name 
         });
-        return { status: 'success', odoo_id: odooId };
+
+        return { status: 'success', odoo_id: odooId, emailed: sent };
     } catch (err) {
-        logger('ERROR', `Odoo Create Error for ${invoice.customer_name}`, err.message);
+        logger('ERROR', `Odoo Process Error for ${invoice.customer_name}`, err.message);
         return { status: 'error', error: err.message };
     }
 }
