@@ -167,7 +167,7 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
     
     // Generate Invoice ID using the high-precision timestamps
     const cleanName = customer.name.replace(/\s+/g, '_');
-    const invoice_id = `${cleanName}_${start}_${end}_${location}`;
+    const invoice_id = `${cleanName}_${start}_${end}_${location}`.replace(/:/g, '-');
 
     const inv = {
         invoice_id,
