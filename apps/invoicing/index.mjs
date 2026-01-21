@@ -7,7 +7,7 @@ const TOKEN_PATH = '/var/run/secrets/kubernetes.io/serviceaccount/token';
 const CA_PATH = '/var/run/secrets/kubernetes.io/serviceaccount/ca.crt';
 const K8S_HOST = process.env.KUBERNETES_SERVICE_HOST;
 const K8S_PORT = process.env.KUBERNETES_SERVICE_PORT;
-const BIFROST_URL = process.env.BIFROST_URL || 'http://bifrost.bifrost:8080';
+const BIFROST_URL = 'http://bifrost.bifrost:8080';
 
 const server = http.createServer((req, res) => {
     const sendJSON = (status, data) => {
