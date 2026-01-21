@@ -180,7 +180,8 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
         total_completion_tokens: 0,
         total_prompt_cost: 0,      // New field
         total_completion_cost: 0,  // New field
-        models: {}
+        models: {},
+        currency: 'EUR'
     };
 
     for (const [mid, usage] of Object.entries(combinedUsage)) {
