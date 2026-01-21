@@ -323,7 +323,13 @@ async function pushToOdoo(invoice) {
         });
         
         const odooId = Array.isArray(result) ? result[0] : result;
-        logger('SUCCESS', `Odoo Invoice Created (Due: ${formattedDueDate})`, { 
+        
+        // FIXED: Post the invoice immediately to make it final
+        await odooCall("account.move", "action_post", {
+            args: [[odooId]]
+        });
+        
+        logger('SUCCESS', `Odoo Invoice Created & Posted (Due: ${formattedDueDate})`, { 
             odoo_id: odooId, 
             customer: invoice.customer_name 
         });
