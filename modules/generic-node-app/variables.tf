@@ -69,3 +69,8 @@ variable "termination_grace_period_seconds" {
   type = number
   default = 10
 }
+
+variable "env" {
+  type = map(string)
+  default = {}
+}
