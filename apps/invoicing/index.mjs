@@ -217,34 +217,37 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
     return inv;
 }
 
-// --- ODOO INTEGRATION ---
+// --- NEW ODOO VERSION 2 INTEGRATION ---
 
-async function odooCall(operation, model, method, args) {
+async function odooCall(model, method, body = {}) {
+    // New URL pattern for Odoo JSON API v2
+    const url = `${CONFIG.odooUrl}/json/2/${model}/${method}`;
     const payload = {
-        jsonrpc: "2.0",
-        method: "call",
-        params: {
-            service: "object",
-            method: operation,
-            args: [CONFIG.odooDatabase, 2, CONFIG.odooApiKey, model, method, ...args]
-        },
-        id: Math.floor(Math.random() * 1000)
+        context: { lang: "en_US" },
+        ...body
     };
 
-    return request(`${CONFIG.odooUrl}/jsonrpc`, {
+    return request(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `bearer ${CONFIG.odooApiKey}`,
+            'X-Odoo-Database': CONFIG.odooDatabase
+        },
         body: JSON.stringify(payload)
     });
 }
 
 async function findOdooPartner(customerName) {
     try {
-        const response = await odooCall("execute_kw", "res.partner", "search", [
-            [['name', '=', customerName]], 
-            { limit: 1 }
-        ]);
-        return (response && response.length > 0) ? response[0] : null;
+        const response = await odooCall("res.partner", "search", {
+            domain: [
+                ["name", "=", customerName]
+            ],
+            limit: 1
+        });
+        
+        return (Array.isArray(response) && response.length > 0) ? response[0] : null;
     } catch (e) {
         logger('ERROR', `Odoo Partner Search failed for "${customerName}"`, e.message);
         return null;
@@ -260,34 +263,42 @@ async function pushToOdoo(invoice) {
         return { status: 'skipped', customer: invoice.customer_name };
     }
 
-    const invoiceLines = Object.values(invoice.models).map(m => [0, 0, {
+    // Filter out models with 0 cost to prevent Odoo validation errors
+    const validModels = Object.values(invoice.models).filter(m => m.cost > 0);
+    
+    if (validModels.length === 0) {
+        logger('INFO', `SKIPPING: No billable usage for ${invoice.customer_name}`);
+        return { status: 'skipped', reason: 'zero_cost' };
+    }
+
+    const invoiceLines = validModels.map(m => [0, 0, {
         name: `AI Usage: ${m.model_name} (${(m.prompt_tokens + m.completion_tokens).toLocaleString()} tokens)`,
         quantity: 1,
         price_unit: m.cost,
     }]);
 
     try {
-        const result = await odooCall("execute_kw", "account.move", "create", [[{
-            'partner_id': partnerId,
-            'move_type': 'out_invoice',
-            'ref': invoice.invoice_id,
-            'invoice_date': invoice.issued_at.split('T')[0],
-            'invoice_line_ids': invoiceLines,
-        }]]);
+        const result = await odooCall("account.move", "create", {
+            vals_list: [{
+                'partner_id': partnerId,
+                'move_type': 'out_invoice',
+                // 'ref' shows in the 'Payment Reference' / 'Reference' column
+                'ref': String(invoice.invoice_id), 
+                'invoice_date': invoice.issued_at.split('T')[0],
+                'invoice_line_ids': invoiceLines,
+            }]
+        });
         
-        logger('SUCCESS', `Odoo Invoice Created`, { odoo_id: result, customer: invoice.customer_name });
-        return { status: 'success', odoo_id: result };
+        const odooId = Array.isArray(result) ? result[0] : result;
+        logger('SUCCESS', `Odoo Invoice Created`, { odoo_id: odooId, customer: invoice.customer_name });
+        return { status: 'success', odoo_id: odooId };
     } catch (err) {
         logger('ERROR', `Odoo Create Error for ${invoice.customer_name}`, err.message);
         return { status: 'error', error: err.message };
     }
 }
-
 // --- UNIFIED EXECUTION LOGIC ---
 
-/**
- * Single function used by both Cron and HTTP trigger
- */
 async function executeBillingRun(triggerType) {
     const now = new Date();
     console.log("\n" + "=".repeat(60));
