@@ -7,7 +7,7 @@ const TOKEN_PATH = '/var/run/secrets/kubernetes.io/serviceaccount/token';
 const CA_PATH = '/var/run/secrets/kubernetes.io/serviceaccount/ca.crt';
 const K8S_HOST = process.env.KUBERNETES_SERVICE_HOST;
 const K8S_PORT = process.env.KUBERNETES_SERVICE_PORT;
-const BIFROST_URL = 'http://bifrost.bifrost:8080';
+const BIFROST_URL = process.env.BIFROST_URL || 'http://bifrost.bifrost:8080';
 
 const server = http.createServer((req, res) => {
     const sendJSON = (status, data) => {
@@ -24,15 +24,46 @@ const server = http.createServer((req, res) => {
     }
 });
 
+function getPreviousMonthRange() {
+    const now = new Date();
+    
+    // Get first day of current month
+    const firstDayCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    // Get last day of previous month (one day before first day of current month)
+    const lastDayPrevMonth = new Date(firstDayCurrentMonth - 1);
+    
+    // Get first day of previous month
+    const firstDayPrevMonth = new Date(lastDayPrevMonth.getFullYear(), lastDayPrevMonth.getMonth(), 1);
+    
+    // Format as YYYY-MM-DD
+    const formatDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+    
+    return {
+        start_date: formatDate(firstDayPrevMonth),
+        end_date: formatDate(lastDayPrevMonth)
+    };
+}
+
 async function generateInvoices() {
+    // Get date range for previous month
+    const { start_date, end_date } = getPreviousMonthRange();
+    
+    console.log(`Generating invoices for period: ${start_date} to ${end_date}`);
+    
     // Step 1: Get model pricing from Kubernetes
     const modelPricing = await getModelPricing();
     
-    // Step 2: Get usage data from Bifrost
-    const usageData = await getBifrostUsage();
+    // Step 2: Get aggregated usage stats from Bifrost
+    const usageStats = await getBifrostStats(start_date, end_date);
     
     // Step 3: Calculate invoices
-    const invoices = calculateInvoices(usageData, modelPricing);
+    const invoices = calculateInvoices(usageStats, modelPricing, start_date, end_date);
     
     return invoices;
 }
@@ -101,14 +132,14 @@ function getModelPricing() {
     });
 }
 
-function getBifrostUsage() {
+function getBifrostStats(start_date, end_date) {
     return new Promise((resolve, reject) => {
-        const url = new URL(`${BIFROST_URL}/api/logs`);
+        const url = new URL(`${BIFROST_URL}/api/logs/stats`);
         
-        // Add query parameters for filtering (customize as needed)
-        // url.searchParams.append('start_date', '2026-01-01');
-        // url.searchParams.append('end_date', '2026-01-31');
-        url.searchParams.append('limit', '10000'); // Adjust as needed
+        // Add query parameters for filtering/grouping
+        url.searchParams.append('group_by', 'customer,model');
+        url.searchParams.append('start_date', start_date);
+        url.searchParams.append('end_date', end_date);
         
         const protocol = url.protocol === 'https:' ? https : http;
         
@@ -128,9 +159,9 @@ function getBifrostUsage() {
                 if (bifrostRes.statusCode === 200) {
                     try {
                         const data = JSON.parse(body);
-                        resolve(data.logs || data.data || []); // Adjust based on actual response structure
+                        resolve(data.stats || data.data || data);
                     } catch (e) {
-                        reject(new Error('Failed to parse Bifrost response'));
+                        reject(new Error('Failed to parse Bifrost stats response'));
                     }
                 } else {
                     reject(new Error(`Bifrost API returned ${bifrostRes.statusCode}: ${body}`));
@@ -143,26 +174,38 @@ function getBifrostUsage() {
     });
 }
 
-function calculateInvoices(usageData, modelPricing) {
-    // Group usage by customer
-    const customerUsage = {};
+function calculateInvoices(usageStats, modelPricing, start_date, end_date) {
+    // Group stats by customer
+    const customerInvoices = {};
 
-    usageData.forEach(log => {
-        const customerId = log.customer_id || log.customer || 'unknown';
-        const model = log.model;
-        const promptTokens = log.usage?.prompt_tokens || 0;
-        const completionTokens = log.usage?.completion_tokens || 0;
+    // Assuming stats response structure like:
+    // [
+    //   { customer_id: "cust1", model: "qwen-25-05b", total_prompt_tokens: 10000, total_completion_tokens: 5000 },
+    //   ...
+    // ]
+    
+    usageStats.forEach(stat => {
+        const customerId = stat.customer_id || stat.customer || 'unknown';
+        const model = stat.model;
+        const promptTokens = stat.total_prompt_tokens || stat.prompt_tokens || 0;
+        const completionTokens = stat.total_completion_tokens || stat.completion_tokens || 0;
 
-        if (!customerUsage[customerId]) {
-            customerUsage[customerId] = {
+        if (!customerInvoices[customerId]) {
+            customerInvoices[customerId] = {
                 customer_id: customerId,
+                billing_period: {
+                    start: start_date,
+                    end: end_date
+                },
                 total_cost: 0,
+                total_prompt_tokens: 0,
+                total_completion_tokens: 0,
                 models: {}
             };
         }
 
-        if (!customerUsage[customerId].models[model]) {
-            customerUsage[customerId].models[model] = {
+        if (!customerInvoices[customerId].models[model]) {
+            customerInvoices[customerId].models[model] = {
                 model_name: model,
                 prompt_tokens: 0,
                 completion_tokens: 0,
@@ -178,20 +221,30 @@ function calculateInvoices(usageData, modelPricing) {
             const completionCost = completionTokens * pricing.completion;
             const totalCost = promptCost + completionCost;
 
-            customerUsage[customerId].models[model].prompt_tokens += promptTokens;
-            customerUsage[customerId].models[model].completion_tokens += completionTokens;
-            customerUsage[customerId].models[model].cost += totalCost;
-            customerUsage[customerId].total_cost += totalCost;
+            customerInvoices[customerId].models[model].prompt_tokens += promptTokens;
+            customerInvoices[customerId].models[model].completion_tokens += completionTokens;
+            customerInvoices[customerId].models[model].cost += totalCost;
+            
+            customerInvoices[customerId].total_cost += totalCost;
+            customerInvoices[customerId].total_prompt_tokens += promptTokens;
+            customerInvoices[customerId].total_completion_tokens += completionTokens;
         } else {
             console.warn(`No pricing found for model: ${model}`);
         }
     });
 
     // Convert to array format
-    return Object.values(customerUsage).map(customer => ({
-        ...customer,
-        models: Object.values(customer.models),
-        total_cost: parseFloat(customer.total_cost.toFixed(6))
+    return Object.values(customerInvoices).map(customer => ({
+        customer_id: customer.customer_id,
+        billing_period: customer.billing_period,
+        total_cost: parseFloat(customer.total_cost.toFixed(6)),
+        total_prompt_tokens: customer.total_prompt_tokens,
+        total_completion_tokens: customer.total_completion_tokens,
+        total_tokens: customer.total_prompt_tokens + customer.total_completion_tokens,
+        models: Object.values(customer.models).map(m => ({
+            ...m,
+            cost: parseFloat(m.cost.toFixed(6))
+        }))
     }));
 }
 
