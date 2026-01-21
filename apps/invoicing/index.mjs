@@ -47,8 +47,6 @@ function getBillingRange() {
     const start = new Date(now);
     // 1. Go back exactly one month
     start.setMonth(start.getMonth() - 1);
-    // 2. Subtract 1 day
-    start.setDate(start.getDate() - 1);
 
     const format = (date) => {
         const y = date.getFullYear();
