@@ -165,6 +165,9 @@ async function generateInvoices() {
     return invoices.filter(inv => inv.total_tokens > 0);
 }
 
+/**
+ * Aggregates and returns the final invoice structure with total cost breakdowns
+ */
 function buildInvoice(customer, combinedUsage, pricing, start, end) {
     const inv = {
         customer_id: customer.id,
@@ -174,13 +177,15 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
         total_tokens: 0,
         total_prompt_tokens: 0,
         total_completion_tokens: 0,
+        total_prompt_cost: 0,      // New field
+        total_completion_cost: 0,  // New field
         models: {}
     };
 
     for (const [mid, usage] of Object.entries(combinedUsage)) {
         const rates = pricing[mid];
         
-        // Calculate sub-costs
+        // Calculate sub-costs for this specific model
         const pCost = rates ? (usage.prompt * rates.prompt) : 0;
         const cCost = rates ? (usage.completion * rates.completion) : 0;
         const rCost = rates ? (usage.requests * rates.request) : 0;
@@ -196,14 +201,21 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
             cost: Number(totalModelCost.toFixed(6))
         };
 
-        // Aggregating Totals for the invoice
+        // Aggregating Totals for the whole invoice
         inv.total_prompt_tokens += usage.prompt;
         inv.total_completion_tokens += usage.completion;
         inv.total_tokens += (usage.prompt + usage.completion);
+        
+        inv.total_prompt_cost += pCost;
+        inv.total_completion_cost += cCost;
         inv.total_cost += totalModelCost;
     }
 
+    // Formatting top-level costs to 6 decimal places
+    inv.total_prompt_cost = Number(inv.total_prompt_cost.toFixed(6));
+    inv.total_completion_cost = Number(inv.total_completion_cost.toFixed(6));
     inv.total_cost = Number(inv.total_cost.toFixed(6));
+    
     return inv;
 }
 
