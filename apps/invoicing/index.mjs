@@ -29,6 +29,13 @@ const CONFIG = IS_PRODUCTION ? {
 };
 
 // --- UTILS ---
+
+function logger(level, message, data = '') {
+    const timestamp = new Date().toISOString();
+    const cleanData = typeof data === 'object' ? JSON.stringify(data) : data;
+    console.log(`[${timestamp}] [${level}] ${message} ${cleanData}`);
+}
+
 function request(url, options = {}) {
     return new Promise((resolve, reject) => {
         const protocol = url.startsWith('https') ? https : http;
@@ -44,27 +51,18 @@ function request(url, options = {}) {
             });
         });
         req.on('error', reject);
+        if (options.body) req.write(options.body);
         req.end();
     });
 }
 
-/**
- * Generates RFC3339 timestamps for Bifrost
- * Start: Current Time - 1 Month - 1 Day
- * End: Current Time
- */
 function getBillingRange() {
     const end = new Date();
-    // Round end time to the start of the current minute/second
-    end.setUTCSeconds(0, 0); 
-
+    end.setUTCSeconds(0, 0, 0); 
     const start = new Date(end);
-    // 1. Go back exactly one month
     start.setMonth(start.getMonth() - 1);
-    // 2. Subtract an additional day
     start.setDate(start.getDate() - 1);
-    // 3. Ensure start is also perfectly rounded
-    start.setUTCSeconds(0, 0);
+    start.setUTCSeconds(0, 0, 0);
 
     return { 
         start_date: start.toISOString(), 
@@ -72,7 +70,8 @@ function getBillingRange() {
     };
 }
 
-// --- CORE LOGIC ---
+// --- CORE PRICING & USAGE LOGIC ---
+
 async function getK8sModelPricing() {
     let kubeData;
     try {
@@ -88,7 +87,10 @@ async function getK8sModelPricing() {
                 headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
             });
         }
-    } catch (err) { return {}; }
+    } catch (err) { 
+        logger('ERROR', 'Failed to fetch Kubernetes Model Pricing', err.message);
+        return {}; 
+    }
 
     const pricingMap = {};
     kubeData.items?.forEach(item => {
@@ -111,8 +113,6 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
     let page = 1;
     let hasMore = true;
     const modelUsage = {}; 
-    
-    // URL Encode the RFC3339 strings for the query params
     const startEnc = encodeURIComponent(startDate);
     const endEnc = encodeURIComponent(endDate);
 
@@ -132,14 +132,18 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
             if (response.total_pages && page >= response.total_pages) hasMore = false;
             else if (logs.length < 100) hasMore = false;
             else page++;
-        } catch (err) { hasMore = false; }
+        } catch (err) { 
+            logger('ERROR', `Log aggregation failed for VK ${vkId}`, err.message);
+            hasMore = false; 
+        }
     }
     return modelUsage;
 }
 
 async function generateInvoices() {
     const { start_date, end_date } = getBillingRange();
-    console.log(`Generating invoices for period: ${start_date} to ${end_date}`);
+    logger('INFO', `Analyzing usage period: ${start_date} to ${end_date}`);
+    
     const [modelPricing, vkResponse] = await Promise.all([
         getK8sModelPricing(),
         request(`${CONFIG.bifrostUrl}/api/governance/virtual-keys`)
@@ -174,8 +178,6 @@ async function generateInvoices() {
 
 function buildInvoice(customer, combinedUsage, pricing, start, end) {
     const location = process.env.LOCATION || 'local';
-    
-    // Generate Invoice ID using the high-precision timestamps
     const cleanName = customer.name.replace(/\s+/g, '_');
     const invoice_id = `${cleanName}_${start}_${end}_${location}`.replace(/:/g, '-');
 
@@ -189,12 +191,6 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
         period: { start, end },
         total_cost: 0,
         total_tokens: 0,
-        total_prompt_tokens: 0,
-        total_completion_tokens: 0,
-        total_requests_count: 0,
-        total_requests_cost: 0,
-        total_prompt_cost: 0,
-        total_completion_cost: 0,
         models: {}
     };
 
@@ -209,73 +205,166 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
             model_name: rates?.name || mid,
             prompt_tokens: usage.prompt,
             completion_tokens: usage.completion,
-            requests: usage.requests,
-            price_per_prompt_token: rates ? rates.prompt : 0,
-            price_per_completion_token: rates ? rates.completion : 0,
-            price_per_request: rates ? rates.request : 0,
-            prompt_cost: Number(pCost.toFixed(6)),
-            completion_cost: Number(cCost.toFixed(6)),
-            requests_cost: Number(rCost.toFixed(6)),
+            total_requests: usage.requests,
             cost: Number(totalModelCost.toFixed(6))
         };
 
-        inv.total_prompt_tokens += usage.prompt;
-        inv.total_completion_tokens += usage.completion;
         inv.total_tokens += (usage.prompt + usage.completion);
-        inv.total_requests_count += usage.requests;
-        
-        inv.total_prompt_cost += pCost;
-        inv.total_completion_cost += cCost;
-        inv.total_requests_cost += rCost;
         inv.total_cost += totalModelCost;
     }
 
-    inv.total_prompt_cost = Number(inv.total_prompt_cost.toFixed(6));
-    inv.total_completion_cost = Number(inv.total_completion_cost.toFixed(6));
-    inv.total_requests_cost = Number(inv.total_requests_cost.toFixed(6));
     inv.total_cost = Number(inv.total_cost.toFixed(6));
     return inv;
 }
 
-// --- AUTOMATION / CRON JOB ---
-let lastRunMonth = -1;
+// --- ODOO INTEGRATION ---
 
-async function runScheduledJob() {
-    const now = new Date();
-    if (lastRunMonth === now.getUTCMonth()) return; 
+async function odooCall(operation, model, method, args) {
+    const payload = {
+        jsonrpc: "2.0",
+        method: "call",
+        params: {
+            service: "object",
+            method: operation,
+            args: [CONFIG.odooDatabase, 2, CONFIG.odooApiKey, model, method, ...args]
+        },
+        id: Math.floor(Math.random() * 1000)
+    };
 
-    console.log(`[${now.toISOString()}] Starting scheduled monthly invoicing run...`);
+    return request(`${CONFIG.odooUrl}/jsonrpc`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    });
+}
+
+async function findOdooPartner(customerName) {
     try {
-        const invoices = await generateInvoices();
-        console.log(`Successfully generated ${invoices.length} invoices.`);
-        lastRunMonth = now.getUTCMonth();
-    } catch (err) {
-        console.error("Scheduled job failed:", err);
+        const response = await odooCall("execute_kw", "res.partner", "search", [
+            [['name', '=', customerName]], 
+            { limit: 1 }
+        ]);
+        return (response && response.length > 0) ? response[0] : null;
+    } catch (e) {
+        logger('ERROR', `Odoo Partner Search failed for "${customerName}"`, e.message);
+        return null;
     }
 }
 
+async function pushToOdoo(invoice) {
+    logger('INFO', `Syncing Customer: ${invoice.customer_name}`);
+    
+    const partnerId = await findOdooPartner(invoice.customer_name);
+    if (!partnerId) {
+        logger('WARN', `MATCH-FAIL: "${invoice.customer_name}" not in Odoo. Skipping.`);
+        return { status: 'skipped', customer: invoice.customer_name };
+    }
+
+    const invoiceLines = Object.values(invoice.models).map(m => [0, 0, {
+        name: `AI Usage: ${m.model_name} (${(m.prompt_tokens + m.completion_tokens).toLocaleString()} tokens)`,
+        quantity: 1,
+        price_unit: m.cost,
+    }]);
+
+    try {
+        const result = await odooCall("execute_kw", "account.move", "create", [[{
+            'partner_id': partnerId,
+            'move_type': 'out_invoice',
+            'ref': invoice.invoice_id,
+            'invoice_date': invoice.issued_at.split('T')[0],
+            'invoice_line_ids': invoiceLines,
+        }]]);
+        
+        logger('SUCCESS', `Odoo Invoice Created`, { odoo_id: result, customer: invoice.customer_name });
+        return { status: 'success', odoo_id: result };
+    } catch (err) {
+        logger('ERROR', `Odoo Create Error for ${invoice.customer_name}`, err.message);
+        return { status: 'error', error: err.message };
+    }
+}
+
+// --- UNIFIED EXECUTION LOGIC ---
+
+/**
+ * Single function used by both Cron and HTTP trigger
+ */
+async function executeBillingRun(triggerType) {
+    const now = new Date();
+    console.log("\n" + "=".repeat(60));
+    logger('RUN-START', `Trigger: ${triggerType} | Period ending: ${now.toISOString()}`);
+    console.log("=".repeat(60));
+
+    try {
+        const invoices = await generateInvoices();
+        const results = [];
+        
+        if (invoices.length === 0) {
+            logger('INFO', "No billing data found for this period.");
+        } else {
+            for (const inv of invoices) { 
+                const odooRes = await pushToOdoo(inv);
+                results.push({
+                    invoice: inv,
+                    sync_result: odooRes
+                });
+            }
+
+            const successCount = results.filter(r => r.sync_result.status === 'success').length;
+            const skipCount = results.filter(r => r.sync_result.status === 'skipped').length;
+
+            console.log("-".repeat(60));
+            logger('RUN-COMPLETE', "Final Report:", {
+                total_detected: invoices.length,
+                pushed_to_odoo: successCount,
+                skipped_no_match: skipCount
+            });
+        }
+        
+        console.log("=".repeat(60) + "\n");
+        return { 
+            timestamp: now.toISOString(),
+            trigger: triggerType,
+            summary: {
+                total_detected: invoices.length,
+                synced: results.filter(r => r.sync_result.status === 'success').length,
+                skipped: results.filter(r => r.sync_result.status === 'skipped').length,
+                errors: results.filter(r => r.sync_result.status === 'error').length
+            },
+            details: results 
+        };
+    } catch (err) {
+        logger('FATAL', "Critical Billing Run Failure", err.stack);
+        throw err;
+    }
+}
+
+// --- TRIGGER MECHANISMS ---
+
+let lastRunMonth = -1;
+
 function initCron() {
-    console.log("Invoice scheduler active: Target 20th of every month at 00:00:00 UTC");
-    setInterval(() => {
+    logger('INFO', "Scheduler active: Monitoring for 20th of every month at 00:00:00 UTC");
+    setInterval(async () => {
         const now = new Date();
         if (
             now.getUTCDate() === 20 && 
             now.getUTCHours() === 0 && 
             now.getUTCMinutes() === 0 &&
-            now.getUTCSeconds() === 0
+            now.getUTCSeconds() === 0 &&
+            lastRunMonth !== now.getUTCMonth()
         ) {
-            runScheduledJob();
+            lastRunMonth = now.getUTCMonth();
+            await executeBillingRun('CRON_JOB');
         }
     }, 1000); 
 }
 
-// --- SERVER TRIGGER ---
 const server = http.createServer(async (req, res) => {
     if (req.url === '/invoicing/generate' && req.method === 'GET') {
         try {
-            const invoices = await generateInvoices();
+            const report = await executeBillingRun('HTTP_TRIGGER');
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(invoices));
+            res.end(JSON.stringify(report));
         } catch (e) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: e.message }));
@@ -287,6 +376,6 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`Invoicing Service Running on port ${PORT}`);
+    logger('INFO', `Invoicing Service online on port ${PORT}`);
     initCron();
 });
