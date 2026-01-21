@@ -326,7 +326,7 @@ async function pushToOdoo(invoice) {
         
         // FIXED: Post the invoice immediately to make it final
         await odooCall("account.move", "action_post", {
-            args: [[odooId]]
+            ids: [odooId]
         });
         
         logger('SUCCESS', `Odoo Invoice Created & Posted (Due: ${formattedDueDate})`, { 
