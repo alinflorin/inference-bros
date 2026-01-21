@@ -393,9 +393,9 @@ async function pushToOdoo(invoice) {
     });
 
     const wizardId = Array.isArray(wizardIds) ? wizardIds[0] : wizardIds;
-    console.log(wizardId);
 
-    const rr = await odooCall(
+
+    await odooCall(
       "account.move.send.wizard",
       "action_send_and_print",
       {
@@ -406,8 +406,6 @@ async function pushToOdoo(invoice) {
         },
       },
     );
-
-    console.log(rr);
 
     const sent = true;
 
