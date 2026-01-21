@@ -263,13 +263,20 @@ async function pushToOdoo(invoice) {
         return { status: 'skipped', customer: invoice.customer_name };
     }
 
-    // Filter out models with 0 cost to prevent Odoo validation errors
     const validModels = Object.values(invoice.models).filter(m => m.cost > 0);
     
     if (validModels.length === 0) {
         logger('INFO', `SKIPPING: No billable usage for ${invoice.customer_name}`);
         return { status: 'skipped', reason: 'zero_cost' };
     }
+
+    // --- DUE DATE CALCULATION (Net 15) ---
+    const issueDate = new Date(invoice.issued_at);
+    const dueDate = new Date(issueDate);
+    dueDate.setUTCDate(issueDate.getUTCDate() + 15); 
+    
+    const formattedIssueDate = issueDate.toISOString().split('T')[0];
+    const formattedDueDate = dueDate.toISOString().split('T')[0];
 
     const invoiceLines = validModels.map(m => [0, 0, {
         name: `AI Usage: ${m.model_name} (${(m.prompt_tokens + m.completion_tokens).toLocaleString()} tokens)`,
@@ -282,21 +289,25 @@ async function pushToOdoo(invoice) {
             vals_list: [{
                 'partner_id': partnerId,
                 'move_type': 'out_invoice',
-                // 'ref' shows in the 'Payment Reference' / 'Reference' column
                 'ref': String(invoice.invoice_id), 
-                'invoice_date': invoice.issued_at.split('T')[0],
+                'invoice_date': formattedIssueDate,
+                'invoice_date_due': formattedDueDate, // Sets the 15-day window
                 'invoice_line_ids': invoiceLines,
             }]
         });
         
         const odooId = Array.isArray(result) ? result[0] : result;
-        logger('SUCCESS', `Odoo Invoice Created`, { odoo_id: odooId, customer: invoice.customer_name });
+        logger('SUCCESS', `Odoo Invoice Created (Due: ${formattedDueDate})`, { 
+            odoo_id: odooId, 
+            customer: invoice.customer_name 
+        });
         return { status: 'success', odoo_id: odooId };
     } catch (err) {
         logger('ERROR', `Odoo Create Error for ${invoice.customer_name}`, err.message);
         return { status: 'error', error: err.message };
     }
 }
+
 // --- UNIFIED EXECUTION LOGIC ---
 
 async function executeBillingRun(triggerType) {
