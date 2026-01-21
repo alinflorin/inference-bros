@@ -321,7 +321,6 @@ async function checkInvoiceExists(invoiceRef) {
   }
 }
 
-
 // MODIFIED: pushToOdoo to include the sending step
 async function pushToOdoo(invoice) {
   logger("INFO", `Syncing Customer: ${invoice.customer_name}`);
@@ -378,8 +377,12 @@ async function pushToOdoo(invoice) {
       ids: [odooId],
     });
 
-    // 3. NEW: Send the invoice via Email
-    const sent = false;
+    // 3. Send invoice via email (Odoo-native)
+    await odooCall("account.move", "action_send_and_print", {
+      ids: [odooId],
+    });
+
+    const sent = true;
 
     logger(
       "SUCCESS",
