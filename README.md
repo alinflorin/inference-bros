@@ -104,7 +104,8 @@ Google Drive - secret files - https://drive.google.com/drive/folders/1M8WCE3i4FG
 TerraForm Cloud - state files for infra - https://app.terraform.io/app/inference-bros/workspaces  
 CloudFlare - DNS management for inferencebros.com - https://dash.cloudflare.com/f159b7db29dec75259ced7d4ad1c4a18/inferencebros.com/dns/records  
 Domain management - TODO
-Slack - comms and alerts - https://inferencebros.slack.com/  
+Slack - comms and alerts - https://inferencebros.slack.com/ 
+Invoicing - Odoo - https://inferencebros.odoo.com/odoo   
 
 
 K3S - https://k3s.locationName.inferencebros.com:6443  
