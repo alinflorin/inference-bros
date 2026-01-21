@@ -56,13 +56,13 @@ function request(url, options = {}) {
     });
 }
 
+// FIXED: Simple 30-day lookback
 function getBillingRange() {
     const end = new Date();
-    end.setUTCSeconds(0, 0, 0); 
+    end.setUTCHours(0, 0, 0, 0);
+    
     const start = new Date(end);
-    start.setMonth(start.getMonth() - 1);
-    start.setDate(start.getDate() - 1);
-    start.setUTCSeconds(0, 0, 0);
+    start.setUTCDate(start.getUTCDate() - 30);
 
     return { 
         start_date: start.toISOString(), 
@@ -217,36 +217,41 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
     return inv;
 }
 
-// --- NEW ODOO VERSION 2 INTEGRATION ---
+// --- ODOO INTEGRATION WITH RETRY & DEDUPLICATION ---
 
-async function odooCall(model, method, body = {}) {
-    // New URL pattern for Odoo JSON API v2
+async function odooCall(model, method, body = {}, retries = 3) {
     const url = `${CONFIG.odooUrl}/json/2/${model}/${method}`;
     const payload = {
         context: { lang: "en_US" },
         ...body
     };
 
-    return request(url, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `bearer ${CONFIG.odooApiKey}`,
-            'X-Odoo-Database': CONFIG.odooDatabase
-        },
-        body: JSON.stringify(payload)
-    });
+    for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+            return await request(url, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `bearer ${CONFIG.odooApiKey}`,
+                    'X-Odoo-Database': CONFIG.odooDatabase
+                },
+                body: JSON.stringify(payload)
+            });
+        } catch (err) {
+            if (attempt === retries) throw err;
+            const delay = attempt * 1000;
+            logger('WARN', `Odoo call failed (attempt ${attempt}/${retries}), retrying in ${delay}ms...`, err.message);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
 }
 
 async function findOdooPartner(customerName) {
     try {
         const response = await odooCall("res.partner", "search", {
-            domain: [
-                ["name", "=", customerName]
-            ],
+            domain: [["name", "=", customerName]],
             limit: 1
         });
-        
         return (Array.isArray(response) && response.length > 0) ? response[0] : null;
     } catch (e) {
         logger('ERROR', `Odoo Partner Search failed for "${customerName}"`, e.message);
@@ -254,9 +259,30 @@ async function findOdooPartner(customerName) {
     }
 }
 
+// FIXED: Check for existing invoice by reference
+async function checkInvoiceExists(invoiceRef) {
+    try {
+        const response = await odooCall("account.move", "search", {
+            domain: [["ref", "=", invoiceRef]],
+            limit: 1
+        });
+        return (Array.isArray(response) && response.length > 0) ? response[0] : null;
+    } catch (e) {
+        logger('ERROR', `Invoice existence check failed for ref "${invoiceRef}"`, e.message);
+        return null;
+    }
+}
+
 async function pushToOdoo(invoice) {
     logger('INFO', `Syncing Customer: ${invoice.customer_name}`);
     
+    // FIXED: Deduplication check
+    const existingInvoice = await checkInvoiceExists(invoice.invoice_id);
+    if (existingInvoice) {
+        logger('INFO', `DUPLICATE: Invoice ${invoice.invoice_id} already exists in Odoo (ID: ${existingInvoice})`);
+        return { status: 'duplicate', odoo_id: existingInvoice, customer: invoice.customer_name };
+    }
+
     const partnerId = await findOdooPartner(invoice.customer_name);
     if (!partnerId) {
         logger('WARN', `MATCH-FAIL: "${invoice.customer_name}" not in Odoo. Skipping.`);
@@ -270,7 +296,6 @@ async function pushToOdoo(invoice) {
         return { status: 'skipped', reason: 'zero_cost' };
     }
 
-    // --- DUE DATE CALCULATION (Net 15) ---
     const issueDate = new Date(invoice.issued_at);
     const dueDate = new Date(issueDate);
     dueDate.setUTCDate(issueDate.getUTCDate() + 15); 
@@ -285,13 +310,14 @@ async function pushToOdoo(invoice) {
     }]);
 
     try {
+        // FIXED: Added retry logic via odooCall
         const result = await odooCall("account.move", "create", {
             vals_list: [{
                 'partner_id': partnerId,
                 'move_type': 'out_invoice',
                 'ref': String(invoice.invoice_id), 
                 'invoice_date': formattedIssueDate,
-                'invoice_date_due': formattedDueDate, // Sets the 15-day window
+                'invoice_date_due': formattedDueDate,
                 'invoice_line_ids': invoiceLines,
             }]
         });
@@ -333,11 +359,13 @@ async function executeBillingRun(triggerType) {
 
             const successCount = results.filter(r => r.sync_result.status === 'success').length;
             const skipCount = results.filter(r => r.sync_result.status === 'skipped').length;
+            const duplicateCount = results.filter(r => r.sync_result.status === 'duplicate').length;
 
             console.log("-".repeat(60));
             logger('RUN-COMPLETE', "Final Report:", {
                 total_detected: invoices.length,
                 pushed_to_odoo: successCount,
+                duplicates: duplicateCount,
                 skipped_no_match: skipCount
             });
         }
@@ -349,6 +377,7 @@ async function executeBillingRun(triggerType) {
             summary: {
                 total_detected: invoices.length,
                 synced: results.filter(r => r.sync_result.status === 'success').length,
+                duplicates: results.filter(r => r.sync_result.status === 'duplicate').length,
                 skipped: results.filter(r => r.sync_result.status === 'skipped').length,
                 errors: results.filter(r => r.sync_result.status === 'error').length
             },
@@ -364,15 +393,15 @@ async function executeBillingRun(triggerType) {
 
 let lastRunMonth = -1;
 
+// FIXED: 2-minute window to avoid missing exact second
 function initCron() {
-    logger('INFO', "Scheduler active: Monitoring for 20th of every month at 00:00:00 UTC");
+    logger('INFO', "Scheduler active: Monitoring for 20th of every month at 00:00 UTC");
     setInterval(async () => {
         const now = new Date();
         if (
             now.getUTCDate() === 20 && 
             now.getUTCHours() === 0 && 
-            now.getUTCMinutes() === 0 &&
-            now.getUTCSeconds() === 0 &&
+            now.getUTCMinutes() < 2 &&  // 2-minute window instead of exact second
             lastRunMonth !== now.getUTCMonth()
         ) {
             lastRunMonth = now.getUTCMonth();
