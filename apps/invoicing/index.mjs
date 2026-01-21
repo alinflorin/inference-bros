@@ -384,6 +384,7 @@ async function pushToOdoo(invoice) {
       vals_list: [
         {
           move_id: odooId,
+          mail_partner_ids: [partnerId],
         },
       ],
       context: {
