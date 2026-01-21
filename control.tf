@@ -32,7 +32,7 @@ module "invoicing" {
   memory_limit = "256Mi"
   depends_on = [ null_resource.k3s_installed ]
   env = {
-    "ODOO_URL" = var.odoo_url
+    "ODOO_URL" = var.odoo_url,
     "ODOO_API_KEY" = var.odoo_api_key
   }
 }
