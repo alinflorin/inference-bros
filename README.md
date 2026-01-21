@@ -124,7 +124,7 @@ https://longhorn.stalpeni.inferencebros.com - PVC management
 https://prometheus.stalpeni.inferencebros.com  
 https://alertmanager.stalpeni.inferencebros.com  
 https://bifrost.stalpeni.inferencebros.com  - LLM gateway  
-https://kubeai.stalpeni.inferencebros.com  - custom endpoint for OpenRouter  
+https://control.stalpeni.inferencebros.com  - custom software 
 
 
 Installed software on k3s:  
