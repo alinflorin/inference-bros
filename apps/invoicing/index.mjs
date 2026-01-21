@@ -21,9 +21,6 @@ const CONFIG = IS_PRODUCTION ? {
     kubeconfig: process.env.KUBECONFIG || `${process.env.HOME}/.kube/config`
 };
 
-/**
- * Helper to wrap http/https requests into Promises
- */
 function request(url, options = {}) {
     return new Promise((resolve, reject) => {
         const protocol = url.startsWith('https') ? https : http;
@@ -43,9 +40,6 @@ function request(url, options = {}) {
     });
 }
 
-/**
- * Strategy: Rolling Month. Start on the 25th of the previous month.
- */
 function getBillingRange() {
     const now = new Date();
     const end = new Date(now);
@@ -63,9 +57,6 @@ function getBillingRange() {
     return { start_date: format(start), end_date: format(end) };
 }
 
-/**
- * Fetches Model Pricing from KubeAI Model CRD annotations
- */
 async function getK8sModelPricing() {
     let kubeData;
     try {
@@ -82,7 +73,6 @@ async function getK8sModelPricing() {
             });
         }
     } catch (err) {
-        console.error("Failed to fetch K8s Models:", err.message);
         return {};
     }
 
@@ -103,9 +93,6 @@ async function getK8sModelPricing() {
     return pricingMap;
 }
 
-/**
- * Deep-scans logs for a key to get granular prompt/completion splits per model
- */
 async function aggregateUsageFromLogs(vkId, startDate, endDate) {
     let page = 1;
     let hasMore = true;
@@ -113,11 +100,9 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
 
     while (hasMore) {
         const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_date=${startDate}&end_date=${endDate}&page=${page}&limit=100`;
-        
         try {
             const response = await request(url);
             const logs = response.logs || [];
-            
             if (logs.length === 0) break;
 
             logs.forEach(log => {
@@ -125,7 +110,6 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
                 if (!modelUsage[mid]) {
                     modelUsage[mid] = { prompt: 0, completion: 0, requests: 0 };
                 }
-                // Bifrost puts these in the token_usage object
                 modelUsage[mid].prompt += (log.token_usage?.prompt_tokens || 0);
                 modelUsage[mid].completion += (log.token_usage?.completion_tokens || 0);
                 modelUsage[mid].requests += 1;
@@ -135,20 +119,14 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
             else if (logs.length < 100) hasMore = false;
             else page++;
         } catch (err) {
-            console.error(`Error fetching logs for key ${vkId}:`, err.message);
             hasMore = false;
         }
     }
     return modelUsage;
 }
 
-/**
- * Main logic to generate invoices
- */
 async function generateInvoices() {
     const { start_date, end_date } = getBillingRange();
-    console.log(`Processing logs from ${start_date} to ${end_date}`);
-
     const [modelPricing, vkResponse] = await Promise.all([
         getK8sModelPricing(),
         request(`${CONFIG.bifrostUrl}/api/governance/virtual-keys`)
@@ -187,9 +165,6 @@ async function generateInvoices() {
     return invoices.filter(inv => inv.total_tokens > 0);
 }
 
-/**
- * Aggregates and returns the final invoice structure
- */
 function buildInvoice(customer, combinedUsage, pricing, start, end) {
     const inv = {
         customer_id: customer.id,
@@ -205,25 +180,27 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
     for (const [mid, usage] of Object.entries(combinedUsage)) {
         const rates = pricing[mid];
         
-        // Manual calculation since Bifrost returns total_cost: 0
-        const cost = rates ? 
-            (usage.prompt * rates.prompt) + 
-            (usage.completion * rates.completion) + 
-            (usage.requests * rates.request) : 0;
+        // Calculate sub-costs
+        const pCost = rates ? (usage.prompt * rates.prompt) : 0;
+        const cCost = rates ? (usage.completion * rates.completion) : 0;
+        const rCost = rates ? (usage.requests * rates.request) : 0;
+        const totalModelCost = pCost + cCost + rCost;
 
         inv.models[mid] = {
             model_name: rates?.name || mid,
             prompt_tokens: usage.prompt,
             completion_tokens: usage.completion,
             requests: usage.requests,
-            cost: Number(cost.toFixed(6))
+            prompt_cost: Number(pCost.toFixed(6)),
+            completion_cost: Number(cCost.toFixed(6)),
+            cost: Number(totalModelCost.toFixed(6))
         };
 
-        // Aggregating Totals
+        // Aggregating Totals for the invoice
         inv.total_prompt_tokens += usage.prompt;
         inv.total_completion_tokens += usage.completion;
         inv.total_tokens += (usage.prompt + usage.completion);
-        inv.total_cost += cost;
+        inv.total_cost += totalModelCost;
     }
 
     inv.total_cost = Number(inv.total_cost.toFixed(6));
@@ -237,7 +214,6 @@ const server = http.createServer(async (req, res) => {
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ data }));
         } catch (e) {
-            console.error(e);
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: e.message }));
         }
