@@ -8,6 +8,7 @@ const execAsync = promisify(exec);
 const PORT = 8080;
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
+// --- CONFIG ---
 const CONFIG = IS_PRODUCTION ? {
     bifrostUrl: 'http://bifrost.bifrost:8080',
     useInClusterAuth: true,
@@ -21,6 +22,7 @@ const CONFIG = IS_PRODUCTION ? {
     kubeconfig: process.env.KUBECONFIG || `${process.env.HOME}/.kube/config`
 };
 
+// --- UTILS ---
 function request(url, options = {}) {
     return new Promise((resolve, reject) => {
         const protocol = url.startsWith('https') ? https : http;
@@ -43,21 +45,18 @@ function request(url, options = {}) {
 function getBillingRange() {
     const now = new Date();
     const end = new Date(now);
-    
     const start = new Date(now);
-    // Go back exactly one month (no day subtraction)
     start.setMonth(start.getMonth() - 1);
-
     const format = (date) => {
         const y = date.getFullYear();
         const m = String(date.getMonth() + 1).padStart(2, '0');
         const d = String(date.getDate()).padStart(2, '0');
         return `${y}-${m}-${d}`;
     };
-
     return { start_date: format(start), end_date: format(end) };
 }
 
+// --- CORE LOGIC ---
 async function getK8sModelPricing() {
     let kubeData;
     try {
@@ -73,9 +72,7 @@ async function getK8sModelPricing() {
                 headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/json' }
             });
         }
-    } catch (err) {
-        return {};
-    }
+    } catch (err) { return {}; }
 
     const pricingMap = {};
     kubeData.items?.forEach(item => {
@@ -98,30 +95,23 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
     let page = 1;
     let hasMore = true;
     const modelUsage = {}; 
-
     while (hasMore) {
         const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_date=${startDate}&end_date=${endDate}&page=${page}&limit=100`;
         try {
             const response = await request(url);
             const logs = response.logs || [];
             if (logs.length === 0) break;
-
             logs.forEach(log => {
                 const mid = log.model || 'unknown';
-                if (!modelUsage[mid]) {
-                    modelUsage[mid] = { prompt: 0, completion: 0, requests: 0 };
-                }
+                if (!modelUsage[mid]) modelUsage[mid] = { prompt: 0, completion: 0, requests: 0 };
                 modelUsage[mid].prompt += (log.token_usage?.prompt_tokens || 0);
                 modelUsage[mid].completion += (log.token_usage?.completion_tokens || 0);
                 modelUsage[mid].requests += 1;
             });
-
             if (response.total_pages && page >= response.total_pages) hasMore = false;
             else if (logs.length < 100) hasMore = false;
             else page++;
-        } catch (err) {
-            hasMore = false;
-        }
+        } catch (err) { hasMore = false; }
     }
     return modelUsage;
 }
@@ -137,18 +127,13 @@ async function generateInvoices() {
     const keysByCustomer = allKeys.reduce((acc, vk) => {
         const cid = vk.customer_id;
         if (!cid) return acc;
-        if (!acc[cid]) {
-            acc[cid] = { id: cid, name: vk.customer?.name || `Customer ${cid}`, keys: [] };
-        }
+        if (!acc[cid]) acc[cid] = { id: cid, name: vk.customer?.name || `Customer ${cid}`, keys: [] };
         acc[cid].keys.push(vk);
         return acc;
     }, {});
 
     const invoicePromises = Object.values(keysByCustomer).map(async (group) => {
-        const usageResults = await Promise.all(
-            group.keys.map(vk => aggregateUsageFromLogs(vk.id, start_date, end_date))
-        );
-
+        const usageResults = await Promise.all(group.keys.map(vk => aggregateUsageFromLogs(vk.id, start_date, end_date)));
         const combinedUsage = {};
         usageResults.forEach(res => {
             for (const [mid, stats] of Object.entries(res)) {
@@ -158,7 +143,6 @@ async function generateInvoices() {
                 combinedUsage[mid].requests += stats.requests;
             }
         });
-
         return buildInvoice(group, combinedUsage, modelPricing, start_date, end_date);
     });
 
@@ -171,7 +155,6 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
         customer_id: customer.id,
         customer_name: customer.name,
         currency: 'EUR',
-        location: process.env.LOCATION || 'local',
         period: { start, end },
         total_cost: 0,
         total_tokens: 0,
@@ -202,25 +185,56 @@ function buildInvoice(customer, combinedUsage, pricing, start, end) {
         inv.total_prompt_tokens += usage.prompt;
         inv.total_completion_tokens += usage.completion;
         inv.total_tokens += (usage.prompt + usage.completion);
-        
         inv.total_prompt_cost += pCost;
         inv.total_completion_cost += cCost;
         inv.total_cost += totalModelCost;
     }
-
     inv.total_prompt_cost = Number(inv.total_prompt_cost.toFixed(6));
     inv.total_completion_cost = Number(inv.total_completion_cost.toFixed(6));
     inv.total_cost = Number(inv.total_cost.toFixed(6));
-    
     return inv;
 }
 
+// --- AUTOMATION / CRON JOB ---
+let lastRunMonth = -1;
+
+async function runScheduledJob() {
+    const now = new Date();
+    // Double-check month to prevent multiple runs in the same hour if server restarts
+    if (lastRunMonth === now.getUTCMonth()) return; 
+
+    console.log(`[${now.toISOString()}] Starting scheduled monthly invoicing run...`);
+    try {
+        const invoices = await generateInvoices();
+        console.log(`Successfully generated ${invoices.length} invoices.`);
+        // Note: In production, send these to a storage bucket or DB here.
+        lastRunMonth = now.getUTCMonth();
+    } catch (err) {
+        console.error("Scheduled job failed:", err);
+    }
+}
+
+function initCron() {
+    console.log("Invoice scheduler active: Target 20th of every month at 00:00:00 UTC");
+    setInterval(() => {
+        const now = new Date();
+        if (
+            now.getUTCDate() === 20 && 
+            now.getUTCHours() === 0 && 
+            now.getUTCMinutes() === 0 &&
+            now.getUTCSeconds() === 0
+        ) {
+            runScheduledJob();
+        }
+    }, 1000); // Check every second for 00:00:00 precision
+}
+
+// --- SERVER TRIGGER ---
 const server = http.createServer(async (req, res) => {
     if (req.url === '/invoicing/generate' && req.method === 'GET') {
         try {
             const invoices = await generateInvoices();
             res.writeHead(200, { 'Content-Type': 'application/json' });
-            // Direct JSON Array output
             res.end(JSON.stringify(invoices));
         } catch (e) {
             res.writeHead(500, { 'Content-Type': 'application/json' });
@@ -232,4 +246,7 @@ const server = http.createServer(async (req, res) => {
     }
 });
 
-server.listen(PORT, () => console.log(`Invoicing Service Running on port ${PORT}`));
+server.listen(PORT, () => {
+    console.log(`Invoicing Service Running on port ${PORT}`);
+    initCron();
+});
