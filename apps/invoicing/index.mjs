@@ -73,7 +73,6 @@ function getBillingRange() {
 // --- CORE PRICING & USAGE LOGIC ---
 
 async function getK8sModelPricing() {
-    logger('SCAN', 'Fetching model pricing from K8s annotations...');
     let kubeData;
     try {
         if (!CONFIG.useInClusterAuth) {
@@ -94,29 +93,25 @@ async function getK8sModelPricing() {
     }
 
     const pricingMap = {};
-    const items = kubeData.items || [];
-    items.forEach(item => {
+    kubeData.items?.forEach(item => {
         const raw = item.metadata.annotations?.['openrouter.ai/json'];
-        if (raw) {
-            try {
-                const m = JSON.parse(raw);
-                pricingMap[m.id] = {
-                    name: m.name,
-                    prompt: parseFloat(m.pricing.prompt || 0),
-                    completion: parseFloat(m.pricing.completion || 0),
-                    request: parseFloat(m.pricing.request || 0)
-                };
-            } catch (e) {}
-        }
+        if (!raw) return;
+        try {
+            const m = JSON.parse(raw);
+            pricingMap[m.id] = {
+                name: m.name,
+                prompt: parseFloat(m.pricing.prompt || 0),
+                completion: parseFloat(m.pricing.completion || 0),
+                request: parseFloat(m.pricing.request || 0)
+            };
+        } catch (e) {}
     });
-    logger('INFO', `Pricing loaded for ${Object.keys(pricingMap).length} models.`);
     return pricingMap;
 }
 
-async function aggregateUsageFromLogs(vkId, vkName, startDate, endDate) {
+async function aggregateUsageFromLogs(vkId, startDate, endDate) {
     let page = 1;
     let hasMore = true;
-    let totalLogsScanned = 0;
     const modelUsage = {}; 
     const startEnc = encodeURIComponent(startDate);
     const endEnc = encodeURIComponent(endDate);
@@ -126,12 +121,7 @@ async function aggregateUsageFromLogs(vkId, vkName, startDate, endDate) {
         try {
             const response = await request(url);
             const logs = response.logs || [];
-            if (logs.length === 0) {
-                if (page === 1) logger('DEBUG', `No logs found for key: ${vkName} (${vkId})`);
-                break;
-            }
-            
-            totalLogsScanned += logs.length;
+            if (logs.length === 0) break;
             logs.forEach(log => {
                 const mid = log.model || 'unknown';
                 if (!modelUsage[mid]) modelUsage[mid] = { prompt: 0, completion: 0, requests: 0 };
@@ -139,22 +129,20 @@ async function aggregateUsageFromLogs(vkId, vkName, startDate, endDate) {
                 modelUsage[mid].completion += (log.token_usage?.completion_tokens || 0);
                 modelUsage[mid].requests += 1;
             });
-
             if (response.total_pages && page >= response.total_pages) hasMore = false;
             else if (logs.length < 100) hasMore = false;
             else page++;
         } catch (err) { 
-            logger('ERROR', `Log aggregation failed for VK ${vkName} on page ${page}`, err.message);
+            logger('ERROR', `Log aggregation failed for VK ${vkId}`, err.message);
             hasMore = false; 
         }
     }
-    if (totalLogsScanned > 0) logger('INFO', `Finished scanning key [${vkName}]: ${totalLogsScanned} logs processed.`);
     return modelUsage;
 }
 
 async function generateInvoices() {
     const { start_date, end_date } = getBillingRange();
-    logger('INFO', `Starting usage aggregation for range: ${start_date} to ${end_date}`);
+    logger('INFO', `Analyzing usage period: ${start_date} to ${end_date}`);
     
     const [modelPricing, vkResponse] = await Promise.all([
         getK8sModelPricing(),
@@ -162,8 +150,6 @@ async function generateInvoices() {
     ]);
 
     const allKeys = vkResponse.virtual_keys || [];
-    logger('INFO', `Found ${allKeys.length} Virtual Keys in Bifrost.`);
-
     const keysByCustomer = allKeys.reduce((acc, vk) => {
         const cid = vk.customer_id;
         if (!cid) return acc;
@@ -172,16 +158,8 @@ async function generateInvoices() {
         return acc;
     }, {});
 
-    const customers = Object.values(keysByCustomer);
-    logger('INFO', `Aggregating usage for ${customers.length} unique customers...`);
-
-    const invoicePromises = customers.map(async (group) => {
-        logger('SCAN', `Processing Customer: ${group.name} (${group.keys.length} keys)`);
-        
-        const usageResults = await Promise.all(group.keys.map(vk => 
-            aggregateUsageFromLogs(vk.id, vk.name || vk.id, start_date, end_date)
-        ));
-
+    const invoicePromises = Object.values(keysByCustomer).map(async (group) => {
+        const usageResults = await Promise.all(group.keys.map(vk => aggregateUsageFromLogs(vk.id, start_date, end_date)));
         const combinedUsage = {};
         usageResults.forEach(res => {
             for (const [mid, stats] of Object.entries(res)) {
@@ -191,18 +169,11 @@ async function generateInvoices() {
                 combinedUsage[mid].requests += stats.requests;
             }
         });
-
-        const invoice = buildInvoice(group, combinedUsage, modelPricing, start_date, end_date);
-        if (invoice.total_tokens > 0) {
-            logger('INFO', `Usage Summary [${group.name}]: ${invoice.total_tokens.toLocaleString()} tokens | Total: ${invoice.total_cost} EUR`);
-        }
-        return invoice;
+        return buildInvoice(group, combinedUsage, modelPricing, start_date, end_date);
     });
 
     const invoices = await Promise.all(invoicePromises);
-    const billableInvoices = invoices.filter(inv => inv.total_tokens > 0);
-    logger('INFO', `Generation complete. ${billableInvoices.length} customers have billable usage.`);
-    return billableInvoices;
+    return invoices.filter(inv => inv.total_tokens > 0);
 }
 
 function buildInvoice(customer, combinedUsage, pricing, start, end) {
@@ -269,14 +240,11 @@ async function odooCall(operation, model, method, args) {
 
 async function findOdooPartner(customerName) {
     try {
-        logger('ODOO', `Searching for partner: "${customerName}"`);
         const response = await odooCall("execute_kw", "res.partner", "search", [
             [['name', '=', customerName]], 
             { limit: 1 }
         ]);
-        const partnerId = (response && response.length > 0) ? response[0] : null;
-        if (partnerId) logger('ODOO', `Found Partner ID: ${partnerId} for "${customerName}"`);
-        return partnerId;
+        return (response && response.length > 0) ? response[0] : null;
     } catch (e) {
         logger('ERROR', `Odoo Partner Search failed for "${customerName}"`, e.message);
         return null;
@@ -284,9 +252,11 @@ async function findOdooPartner(customerName) {
 }
 
 async function pushToOdoo(invoice) {
+    logger('INFO', `Syncing Customer: ${invoice.customer_name}`);
+    
     const partnerId = await findOdooPartner(invoice.customer_name);
     if (!partnerId) {
-        logger('WARN', `SKIPPING ODOO: No match for "${invoice.customer_name}"`);
+        logger('WARN', `MATCH-FAIL: "${invoice.customer_name}" not in Odoo. Skipping.`);
         return { status: 'skipped', customer: invoice.customer_name };
     }
 
@@ -297,7 +267,6 @@ async function pushToOdoo(invoice) {
     }]);
 
     try {
-        logger('ODOO', `Creating invoice for ${invoice.customer_name} (${invoiceLines.length} line items)`);
         const result = await odooCall("execute_kw", "account.move", "create", [[{
             'partner_id': partnerId,
             'move_type': 'out_invoice',
@@ -306,7 +275,7 @@ async function pushToOdoo(invoice) {
             'invoice_line_ids': invoiceLines,
         }]]);
         
-        logger('SUCCESS', `Odoo Invoice Created: ID ${result} for ${invoice.customer_name}`);
+        logger('SUCCESS', `Odoo Invoice Created`, { odoo_id: result, customer: invoice.customer_name });
         return { status: 'success', odoo_id: result };
     } catch (err) {
         logger('ERROR', `Odoo Create Error for ${invoice.customer_name}`, err.message);
@@ -316,41 +285,42 @@ async function pushToOdoo(invoice) {
 
 // --- UNIFIED EXECUTION LOGIC ---
 
+/**
+ * Single function used by both Cron and HTTP trigger
+ */
 async function executeBillingRun(triggerType) {
     const now = new Date();
-    console.log("\n" + "█".repeat(80));
-    logger('RUN-START', `Trigger: ${triggerType} | Timestamp: ${now.toISOString()}`);
-    console.log("█".repeat(80));
+    console.log("\n" + "=".repeat(60));
+    logger('RUN-START', `Trigger: ${triggerType} | Period ending: ${now.toISOString()}`);
+    console.log("=".repeat(60));
 
     try {
         const invoices = await generateInvoices();
         const results = [];
         
         if (invoices.length === 0) {
-            logger('INFO', "Job finished: No usage data to process.");
+            logger('INFO', "No billing data found for this period.");
         } else {
             for (const inv of invoices) { 
                 const odooRes = await pushToOdoo(inv);
                 results.push({
-                    customer: inv.customer_name,
+                    invoice: inv,
                     sync_result: odooRes
                 });
             }
 
             const successCount = results.filter(r => r.sync_result.status === 'success').length;
             const skipCount = results.filter(r => r.sync_result.status === 'skipped').length;
-            const errorCount = results.filter(r => r.sync_result.status === 'error').length;
 
-            console.log("─".repeat(80));
-            logger('RUN-COMPLETE', "Final Sync Report:", {
+            console.log("-".repeat(60));
+            logger('RUN-COMPLETE', "Final Report:", {
                 total_detected: invoices.length,
-                synced_successfully: successCount,
-                skipped_no_partner: skipCount,
-                errors: errorCount
+                pushed_to_odoo: successCount,
+                skipped_no_match: skipCount
             });
         }
         
-        console.log("█".repeat(80) + "\n");
+        console.log("=".repeat(60) + "\n");
         return { 
             timestamp: now.toISOString(),
             trigger: triggerType,
