@@ -129,6 +129,7 @@ resource "helm_release" "bifrost" {
           nginx.ingress.kubernetes.io/proxy-buffering: "off"
           nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
           nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+          nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
           nginx.ingress.kubernetes.io/ssl-redirect: 'true'
         hosts:
           - host: bifrost.${var.domain}
@@ -211,6 +212,7 @@ resource "helm_release" "bifrost_openai_ingress" {
             nginx.ingress.kubernetes.io/proxy-buffering: "off"
             nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
             nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
             nginx.ingress.kubernetes.io/ssl-redirect: 'true'
         spec:
           ingressClassName: nginx
@@ -296,6 +298,7 @@ resource "helm_release" "bifrost_openai_ingress_insecure" {
             nginx.ingress.kubernetes.io/proxy-buffering: "off"
             nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
             nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
             nginx.ingress.kubernetes.io/ssl-redirect: 'false'
           labels:
             app.kubernetes.io/instance: bifrost

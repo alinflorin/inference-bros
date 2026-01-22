@@ -135,9 +135,14 @@ resource "helm_release" "kubeai_models_pvc_browser" {
 
   values = [
     <<-EOT
+    readinessProbe:
+      httpGet:
+        path: /
+        port: http
       image:
         tag: v2
       config:
+        port: 8080
         auth:
           method: noauth
         directory:
@@ -164,8 +169,10 @@ resource "helm_release" "kubeai_models_pvc_browser" {
           nginx.ingress.kubernetes.io/auth-url: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
           nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${var.domain}/oauth2/start?rd=$scheme://$host$request_uri"
           nginx.ingress.kubernetes.io/proxy-buffering: "off"
+          nginx.ingress.kubernetes.io/proxy-body-size: "50g"
           nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
           nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+          nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
         hosts:
           - host: "models.${var.domain}"
             paths:
