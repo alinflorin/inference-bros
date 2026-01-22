@@ -43,6 +43,8 @@ function logger(level, message, data = "") {
 function request(url, options = {}) {
   return new Promise((resolve, reject) => {
     const protocol = url.startsWith("https") ? https : http;
+    const timeout = options.timeout || 30000; // 30 second default timeout
+    
     const req = protocol.request(url, options, (res) => {
       let body = "";
       res.on("data", (chunk) => (body += chunk));
@@ -58,6 +60,12 @@ function request(url, options = {}) {
         }
       });
     });
+    
+    req.setTimeout(timeout, () => {
+      req.destroy();
+      reject(new Error(`Request timeout after ${timeout}ms`));
+    });
+    
     req.on("error", reject);
     if (options.body) req.write(options.body);
     req.end();
@@ -159,8 +167,9 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
   const modelUsage = {};
   const startEnc = encodeURIComponent(startDate);
   const endEnc = encodeURIComponent(endDate);
+  const maxPages = 1000; // Safety limit to prevent infinite loops
 
-  while (hasMore) {
+  while (hasMore && page <= maxPages) {
     const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_date=${startEnc}&end_date=${endEnc}&page=${page}&limit=100`;
     try {
       const response = await request(url);
@@ -182,6 +191,11 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
       hasMore = false;
     }
   }
+  
+  if (page > maxPages) {
+    logger("WARN", `Hit max page limit (${maxPages}) for VK ${vkId}`);
+  }
+  
   return modelUsage;
 }
 
@@ -507,6 +521,9 @@ async function executeBillingRun(triggerType, simulatedDate = null) {
       const duplicateCount = results.filter(
         (r) => r.sync_result.status === "duplicate",
       ).length;
+      const errorCount = results.filter(
+        (r) => r.sync_result.status === "error" || r.sync_result.status === "fatal_error",
+      ).length;
 
       console.log("-".repeat(60));
       logger("RUN-COMPLETE", "Final Report:", {
@@ -514,6 +531,7 @@ async function executeBillingRun(triggerType, simulatedDate = null) {
         pushed_to_odoo: successCount,
         duplicates: duplicateCount,
         skipped_no_match: skipCount,
+        errors: errorCount,
       });
     }
 
@@ -529,7 +547,7 @@ async function executeBillingRun(triggerType, simulatedDate = null) {
           .length,
         skipped: results.filter((r) => r.sync_result.status === "skipped")
           .length,
-        errors: results.filter((r) => r.sync_result.status === "error").length,
+        errors: results.filter((r) => r.sync_result.status === "error" || r.sync_result.status === "fatal_error").length,
       },
       details: results,
     };
@@ -572,6 +590,13 @@ function initCron() {
 }
 
 const server = http.createServer(async (req, res) => {
+  // Health check endpoint
+  if (req.url === "/health" && req.method === "GET") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ status: "healthy", service: "invoicing" }));
+    return;
+  }
+
   if (req.url.startsWith("/invoicing/generate") && req.method === "GET") {
     try {
       // Parse query parameters
@@ -607,3 +632,7 @@ server.listen(PORT, () => {
   logger("INFO", `Invoicing Service online on port ${PORT}`);
   initCron();
 });
+
+const shutdown = () => server.close(() => process.exit(0));
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
