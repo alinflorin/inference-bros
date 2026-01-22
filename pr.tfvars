@@ -67,6 +67,7 @@ tempo_storage_gb      = 5
 mail_storage_gb       = 1
 bifrost_storage_gb    = 50
 alertmanager_storage_gb = 1
+kubeai_pvc_storage_gb = 100
 
 smtp_username       = "..."
 smtp_password       = "..."

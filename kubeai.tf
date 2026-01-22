@@ -93,3 +93,33 @@ resource "helm_release" "kubeai_hpa" {
 
   depends_on = [helm_release.kubeai]
 }
+
+
+resource "helm_release" "kubeai_models_pvc" {
+  name             = "kubeai-models-pvc"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "kubeai"
+  version          = "0.1.0"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: v1
+        kind: PersistentVolumeClaim
+        metadata:
+          name: kubeai-models
+          namespace: kubeai
+        spec:
+          accessModes:
+            - ${var.longhorn_enabled ? "ReadWriteMany" : "ReadWriteOnce"}
+          resources:
+            requests:
+              storage: ${var.kubeai_pvc_storage_gb}Gi
+    EOT
+  ]
+
+  depends_on = [helm_release.longhorn[0]]
+}

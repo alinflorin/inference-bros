@@ -93,6 +93,10 @@ variable "alertmanager_storage_gb" {
   type = number
 }
 
+variable "kubeai_pvc_storage_gb" {
+  type = number
+}
+
 variable "smtp_allowed_domain" {
   type = string
 }
