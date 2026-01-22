@@ -643,7 +643,3 @@ server.listen(PORT, () => {
   logger("INFO", `Invoicing Service online on port ${PORT}`);
   initCron();
 });
-
-const shutdown = () => server.close(() => process.exit(0));
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
