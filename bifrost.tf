@@ -292,6 +292,11 @@ resource "helm_release" "bifrost_openai_ingress_insecure" {
         metadata:
           name: bifrost-public-v1-insecure
           namespace: bifrost
+          annotations:
+            nginx.ingress.kubernetes.io/proxy-buffering: "off"
+            nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+            nginx.ingress.kubernetes.io/ssl-redirect: 'false'
           labels:
             app.kubernetes.io/instance: bifrost
             app.kubernetes.io/name: bifrost
