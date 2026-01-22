@@ -354,13 +354,23 @@ async function checkInvoiceExists(invoiceRef) {
   }
 }
 
-async function pushToOdoo(invoice) {
-  logger("INFO", `Syncing Customer: ${invoice.customer_name}`);
+async function pushToOdoo(invoice, dryRun = "none") {
+  logger("INFO", `Syncing Customer: ${invoice.customer_name} [Dry Run: ${dryRun}]`);
+
+  if (dryRun === "all") {
+    logger("INFO", `DRY_RUN (ALL): Skipping Odoo interaction for ${invoice.invoice_id}`);
+    return { status: "dry_run_skipped" };
+  }
 
   const existingInvoice = await checkInvoiceExists(invoice.invoice_id);
   if (existingInvoice) {
     logger("INFO", `DUPLICATE: Invoice ${invoice.invoice_id} already exists.`);
     return { status: "duplicate", odoo_id: existingInvoice };
+  }
+
+  if (dryRun === "validate") {
+    logger("INFO", `DRY_RUN (VALIDATE): Invoice ${invoice.invoice_id} not found in Odoo. Skipping creation.`);
+    return { status: "dry_run_validated_missing" };
   }
 
   const partnerId = await findOdooPartner(invoice.customer_name);
@@ -461,13 +471,13 @@ async function pushToOdoo(invoice) {
 
 // --- UNIFIED EXECUTION LOGIC ---
 
-async function executeBillingRun(triggerType, simulatedDate = null) {
+async function executeBillingRun(triggerType, simulatedDate = null, dryRun = "none") {
   const now = simulatedDate ? new Date(simulatedDate) : new Date();
   const nowString = new Date().toISOString();
   console.log("\n" + "=".repeat(60));
   logger(
     "RUN-START",
-    `Trigger: ${triggerType}${simulatedDate ? ' (SIMULATED)' : ''} | Period ending: ${now.toISOString()}`,
+    `Trigger: ${triggerType}${simulatedDate ? ' (SIMULATED)' : ''} | Dry Run: ${dryRun} | Period ending: ${now.toISOString()}`,
   );
   console.log("=".repeat(60));
 
@@ -480,7 +490,7 @@ async function executeBillingRun(triggerType, simulatedDate = null) {
     } else {
       for (const inv of invoices) {
         try {
-          const odooRes = await pushToOdoo(inv);
+          const odooRes = await pushToOdoo(inv, dryRun);
           results.push({
             invoice: inv,
             sync_result: odooRes,
@@ -511,6 +521,9 @@ async function executeBillingRun(triggerType, simulatedDate = null) {
       const duplicateCount = results.filter(
         (r) => r.sync_result.status === "duplicate",
       ).length;
+      const dryRunCount = results.filter(
+        (r) => r.sync_result.status.startsWith("dry_run"),
+      ).length;
       const errorCount = results.filter(
         (r) => r.sync_result.status === "error" || r.sync_result.status === "fatal_error",
       ).length;
@@ -521,6 +534,7 @@ async function executeBillingRun(triggerType, simulatedDate = null) {
         pushed_to_odoo: successCount,
         duplicates: duplicateCount,
         skipped_no_match: skipCount,
+        dry_runs: dryRunCount,
         errors: errorCount,
       });
     }
@@ -529,6 +543,7 @@ async function executeBillingRun(triggerType, simulatedDate = null) {
     return {
       timestamp: now.toISOString(),
       trigger: triggerType,
+      dry_run: dryRun,
       summary: {
         total_detected: invoices.length,
         synced: results.filter((r) => r.sync_result.status === "success")
@@ -536,6 +551,8 @@ async function executeBillingRun(triggerType, simulatedDate = null) {
         duplicates: results.filter((r) => r.sync_result.status === "duplicate")
           .length,
         skipped: results.filter((r) => r.sync_result.status === "skipped")
+          .length,
+        dry_runs: results.filter((r) => r.sync_result.status.startsWith("dry_run"))
           .length,
         errors: results.filter((r) => r.sync_result.status === "error" || r.sync_result.status === "fatal_error").length,
       },
@@ -593,6 +610,10 @@ const server = http.createServer(async (req, res) => {
       const url = new URL(req.url, `http://${req.headers.host}`);
       const simulatedDate = url.searchParams.get('date');
       
+      // Parse dry_run parameter
+      const dryRunParam = url.searchParams.get('dry_run');
+      const dryRun = ["all", "validate"].includes(dryRunParam) ? dryRunParam : "none";
+      
       // Validate date if provided
       if (simulatedDate) {
         const parsedDate = new Date(simulatedDate);
@@ -605,7 +626,7 @@ const server = http.createServer(async (req, res) => {
         }
       }
       
-      const report = await executeBillingRun("HTTP_TRIGGER", simulatedDate);
+      const report = await executeBillingRun("HTTP_TRIGGER", simulatedDate, dryRun);
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(report));
     } catch (e) {
