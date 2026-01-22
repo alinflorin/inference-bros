@@ -19,10 +19,10 @@ resource "helm_release" "ingress_nginx" {
           targetMemoryUtilizationPercentage: ${var.nginx_hpa.memory_utilization}
         resources:
           requests:
-            cpu: 100m
-            memory: 90Mi
+            cpu: 200m
+            memory: 256Mi
           limits:
-            cpu: 250m
+            cpu: 500m
             memory: 512Mi
         replicaCount: ${var.nginx_replicas}
         config:
