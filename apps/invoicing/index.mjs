@@ -44,7 +44,7 @@ function request(url, options = {}) {
   return new Promise((resolve, reject) => {
     const protocol = url.startsWith("https") ? https : http;
     const timeout = options.timeout || 30000; // 30 second default timeout
-    
+
     const req = protocol.request(url, options, (res) => {
       let body = "";
       res.on("data", (chunk) => (body += chunk));
@@ -60,12 +60,12 @@ function request(url, options = {}) {
         }
       });
     });
-    
+
     req.setTimeout(timeout, () => {
       req.destroy();
       reject(new Error(`Request timeout after ${timeout}ms`));
     });
-    
+
     req.on("error", reject);
     if (options.body) req.write(options.body);
     req.end();
@@ -75,30 +75,39 @@ function request(url, options = {}) {
 // OPTION 1: Bill for the PREVIOUS COMPLETE CALENDAR MONTH
 function getBillingRange(referenceDate = null) {
   const now = referenceDate ? new Date(referenceDate) : new Date();
-  
+
   // Start of previous month
-  const start = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth() - 1,  // Previous month
-    1,                       // First day
-    0, 0, 0, 0              // Midnight
-  ));
-  
+  const start = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth() - 1, // Previous month
+      1, // First day
+      0,
+      0,
+      0,
+      0, // Midnight
+    ),
+  );
+
   // Start of current month (= end of previous month)
-  const end = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),      // Current month
-    1,                       // First day
-    0, 0, 0, 0              // Midnight
-  ));
+  const end = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(), // Current month
+      1, // First day
+      0,
+      0,
+      0,
+      0, // Midnight
+    ),
+  );
 
   return {
     start_date: start.toISOString(),
     end_date: end.toISOString(),
-    month_label: `${start.getUTCFullYear()}-${String(start.getUTCMonth() + 1).padStart(2, '0')}`
+    month_label: `${start.getUTCFullYear()}-${String(start.getUTCMonth() + 1).padStart(2, "0")}`,
   };
 }
-
 
 // --- CORE PRICING & USAGE LOGIC ---
 
@@ -179,19 +188,22 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
       hasMore = false;
     }
   }
-  
+
   if (page > maxPages) {
     logger("WARN", `Hit max page limit (${maxPages}) for VK ${vkId}`);
   }
-  
+
   return modelUsage;
 }
 
 async function generateInvoices(nowString, referenceDate = null) {
   const billingInfo = getBillingRange(referenceDate);
   const { start_date, end_date, month_label } = billingInfo;
-  
-  logger("INFO", `Analyzing usage period: ${start_date} to ${end_date}${month_label ? ` (${month_label})` : ''}`);
+
+  logger(
+    "INFO",
+    `Analyzing usage period: ${start_date} to ${end_date}${month_label ? ` (${month_label})` : ""}`,
+  );
 
   const [modelPricing, vkResponse] = await Promise.all([
     getK8sModelPricing(),
@@ -235,7 +247,7 @@ async function generateInvoices(nowString, referenceDate = null) {
       start_date,
       end_date,
       month_label,
-      nowString
+      nowString,
     );
   });
 
@@ -243,10 +255,18 @@ async function generateInvoices(nowString, referenceDate = null) {
   return invoices.filter((inv) => inv.total_tokens > 0);
 }
 
-function buildInvoice(customer, combinedUsage, pricing, start, end, monthLabel, nowString) {
+function buildInvoice(
+  customer,
+  combinedUsage,
+  pricing,
+  start,
+  end,
+  monthLabel,
+  nowString,
+) {
   const location = process.env.LOCATION || "local";
   const cleanName = customer.name.replace(/\s+/g, "_");
-  
+
   // Use month label if available for cleaner invoice IDs
   const periodId = monthLabel || `${start}_${end}`;
   const invoice_id = `${cleanName}_${periodId}_${location}`.replace(/:/g, "-");
@@ -355,10 +375,16 @@ async function checkInvoiceExists(invoiceRef) {
 }
 
 async function pushToOdoo(invoice, dryRun = "none") {
-  logger("INFO", `Syncing Customer: ${invoice.customer_name} [Dry Run: ${dryRun}]`);
+  logger(
+    "INFO",
+    `Syncing Customer: ${invoice.customer_name} [Dry Run: ${dryRun}]`,
+  );
 
   if (dryRun === "all") {
-    logger("INFO", `DRY_RUN (ALL): Skipping Odoo interaction for ${invoice.invoice_id}`);
+    logger(
+      "INFO",
+      `DRY_RUN (ALL): Skipping Odoo interaction for ${invoice.invoice_id}`,
+    );
     return { status: "dry_run_skipped" };
   }
 
@@ -369,7 +395,10 @@ async function pushToOdoo(invoice, dryRun = "none") {
   }
 
   if (dryRun === "validate") {
-    logger("INFO", `DRY_RUN (VALIDATE): Invoice ${invoice.invoice_id} not found in Odoo. Skipping creation.`);
+    logger(
+      "INFO",
+      `DRY_RUN (VALIDATE): Invoice ${invoice.invoice_id} not found in Odoo. Skipping creation.`,
+    );
     return { status: "dry_run_validated_missing" };
   }
 
@@ -435,17 +464,13 @@ async function pushToOdoo(invoice, dryRun = "none") {
 
     const wizardId = Array.isArray(wizardIds) ? wizardIds[0] : wizardIds;
 
-    await odooCall(
-      "account.move.send.wizard",
-      "action_send_and_print",
-      {
-        ids: [wizardId],
-        context: {
-          active_model: "account.move",
-          active_ids: [odooId],
-        },
+    await odooCall("account.move.send.wizard", "action_send_and_print", {
+      ids: [wizardId],
+      context: {
+        active_model: "account.move",
+        active_ids: [odooId],
       },
-    );
+    });
 
     const sent = true;
 
@@ -471,13 +496,17 @@ async function pushToOdoo(invoice, dryRun = "none") {
 
 // --- UNIFIED EXECUTION LOGIC ---
 
-async function executeBillingRun(triggerType, simulatedDate = null, dryRun = "none") {
+async function executeBillingRun(
+  triggerType,
+  simulatedDate = null,
+  dryRun = "none",
+) {
   const now = simulatedDate ? new Date(simulatedDate) : new Date();
-  const nowString = new Date().toISOString();
+  const nowString = now.toISOString();
   console.log("\n" + "=".repeat(60));
   logger(
     "RUN-START",
-    `Trigger: ${triggerType}${simulatedDate ? ' (SIMULATED)' : ''} | Dry Run: ${dryRun} | Period ending: ${now.toISOString()}`,
+    `Trigger: ${triggerType}${simulatedDate ? " (SIMULATED)" : ""} | Dry Run: ${dryRun} | Period ending: ${now.toISOString()}`,
   );
   console.log("=".repeat(60));
 
@@ -521,11 +550,13 @@ async function executeBillingRun(triggerType, simulatedDate = null, dryRun = "no
       const duplicateCount = results.filter(
         (r) => r.sync_result.status === "duplicate",
       ).length;
-      const dryRunCount = results.filter(
-        (r) => r.sync_result.status.startsWith("dry_run"),
+      const dryRunCount = results.filter((r) =>
+        r.sync_result.status.startsWith("dry_run"),
       ).length;
       const errorCount = results.filter(
-        (r) => r.sync_result.status === "error" || r.sync_result.status === "fatal_error",
+        (r) =>
+          r.sync_result.status === "error" ||
+          r.sync_result.status === "fatal_error",
       ).length;
 
       console.log("-".repeat(60));
@@ -552,9 +583,14 @@ async function executeBillingRun(triggerType, simulatedDate = null, dryRun = "no
           .length,
         skipped: results.filter((r) => r.sync_result.status === "skipped")
           .length,
-        dry_runs: results.filter((r) => r.sync_result.status.startsWith("dry_run"))
-          .length,
-        errors: results.filter((r) => r.sync_result.status === "error" || r.sync_result.status === "fatal_error").length,
+        dry_runs: results.filter((r) =>
+          r.sync_result.status.startsWith("dry_run"),
+        ).length,
+        errors: results.filter(
+          (r) =>
+            r.sync_result.status === "error" ||
+            r.sync_result.status === "fatal_error",
+        ).length,
       },
       details: results,
     };
@@ -581,7 +617,7 @@ function initCron() {
     const currentMinute = now.getUTCMinutes();
     const currentSecond = now.getUTCSeconds();
     const currentMonth = now.getUTCMonth();
-    
+
     // Check if it's the 2nd, at exactly 00:00:00, and we haven't run this month
     if (
       currentDay === 2 &&
@@ -608,25 +644,34 @@ const server = http.createServer(async (req, res) => {
     try {
       // Parse query parameters
       const url = new URL(req.url, `http://${req.headers.host}`);
-      const simulatedDate = url.searchParams.get('date');
-      
+      const simulatedDate = url.searchParams.get("date");
+
       // Parse dry_run parameter
-      const dryRunParam = url.searchParams.get('dry_run');
-      const dryRun = ["all", "validate"].includes(dryRunParam) ? dryRunParam : "none";
-      
+      const dryRunParam = url.searchParams.get("dry_run");
+      const dryRun = ["all", "validate"].includes(dryRunParam)
+        ? dryRunParam
+        : "none";
+
       // Validate date if provided
       if (simulatedDate) {
         const parsedDate = new Date(simulatedDate);
         if (isNaN(parsedDate.getTime())) {
           res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ 
-            error: "Invalid date format. Use ISO 8601 format (e.g., 2025-02-20T00:00:00Z)" 
-          }));
+          res.end(
+            JSON.stringify({
+              error:
+                "Invalid date format. Use ISO 8601 format (e.g., 2025-02-20T00:00:00Z)",
+            }),
+          );
           return;
         }
       }
-      
-      const report = await executeBillingRun("HTTP_TRIGGER", simulatedDate, dryRun);
+
+      const report = await executeBillingRun(
+        "HTTP_TRIGGER",
+        simulatedDate,
+        dryRun,
+      );
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(report));
     } catch (e) {
