@@ -10,6 +10,10 @@ resource "helm_release" "kubeai" {
 
   values = [
     <<-EOT
+      cacheProfiles:
+        storage:
+          sharedFilesystem:
+            storageClassName: "${var.longhorn_enabled ? "longhorn" : "local-path"}"
       replicaCount: ${var.kubeai_proxy_replicas}
       resourceProfiles:
         nvidia:

@@ -94,6 +94,7 @@ spec:
   resourceProfile: cpu:1
   minReplicas: 1
   replicas: 1
+  cacheProfile: storage # only when longhorn is installed!
 ```
 
 
