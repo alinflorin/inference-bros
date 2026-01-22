@@ -101,8 +101,8 @@ resource "helm_release" "kubeai_models_pvc" {
   chart            = "resource"
   namespace        = "kubeai"
   version          = "0.1.0"
-  atomic           = true
-  wait             = true
+  atomic           = false
+  wait             = false
 
   values = [
     <<-EOT
