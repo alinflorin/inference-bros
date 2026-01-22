@@ -135,6 +135,8 @@ resource "helm_release" "kubeai_models_pvc_browser" {
 
   values = [
     <<-EOT
+      image:
+        tag: v2
       config:
         auth:
           method: noauth
