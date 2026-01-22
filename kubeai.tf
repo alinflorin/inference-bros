@@ -110,7 +110,7 @@ resource "helm_release" "kubeai_models_pvc" {
         apiVersion: v1
         kind: PersistentVolumeClaim
         metadata:
-          name: kubeai-models
+          name: models
           namespace: kubeai
         spec:
           accessModes:
@@ -123,3 +123,4 @@ resource "helm_release" "kubeai_models_pvc" {
 
   depends_on = [helm_release.longhorn[0]]
 }
+
