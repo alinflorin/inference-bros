@@ -124,59 +124,74 @@ resource "helm_release" "kubeai_models_pvc" {
   depends_on = [helm_release.longhorn[0]]
 }
 
-resource "helm_release" "kubeai_models_pvc_browser" {
+resource "helm_release" "kubeai_models_filebrowser" {
   name       = "kubeai-models-pvc-browser"
-  repository = "https://utkuozdemir.org/helm-charts"
-  chart      = "filebrowser"
+  repository = "http://brandan-schmitz.github.io/helm-charts"
+  chart      = "Filebrowser"
   namespace  = "kubeai"
-  version    = "1.0.0"
+  version    = "1.2.0"
   atomic     = true
   wait       = true
 
   values = [
     <<-EOT
-      config:
-        port: 8080
-        baseURL: /
-        auth:
-          method: noauth
-        directory:
-          showHidden: true
-      db:
-        pvc:
+      persistence:
+        config:
+          name: kubeai-models-pvc-browser-configs
+        database:
           enabled: false
-      rootDir:
-        pvc:
+        data:
           existingClaim: models
-      resources:
-        requests:
-          cpu: "50m"
-          memory: "128Mi"
-        limits:
-          cpu: "100m"
-          memory: "256Mi"
+          accessMode: ${var.longhorn_enabled ? "ReadWriteMany" : "ReadWriteOnce"}
+      controllers:
+        main:
+          containers:
+            main:
+              resources:
+                requests:
+                  cpu: "50m"
+                  memory: "128Mi"
+                limits:
+                  cpu: "100m"
+                  memory: "256Mi"
+      configMaps:
+        configs:
+          data:
+            settings.json: |
+              {
+                "port": "8080",
+                "baseURL": "",
+                "auth": {
+                  "method": "noauth"
+                },
+                "address": "",
+                "log": "stdout",
+                "database": "/database/filebrowser.db",
+                "root": "/srv"
+              }
       ingress:
-        enabled: true
-        className: "nginx"
-        annotations:
-          nginx.ingress.kubernetes.io/ssl-redirect: 'true'
-          cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
-          nginx.ingress.kubernetes.io/auth-url: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
-          nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${var.domain}/oauth2/start?rd=$scheme://$host$request_uri"
-          nginx.ingress.kubernetes.io/proxy-buffering: "off"
-          nginx.ingress.kubernetes.io/proxy-body-size: "50g"
-          nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-          nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
-          nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
-        hosts:
-          - host: "models.${var.domain}"
-            paths:
-              - path: /
-                pathType: Prefix
-        tls:
-          - secretName: "models-tls"
-            hosts:
-              - "models.${var.domain}"
+        main:
+          enabled: true
+          className: "nginx"
+          annotations:
+            nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+            cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+            nginx.ingress.kubernetes.io/auth-url: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
+            nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${var.domain}/oauth2/start?rd=$scheme://$host$request_uri"
+            nginx.ingress.kubernetes.io/proxy-buffering: "off"
+            nginx.ingress.kubernetes.io/proxy-body-size: "50g"
+            nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+          hosts:
+            - host: "models.${var.domain}"
+              paths:
+                - path: /
+                  pathType: Prefix
+          tls:
+            - secretName: "models-tls"
+              hosts:
+                - "models.${var.domain}"
     EOT
   ]
 
