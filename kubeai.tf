@@ -138,8 +138,6 @@ resource "helm_release" "kubeai_models_filebrowser" {
       persistence:
         config:
           name: kubeai-models-pvc-browser-configs
-        database:
-          enabled: false
         data:
           existingClaim: models
           accessMode: ${var.longhorn_enabled ? "ReadWriteMany" : "ReadWriteOnce"}
@@ -162,7 +160,7 @@ resource "helm_release" "kubeai_models_filebrowser" {
                 "port": "8080",
                 "baseURL": "",
                 "auth": {
-                  "method": "noauth"
+                  "method": "none"
                 },
                 "address": "",
                 "log": "stdout",
@@ -197,4 +195,3 @@ resource "helm_release" "kubeai_models_filebrowser" {
 
   depends_on = [helm_release.kubeai_models_pvc]
 }
-
