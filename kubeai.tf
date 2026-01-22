@@ -135,12 +135,6 @@ resource "helm_release" "kubeai_models_pvc_browser" {
 
   values = [
     <<-EOT
-      readinessProbe:
-        httpGet:
-          path: /
-          port: http
-      image:
-        tag: v2
       config:
         port: 8080
         baseURL: /
