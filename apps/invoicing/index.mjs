@@ -99,18 +99,6 @@ function getBillingRange(referenceDate = null) {
   };
 }
 
-// OPTION 2: Rolling 30-day period (uncomment to use)
-/*
-function getBillingRange(referenceDate = null) {
-  const end = referenceDate ? new Date(referenceDate) : new Date(); // Current moment
-  const start = new Date(end.getTime() - (30 * 24 * 60 * 60 * 1000)); // Exactly 30 days ago
-
-  return {
-    start_date: start.toISOString(),
-    end_date: end.toISOString(),
-  };
-}
-*/
 
 // --- CORE PRICING & USAGE LOGIC ---
 
@@ -170,7 +158,7 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
   const maxPages = 1000; // Safety limit to prevent infinite loops
 
   while (hasMore && page <= maxPages) {
-    const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_date=${startEnc}&end_date=${endEnc}&page=${page}&limit=100`;
+    const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_time=${startEnc}&end_time=${endEnc}&page=${page}&limit=100`;
     try {
       const response = await request(url);
       const logs = response.logs || [];
@@ -199,7 +187,7 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
   return modelUsage;
 }
 
-async function generateInvoices(referenceDate = null) {
+async function generateInvoices(nowString, referenceDate = null) {
   const billingInfo = getBillingRange(referenceDate);
   const { start_date, end_date, month_label } = billingInfo;
   
@@ -247,6 +235,7 @@ async function generateInvoices(referenceDate = null) {
       start_date,
       end_date,
       month_label,
+      nowString
     );
   });
 
@@ -254,7 +243,7 @@ async function generateInvoices(referenceDate = null) {
   return invoices.filter((inv) => inv.total_tokens > 0);
 }
 
-function buildInvoice(customer, combinedUsage, pricing, start, end, monthLabel) {
+function buildInvoice(customer, combinedUsage, pricing, start, end, monthLabel, nowString) {
   const location = process.env.LOCATION || "local";
   const cleanName = customer.name.replace(/\s+/g, "_");
   
@@ -267,7 +256,7 @@ function buildInvoice(customer, combinedUsage, pricing, start, end, monthLabel) 
     customer_id: customer.id,
     customer_name: customer.name,
     currency: "EUR",
-    issued_at: end,
+    issued_at: nowString,
     location,
     period: { start, end },
     total_cost: 0,
@@ -474,6 +463,7 @@ async function pushToOdoo(invoice) {
 
 async function executeBillingRun(triggerType, simulatedDate = null) {
   const now = simulatedDate ? new Date(simulatedDate) : new Date();
+  const nowString = new Date().toISOString();
   console.log("\n" + "=".repeat(60));
   logger(
     "RUN-START",
@@ -482,7 +472,7 @@ async function executeBillingRun(triggerType, simulatedDate = null) {
   console.log("=".repeat(60));
 
   try {
-    const invoices = await generateInvoices(simulatedDate);
+    const invoices = await generateInvoices(nowString, simulatedDate);
     const results = [];
 
     if (invoices.length === 0) {
