@@ -64,19 +64,45 @@ function request(url, options = {}) {
   });
 }
 
-// FIXED: Simple 30-day lookback
-function getBillingRange() {
-  const end = new Date();
-  end.setUTCHours(0, 0, 0, 0);
+// OPTION 1: Bill for the PREVIOUS COMPLETE CALENDAR MONTH
+function getBillingRange(referenceDate = null) {
+  const now = referenceDate ? new Date(referenceDate) : new Date();
+  
+  // Start of previous month
+  const start = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth() - 1,  // Previous month
+    1,                       // First day
+    0, 0, 0, 0              // Midnight
+  ));
+  
+  // Start of current month (= end of previous month)
+  const end = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),      // Current month
+    1,                       // First day
+    0, 0, 0, 0              // Midnight
+  ));
 
-  const start = new Date(end);
-  start.setUTCDate(start.getUTCDate() - 30);
+  return {
+    start_date: start.toISOString(),
+    end_date: end.toISOString(),
+    month_label: `${start.getUTCFullYear()}-${String(start.getUTCMonth() + 1).padStart(2, '0')}`
+  };
+}
+
+// OPTION 2: Rolling 30-day period (uncomment to use)
+/*
+function getBillingRange(referenceDate = null) {
+  const end = referenceDate ? new Date(referenceDate) : new Date(); // Current moment
+  const start = new Date(end.getTime() - (30 * 24 * 60 * 60 * 1000)); // Exactly 30 days ago
 
   return {
     start_date: start.toISOString(),
     end_date: end.toISOString(),
   };
 }
+*/
 
 // --- CORE PRICING & USAGE LOGIC ---
 
@@ -159,9 +185,11 @@ async function aggregateUsageFromLogs(vkId, startDate, endDate) {
   return modelUsage;
 }
 
-async function generateInvoices() {
-  const { start_date, end_date } = getBillingRange();
-  logger("INFO", `Analyzing usage period: ${start_date} to ${end_date}`);
+async function generateInvoices(referenceDate = null) {
+  const billingInfo = getBillingRange(referenceDate);
+  const { start_date, end_date, month_label } = billingInfo;
+  
+  logger("INFO", `Analyzing usage period: ${start_date} to ${end_date}${month_label ? ` (${month_label})` : ''}`);
 
   const [modelPricing, vkResponse] = await Promise.all([
     getK8sModelPricing(),
@@ -204,6 +232,7 @@ async function generateInvoices() {
       modelPricing,
       start_date,
       end_date,
+      month_label,
     );
   });
 
@@ -211,13 +240,13 @@ async function generateInvoices() {
   return invoices.filter((inv) => inv.total_tokens > 0);
 }
 
-function buildInvoice(customer, combinedUsage, pricing, start, end) {
+function buildInvoice(customer, combinedUsage, pricing, start, end, monthLabel) {
   const location = process.env.LOCATION || "local";
   const cleanName = customer.name.replace(/\s+/g, "_");
-  const invoice_id = `${cleanName}_${start}_${end}_${location}`.replace(
-    /:/g,
-    "-",
-  );
+  
+  // Use month label if available for cleaner invoice IDs
+  const periodId = monthLabel || `${start}_${end}`;
+  const invoice_id = `${cleanName}_${periodId}_${location}`.replace(/:/g, "-");
 
   const inv = {
     invoice_id,
@@ -305,7 +334,6 @@ async function findOdooPartner(customerName) {
   }
 }
 
-// FIXED: Check for existing invoice by reference
 async function checkInvoiceExists(invoiceRef) {
   try {
     const response = await odooCall("account.move", "search", {
@@ -323,7 +351,6 @@ async function checkInvoiceExists(invoiceRef) {
   }
 }
 
-// MODIFIED: pushToOdoo to include the sending step
 async function pushToOdoo(invoice) {
   logger("INFO", `Syncing Customer: ${invoice.customer_name}`);
 
@@ -395,7 +422,6 @@ async function pushToOdoo(invoice) {
 
     const wizardId = Array.isArray(wizardIds) ? wizardIds[0] : wizardIds;
 
-
     await odooCall(
       "account.move.send.wizard",
       "action_send_and_print",
@@ -432,17 +458,17 @@ async function pushToOdoo(invoice) {
 
 // --- UNIFIED EXECUTION LOGIC ---
 
-async function executeBillingRun(triggerType) {
-  const now = new Date();
+async function executeBillingRun(triggerType, simulatedDate = null) {
+  const now = simulatedDate ? new Date(simulatedDate) : new Date();
   console.log("\n" + "=".repeat(60));
   logger(
     "RUN-START",
-    `Trigger: ${triggerType} | Period ending: ${now.toISOString()}`,
+    `Trigger: ${triggerType}${simulatedDate ? ' (SIMULATED)' : ''} | Period ending: ${now.toISOString()}`,
   );
   console.log("=".repeat(60));
 
   try {
-    const invoices = await generateInvoices();
+    const invoices = await generateInvoices(simulatedDate);
     const results = [];
 
     if (invoices.length === 0) {
@@ -469,8 +495,6 @@ async function executeBillingRun(triggerType) {
               error: err.message,
             },
           });
-
-          // IMPORTANT: do NOT rethrow
         }
       }
 
@@ -519,30 +543,54 @@ async function executeBillingRun(triggerType) {
 
 let lastRunMonth = -1;
 
-// FIXED: 2-minute window to avoid missing exact second
+// Precise cron check for 2nd at 00:00:00
 function initCron() {
   logger(
     "INFO",
-    "Scheduler active: Monitoring for 20th of every month at 00:00 UTC",
+    "Scheduler active: Monitoring for 2nd of every month at 00:00:00 UTC",
   );
   setInterval(async () => {
     const now = new Date();
+    const currentDay = now.getUTCDate();
+    const currentHour = now.getUTCHours();
+    const currentMinute = now.getUTCMinutes();
+    const currentSecond = now.getUTCSeconds();
+    const currentMonth = now.getUTCMonth();
+    
+    // Check if it's the 2nd, at exactly 00:00:00, and we haven't run this month
     if (
-      now.getUTCDate() === 20 &&
-      now.getUTCHours() === 0 &&
-      now.getUTCMinutes() < 2 && // 2-minute window instead of exact second
-      lastRunMonth !== now.getUTCMonth()
+      currentDay === 2 &&
+      currentHour === 0 &&
+      currentMinute === 0 &&
+      currentSecond === 0 &&
+      lastRunMonth !== currentMonth
     ) {
-      lastRunMonth = now.getUTCMonth();
+      lastRunMonth = currentMonth;
       await executeBillingRun("CRON_JOB");
     }
-  }, 1000);
+  }, 1000); // Check every second
 }
 
 const server = http.createServer(async (req, res) => {
-  if (req.url === "/invoicing/generate" && req.method === "GET") {
+  if (req.url.startsWith("/invoicing/generate") && req.method === "GET") {
     try {
-      const report = await executeBillingRun("HTTP_TRIGGER");
+      // Parse query parameters
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const simulatedDate = url.searchParams.get('date');
+      
+      // Validate date if provided
+      if (simulatedDate) {
+        const parsedDate = new Date(simulatedDate);
+        if (isNaN(parsedDate.getTime())) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ 
+            error: "Invalid date format. Use ISO 8601 format (e.g., 2025-02-20T00:00:00Z)" 
+          }));
+          return;
+        }
+      }
+      
+      const report = await executeBillingRun("HTTP_TRIGGER", simulatedDate);
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(report));
     } catch (e) {
