@@ -40,5 +40,5 @@ resource "helm_release" "amd_gpu_operator" {
 
   count = var.kubeai_compute_processor == "amd" ? 1 : 0
 
-  depends_on = [helm_release.cert-manager]
+  depends_on = [helm_release.cert_manager]
 }
