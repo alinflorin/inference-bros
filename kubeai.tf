@@ -138,7 +138,6 @@ resource "helm_release" "kubeai_models_pvc_browser" {
       config:
         auth:
           method: noauth
-        baseURL: /
         directory:
           showHidden: true
       db:
