@@ -420,7 +420,7 @@ async function pushToOdoo(invoice, dryRun = "none") {
     0,
     0,
     {
-      name: `AI Usage: ${m.model_name} (${(m.prompt_tokens + m.completion_tokens).toLocaleString()} tokens${m.pricing?.request > 0 && m.total_requests > 0 ? `, ${m.total_requests.toLocaleString()} requests` : ""})`,
+      name: `AI Usage: ${m.model_name} (${m.prompt_tokens.toLocaleString()} prompt tokens, ${m.completion_tokens.toLocaleString()} completion tokens${m.pricing?.request > 0 && m.total_requests > 0 ? `, ${m.total_requests.toLocaleString()} requests` : ""})`,
       quantity: 1,
       price_unit: m.cost,
       tax_ids: [[6, 0, [CONFIG.odooTaxId]]],
