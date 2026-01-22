@@ -143,6 +143,7 @@ resource "helm_release" "kubeai_models_pvc_browser" {
         tag: v2
       config:
         port: 8080
+        baseURL: /
         auth:
           method: noauth
         directory:
