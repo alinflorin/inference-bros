@@ -70,6 +70,7 @@ resource "helm_release" "generic" {
           ${var.enable_auth == true ? "nginx.ingress.kubernetes.io/proxy-buffering: \"off\"" : ""}
           ${var.enable_auth == true ? "nginx.ingress.kubernetes.io/proxy-read-timeout: \"3600\"" : ""}
           ${var.enable_auth == true ? "nginx.ingress.kubernetes.io/proxy-send-timeout: \"3600\"" : ""}
+          ${var.enable_auth == true ? "nginx.ingress.kubernetes.io/proxy-connect-timeout: \"3600\"" : ""}
         hosts:
           - host: "${var.ingress_subdomain == "" ? var.name : var.ingress_subdomain}.${var.domain}"
             paths:

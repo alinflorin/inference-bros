@@ -27,6 +27,7 @@ resource "helm_release" "longhorn" {
           nginx.ingress.kubernetes.io/proxy-buffering: "off"
           nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
           nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+          nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
       metrics:
         serviceMonitor:
           enabled: true

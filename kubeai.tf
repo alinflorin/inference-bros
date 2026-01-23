@@ -123,3 +123,50 @@ resource "helm_release" "kubeai_models_pvc" {
 
   depends_on = [helm_release.longhorn[0]]
 }
+
+
+resource "helm_release" "kubeai_models_explorer" {
+  name       = "kubeai-models-explorer"
+  repository = "oci://ghcr.io/ernail/charts"
+  chart      = "copyparty"
+  namespace  = "kubeai"
+  version    = "2.0.0"
+  atomic     = false
+  wait       = false
+
+  values = [
+    <<-EOT
+      resources:
+        requests:
+          cpu: "50m"
+          memory: "128Mi"
+        limits:
+          cpu: "100m"
+          memory: "256Mi"
+      ingress:
+        enabled: true
+        className: "nginx"
+        annotations:
+          nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+          cert-manager.io/cluster-issuer: ${var.location == "local" ? "root-ca-issuer" : "letsencrypt"}
+          nginx.ingress.kubernetes.io/auth-url: "http://oauth2-proxy.oauth2-proxy.svc.cluster.local/oauth2/auth"
+          nginx.ingress.kubernetes.io/auth-signin: "https://oauth2-proxy.${var.domain}/oauth2/start?rd=$scheme://$host$request_uri"
+          nginx.ingress.kubernetes.io/proxy-buffering: "off"
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+          nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+          nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+        hosts:
+          - host: "models.${var.domain}"
+            paths:
+              - path: /
+                pathType: Prefix
+                servicePortName: "http"
+        tls:
+          - hosts:
+              - "models.${var.domain}"
+            secretName: "models-tls"
+    EOT
+  ]
+
+  depends_on = [helm_release.kubeai_models_pvc]
+}

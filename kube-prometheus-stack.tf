@@ -140,6 +140,7 @@ resource "helm_release" "kube_prometheus_stack" {
             nginx.ingress.kubernetes.io/proxy-buffering: "off"
             nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
             nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
           hosts:
             - alertmanager.${var.domain}
           paths:
@@ -356,6 +357,7 @@ resource "helm_release" "kube_prometheus_stack" {
             nginx.ingress.kubernetes.io/proxy-buffering: "off"
             nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
             nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+            nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
           hosts:
             - prometheus.${var.domain}
           paths:
