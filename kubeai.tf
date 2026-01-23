@@ -131,8 +131,8 @@ resource "helm_release" "kubeai_models_explorer" {
   chart      = "copyparty"
   namespace  = "kubeai"
   version    = "2.0.0"
-  atomic     = false
-  wait       = false
+  atomic     = true
+  wait       = true
 
   values = [
     <<-EOT
