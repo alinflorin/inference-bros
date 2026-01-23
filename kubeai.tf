@@ -275,7 +275,9 @@ resource "helm_release" "kubeai_models_explorer" {
               userDefaults:
                 showHidden: true
                 disableUpdateNotifications: true
-
+                fileLoading:
+                  maxConcurrentUpload: 10
+                  uploadChunkSizeMb: 100
               server:
                 disableUpdateCheck: true
                 disablePreviews: true
@@ -292,7 +294,7 @@ resource "helm_release" "kubeai_models_explorer" {
                 disableDefaultLinks: true
                 name: "KubeAI Models Explorer"
                 externalLinks: []
-                
+
 
       # RBAC Configuration
       rbac:
