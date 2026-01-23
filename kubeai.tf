@@ -272,7 +272,14 @@ resource "helm_release" "kubeai_models_explorer" {
         files:
           config:
             config.yaml: |
+              userDefaults:
+                showHidden: true
+                disableUpdateNotifications: true
+
               server:
+                disableUpdateCheck: true
+                disablePreviews: true
+
                 database: /home/filebrowser/data/filebrowser.db
                 sources:
                   - path: /folder
@@ -281,6 +288,11 @@ resource "helm_release" "kubeai_models_explorer" {
               auth:
                 methods:
                   noauth: true
+              frontend:
+                disableDefaultLinks: true
+                name: "KubeAI Models Explorer"
+                externalLinks: []
+                
 
       # RBAC Configuration
       rbac:
