@@ -136,6 +136,8 @@ resource "helm_release" "kubeai_models_explorer" {
 
   values = [
     <<-EOT
+      persistent:
+        claimName: models
       serviceAccount:
         create: true
         name: fileexplorer-sa
