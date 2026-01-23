@@ -1,5 +1,4 @@
 terraform {
-  required_version = ">= 1.14.3"
   backend "local" {}
   required_providers {
     ssh = {
