@@ -136,6 +136,9 @@ resource "helm_release" "kubeai_models_explorer" {
 
   values = [
     <<-EOT
+      initScript: |
+        echo "aaa"
+
       persistent:
         claimName: models
       serviceAccount:
@@ -160,6 +163,7 @@ resource "helm_release" "kubeai_models_explorer" {
           nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
           nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
           nginx.ingress.kubernetes.io/proxy-connect-timeout: "3600"
+          kubernetes.io/ingress.class: nginx
         hosts:
           - host: "models.${var.domain}"
             paths:
