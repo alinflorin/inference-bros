@@ -138,7 +138,19 @@ resource "helm_release" "kubeai_models_explorer" {
     <<-EOT
       initScript: |
         echo "aaa"
-
+      config: |
+        {
+          "port": 80,
+          "baseURL": "",
+          "auth": {
+            "method": "proxy",
+            "proxyHeader": "X-Forwarded-User"
+          },
+          "address": "",
+          "log": "stdout",
+          "database": "/database.db",
+          "root": "/srv"
+        }
       persistent:
         claimName: models
       serviceAccount:
