@@ -163,7 +163,7 @@ resource "helm_release" "kubeai_models_explorer" {
         hosts:
           - host: "models.${var.domain}"
             paths:
-              - '/'
+              - path: '/'
         tls:
           - hosts:
               - "models.${var.domain}"
