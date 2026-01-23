@@ -11,6 +11,8 @@ resource "helm_release" "ingress_nginx" {
   values = [
     <<-EOT
       controller:
+        ingressClassResource:
+          default: true
         autoscaling:
           enabled: ${var.nginx_hpa.enabled}
           minReplicas: ${var.nginx_hpa.min_replicas}
