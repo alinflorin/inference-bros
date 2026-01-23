@@ -136,6 +136,9 @@ resource "helm_release" "kubeai_models_explorer" {
 
   values = [
     <<-EOT
+      serviceAccount:
+        create: true
+        name: copyparty-sa
       resources:
         requests:
           cpu: "50m"
