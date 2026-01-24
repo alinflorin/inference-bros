@@ -37,6 +37,26 @@ env:
   BACKEND_TYPE: ${{ github.event_name == 'workflow_dispatch' && 'cloud' || 'local' }}
 
 jobs:
+  security-scan:
+    name: Terraform Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write # Required to upload SARIF
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-sarif-action@v0.1.4
+        with:
+          sarif_file: tfsec.sarif
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        if: success() || failure() # Upload even if vulnerabilities are found
+        with:
+          sarif_file: tfsec.sarif
   plan:
     name: Terraform Plan / Validate
     runs-on: ubuntu-latest
@@ -172,7 +192,7 @@ jobs:
 
   apply:
     name: Terraform Apply
-    needs: plan
+    needs: [plan, security-scan]
     runs-on: ubuntu-latest
 
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
