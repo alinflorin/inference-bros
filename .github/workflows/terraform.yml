@@ -19,7 +19,7 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   issues: write
   security-events: write
@@ -37,28 +37,43 @@ env:
   BACKEND_TYPE: ${{ github.event_name == 'workflow_dispatch' && 'cloud' || 'local' }}
 
 jobs:
-  security-scan:
-    name: Terraform Security Scan
+  generate-sbom:
     runs-on: ubuntu-latest
-    permissions:
-      security-events: write # Required to upload SARIF
-      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-sarif-action@v0.1.4
+      - name: Run Trivy in GitHub SBOM mode and submit results to Dependency Graph
+        uses: aquasecurity/trivy-action@0.33.1
         with:
-          sarif_file: tfsec.sarif
-          tfsec_args: '--tfvars-file=${{ env.ENV }}.tfvars'
-          
+          scan-type: 'fs'
+          format: 'github'
+          output: 'dependency-results.sbom.json'
+          scan-ref: '.'
+          github-pat: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v4
-        if: success() || failure() # Upload even if vulnerabilities are found
+  security-scan:
+    name: Terraform Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner in IaC mode
+        uses: aquasecurity/trivy-action@0.33.1
         with:
-          sarif_file: tfsec.sarif
+          scan-type: 'config'
+          hide-progress: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: 'trivy-results.sarif'
   plan:
     name: Terraform Plan / Validate
     runs-on: ubuntu-latest
