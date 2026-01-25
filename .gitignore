@@ -7,6 +7,8 @@
 # $ git config --global mergetool.keepBackup false
 *.orig
 /*.dot
+tfplan
+*.tfplan
 /*.svg
 # Created by git when using merge tools for conflicts
 *.BACKUP.*
