@@ -177,30 +177,30 @@ variable "odoo_tax_id" {
 
 variable "kubeai_hpa" {
   type = object({
-    enabled         = bool
-    min_replicas    = number
-    max_replicas    = number
-    cpu_utilization = number
+    enabled            = bool
+    min_replicas       = number
+    max_replicas       = number
+    cpu_utilization    = number
     memory_utilization = number
   })
 }
 
 variable "bifrost_hpa" {
   type = object({
-    enabled         = bool
-    min_replicas    = number
-    max_replicas    = number
-    cpu_utilization = number
+    enabled            = bool
+    min_replicas       = number
+    max_replicas       = number
+    cpu_utilization    = number
     memory_utilization = number
   })
 }
 
 variable "nginx_hpa" {
   type = object({
-    enabled         = bool
-    min_replicas    = number
-    max_replicas    = number
-    cpu_utilization = number
+    enabled            = bool
+    min_replicas       = number
+    max_replicas       = number
+    cpu_utilization    = number
     memory_utilization = number
   })
 }

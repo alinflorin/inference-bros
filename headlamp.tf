@@ -71,5 +71,5 @@ resource "helm_release" "headlamp" {
   ]
 
   depends_on = [null_resource.k3s_installed]
-  count = var.monitoring_enabled ? 1 : 0
+  count      = var.monitoring_enabled ? 1 : 0
 }

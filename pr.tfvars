@@ -37,37 +37,37 @@ dex_users = [{
 dex_passwords = ["..."]
 
 kubeai_hpa = {
-  cpu_utilization = 80
+  cpu_utilization    = 80
   memory_utilization = 80
-  enabled = true
-  min_replicas = 1
-  max_replicas = 2
+  enabled            = true
+  min_replicas       = 1
+  max_replicas       = 2
 }
 
 bifrost_hpa = {
-  cpu_utilization = 80
+  cpu_utilization    = 80
   memory_utilization = 80
-  enabled = true
-  min_replicas = 1
-  max_replicas = 2
+  enabled            = true
+  min_replicas       = 1
+  max_replicas       = 2
 }
 
 nginx_hpa = {
-  cpu_utilization = 80
+  cpu_utilization    = 80
   memory_utilization = 80
-  enabled = true
-  min_replicas = 1
-  max_replicas = 2
+  enabled            = true
+  min_replicas       = 1
+  max_replicas       = 2
 }
 
-prometheus_storage_gb = 10
-loki_storage_gb       = 5
-grafana_storage_gb    = 5
-tempo_storage_gb      = 5
-mail_storage_gb       = 1
-bifrost_storage_gb    = 50
+prometheus_storage_gb   = 10
+loki_storage_gb         = 5
+grafana_storage_gb      = 5
+tempo_storage_gb        = 5
+mail_storage_gb         = 1
+bifrost_storage_gb      = 50
 alertmanager_storage_gb = 1
-kubeai_pvc_storage_gb = 100
+kubeai_pvc_storage_gb   = 100
 
 smtp_username       = "..."
 smtp_password       = "..."
@@ -85,8 +85,8 @@ kubeai_proxy_replicas = 5
 bifrost_replicas      = 5
 
 bifrost_insecure_enable = false
-monitoring_enabled     = true
-odoo_api_key = "..."
-odoo_url     = "https://inferencebros.odoo.com"
-odoo_database = "inferencebros"
-odoo_tax_id = 129
+monitoring_enabled      = true
+odoo_api_key            = "..."
+odoo_url                = "https://inferencebros.odoo.com"
+odoo_database           = "inferencebros"
+odoo_tax_id             = 129

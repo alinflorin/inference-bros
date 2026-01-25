@@ -50,7 +50,7 @@ resource "helm_release" "longhorn" {
         snapshotterReplicaCount: 1
 
     EOT
-    
+
   ]
 
   count = var.longhorn_enabled ? 1 : 0
