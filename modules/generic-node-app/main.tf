@@ -17,12 +17,12 @@ resource "helm_release" "generic" {
           terraform.io/app-checksum: "${md5(file("${path.root}/apps/${var.name}/index.mjs"))}"
         env:
           ${indent(4, yamlencode(merge(
-          {
-            NODE_ENV = { value = "production" }
-            LOCATION = { value = var.location }
-          },
-          { for k, v in var.env : k => { value = v } }
-        )))}
+    {
+      NODE_ENV = { value = "production" }
+      LOCATION = { value = var.location }
+    },
+    { for k, v in var.env : k => { value = v } }
+)))}
         terminationGracePeriodSeconds: ${var.termination_grace_period_seconds}
         resources:
           limits:
@@ -94,6 +94,6 @@ resource "helm_release" "generic" {
             index.mjs: |
               ${indent(8, file("${path.root}/apps/${var.name}/index.mjs"))}
     EOT
-  ]
+]
 
 }
