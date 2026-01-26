@@ -46,7 +46,6 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
       flannel-backend: "vxlan"
       node-name: ${local.first_master.hostname}
       tls-san:
-        - ${local.first_master.ip}
         - ${local.first_master.ssh_ip}
         - ${var.k3s_vip}
         - k3s.${var.domain}
@@ -260,7 +259,6 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
       flannel-backend: "vxlan"
       node-name: ${each.value.hostname}
       tls-san:
-        - ${each.value.ip}
         - ${each.value.ssh_ip}
         - ${var.k3s_vip}
         - k3s.${var.domain}
