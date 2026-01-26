@@ -360,6 +360,19 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
 }
 
 
+resource "cloudflare_dns_record" "k3s_a" {
+  zone_id = var.cloudflare_zone_id
+  name = "k3s"
+  type = "A"
+  content = var.public_ip
+  ttl = 300
+  proxied = false
+
+  count = var.enable_dns ? 1 : 0
+}
+
+
+
 // Destroy all on tf destroy command
 resource "ssh_sensitive_resource" "destroy_k3s_all" {
   for_each = {

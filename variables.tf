@@ -215,6 +215,12 @@ variable "cloudflare_api_token" {
   sensitive = true
 }
 
+variable "cloudflare_zone_id" {
+  type      = string
+  sensitive = true
+}
+
+
 variable "public_ip" {
   type      = string
 }

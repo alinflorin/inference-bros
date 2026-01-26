@@ -18,3 +18,7 @@ provider "helm" {
     cluster_ca_certificate = base64decode(local.k3s_kubeconfig_object.clusters[0].cluster.certificate-authority-data)
   }
 }
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
+}

@@ -16,5 +16,8 @@ terraform {
     random = {
       source = "hashicorp/random"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+    }
   }
 }
