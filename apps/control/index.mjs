@@ -72,6 +72,28 @@ function request(url, options = {}) {
   });
 }
 
+// --- VALIDATION ---
+
+async function validateApiKey(apiKey) {
+  try {
+    const url = `${CONFIG.bifrostUrl}/api/governance/virtual-keys/${encodeURIComponent(apiKey)}`;
+    const response = await request(url);
+    
+    if (response.virtual_key && response.virtual_key.is_active) {
+      return {
+        valid: true,
+        keyId: response.virtual_key.id,
+        keyName: response.virtual_key.name,
+      };
+    }
+    
+    return { valid: false, reason: "Key inactive" };
+  } catch (err) {
+    logger("WARN", `API key validation failed`, err.message);
+    return { valid: false, reason: "Key not found" };
+  }
+}
+
 // OPTION 1: Bill for the PREVIOUS COMPLETE CALENDAR MONTH
 function getBillingRange(referenceDate = null) {
   const now = referenceDate ? new Date(referenceDate) : new Date();
@@ -305,6 +327,76 @@ function buildInvoice(
 
   inv.total_cost = Number(inv.total_cost.toFixed(6));
   return inv;
+}
+
+// --- USAGE QUERY (NEW) ---
+
+async function calculateUsage(apiKey, startDate, endDate) {
+  logger("INFO", `Calculating usage for key ${apiKey} from ${startDate} to ${endDate}`);
+  
+  const [modelPricing, usageData] = await Promise.all([
+    getK8sModelPricing(),
+    aggregateUsageFromLogs(apiKey, startDate, endDate),
+  ]);
+
+  const models = [];
+  let totalPromptTokens = 0;
+  let totalCompletionTokens = 0;
+  let totalRequests = 0;
+  let totalCost = 0;
+
+  for (const [modelId, usage] of Object.entries(usageData)) {
+    const pricing = modelPricing[modelId];
+    
+    const promptCost = pricing ? usage.prompt * pricing.prompt : 0;
+    const completionCost = pricing ? usage.completion * pricing.completion : 0;
+    const requestCost = pricing ? usage.requests * pricing.request : 0;
+    const modelTotalCost = promptCost + completionCost + requestCost;
+
+    models.push({
+      model_id: modelId,
+      model_name: pricing?.name || modelId,
+      prompt_tokens: usage.prompt,
+      completion_tokens: usage.completion,
+      total_tokens: usage.prompt + usage.completion,
+      total_requests: usage.requests,
+      cost_breakdown: {
+        prompt_cost: Number(promptCost.toFixed(6)),
+        completion_cost: Number(completionCost.toFixed(6)),
+        request_cost: Number(requestCost.toFixed(6)),
+      },
+      total_cost: Number(modelTotalCost.toFixed(6)),
+      pricing: pricing ? {
+        prompt_per_token: pricing.prompt,
+        completion_per_token: pricing.completion,
+        per_request: pricing.request,
+      } : null,
+    });
+
+    totalPromptTokens += usage.prompt;
+    totalCompletionTokens += usage.completion;
+    totalRequests += usage.requests;
+    totalCost += modelTotalCost;
+  }
+
+  // Sort by cost descending
+  models.sort((a, b) => b.total_cost - a.total_cost);
+
+  return {
+    period: {
+      start: startDate,
+      end: endDate,
+    },
+    summary: {
+      total_prompt_tokens: totalPromptTokens,
+      total_completion_tokens: totalCompletionTokens,
+      total_tokens: totalPromptTokens + totalCompletionTokens,
+      total_requests: totalRequests,
+      total_cost: Number(totalCost.toFixed(6)),
+      currency: "EUR",
+    },
+    models,
+  };
 }
 
 // --- ODOO INTEGRATION WITH RETRY & DEDUPLICATION ---
@@ -633,6 +725,17 @@ function initCron() {
 }
 
 const server = http.createServer(async (req, res) => {
+  // CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
+
   // Health check endpoint
   if (req.url === "/health" && req.method === "GET") {
     res.writeHead(200, { "Content-Type": "application/json" });
@@ -640,6 +743,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Invoice generation endpoint
   if (req.url.startsWith("/invoicing/generate") && req.method === "GET") {
     try {
       // Parse query parameters
@@ -678,13 +782,229 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: e.message }));
     }
-  } else {
-    res.writeHead(404);
-    res.end();
+    return;
   }
+
+  // Usage query endpoint (NEW)
+  if (req.url.startsWith("/usage") && req.method === "GET") {
+    try {
+      // Extract API key from Authorization header
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        res.writeHead(401, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: "Missing or invalid Authorization header. Expected: Authorization: Bearer <api_key>",
+          }),
+        );
+        return;
+      }
+
+      const apiKey = authHeader.substring(7); // Remove "Bearer "
+
+      // Parse query parameters
+      const url = new URL(req.url, `http://${req.headers.host}`);
+      const startDate = url.searchParams.get("start_date");
+      const endDate = url.searchParams.get("end_date");
+
+      // Validate required parameters
+      if (!startDate || !endDate) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: "Missing required parameters: start_date and end_date (ISO 8601 format)",
+            example: "/usage?start_date=2025-01-01T00:00:00Z&end_date=2025-01-31T23:59:59Z",
+          }),
+        );
+        return;
+      }
+
+      // Validate date formats
+      const startParsed = new Date(startDate);
+      const endParsed = new Date(endDate);
+      
+      if (isNaN(startParsed.getTime()) || isNaN(endParsed.getTime())) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: "Invalid date format. Use ISO 8601 format (e.g., 2025-01-01T00:00:00Z)",
+          }),
+        );
+        return;
+      }
+
+      if (startParsed >= endParsed) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: "start_date must be before end_date",
+          }),
+        );
+        return;
+      }
+
+      // Validate API key
+      logger("INFO", `Validating API key: ${apiKey.substring(0, 8)}...`);
+      const validation = await validateApiKey(apiKey);
+      
+      if (!validation.valid) {
+        res.writeHead(401, { "Content-Type": "application/json" });
+        res.end(
+          JSON.stringify({
+            error: "Invalid or inactive API key",
+            reason: validation.reason,
+          }),
+        );
+        return;
+      }
+
+      logger("INFO", `Key validated: ${validation.keyName} (${validation.keyId})`);
+
+      // Calculate usage
+      const usage = await calculateUsage(apiKey, startDate, endDate);
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(usage, null, 2));
+      
+      logger("INFO", `Usage query completed`, {
+        key: validation.keyName,
+        period: `${startDate} to ${endDate}`,
+        total_cost: usage.summary.total_cost,
+      });
+    } catch (err) {
+      logger("ERROR", "Usage query failed", err.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          error: "Internal server error",
+          message: err.message,
+        }),
+      );
+    }
+    return;
+  }
+
+  // OpenRouter models endpoint (NEW)
+  if (req.url === "/openrouter/models" && req.method === "GET") {
+    try {
+      if (!CONFIG.useInClusterAuth) {
+        // Development mode: use kubectl
+        const kubeconfigArg = CONFIG.kubeconfig
+          ? `--kubeconfig=${CONFIG.kubeconfig}`
+          : "";
+        const { stdout } = await execAsync(
+          `kubectl ${kubeconfigArg} get models.kubeai.org -n kubeai -o json`,
+        );
+        const kubeData = JSON.parse(stdout);
+
+        const openRouterModels = kubeData.items
+          .filter(
+            (item) =>
+              item.metadata.annotations &&
+              item.metadata.annotations["openrouter.ai/json"],
+          )
+          .map((item) => {
+            try {
+              return JSON.parse(
+                item.metadata.annotations["openrouter.ai/json"],
+              );
+            } catch (e) {
+              logger("ERROR", `Failed to parse annotation for ${item.metadata.name}`);
+              return null;
+            }
+          })
+          .filter((model) => model !== null);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ data: openRouterModels }));
+      } else {
+        // Production mode: use in-cluster auth
+        const token = fs.readFileSync(CONFIG.tokenPath, "utf8");
+        const ca = fs.readFileSync(CONFIG.caPath);
+
+        const options = {
+          hostname: CONFIG.k8sHost,
+          port: CONFIG.k8sPort,
+          path: "/apis/kubeai.org/v1/models",
+          method: "GET",
+          ca: ca,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        };
+
+        const k8sReq = https.request(options, (k8sRes) => {
+          let body = "";
+          k8sRes.on("data", (chunk) => (body += chunk));
+          k8sRes.on("end", () => {
+            if (k8sRes.statusCode === 200) {
+              const kubeData = JSON.parse(body);
+
+              const openRouterModels = kubeData.items
+                .filter(
+                  (item) =>
+                    item.metadata.annotations &&
+                    item.metadata.annotations["openrouter.ai/json"],
+                )
+                .map((item) => {
+                  try {
+                    return JSON.parse(
+                      item.metadata.annotations["openrouter.ai/json"],
+                    );
+                  } catch (e) {
+                    logger("ERROR", `Failed to parse annotation for ${item.metadata.name}`);
+                    return null;
+                  }
+                })
+                .filter((model) => model !== null);
+
+              res.writeHead(200, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ data: openRouterModels }));
+            } else {
+              res.writeHead(k8sRes.statusCode, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: "K8s API Error", details: body }));
+            }
+          });
+        });
+
+        k8sReq.on("error", (err) => {
+          logger("ERROR", "K8s request failed", err.message);
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Request Failed", msg: err.message }));
+        });
+        k8sReq.end();
+      }
+    } catch (err) {
+      logger("ERROR", "OpenRouter models endpoint failed", err.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "Internal Error", msg: err.message }));
+    }
+    return;
+  }
+
+  // 404 for other routes
+  res.writeHead(404);
+  res.end();
 });
 
 server.listen(PORT, () => {
   logger("INFO", `Invoicing Service online on port ${PORT}`);
+  logger("INFO", `Endpoints:`);
+  logger("INFO", `  - GET /invoicing/generate?date=<ISO>&dry_run=<all|validate|none>`);
+  logger("INFO", `  - GET /usage?start_date=<ISO>&end_date=<ISO> (requires Authorization: Bearer <key>)`);
+  logger("INFO", `  - GET /openrouter/models`);
   initCron();
 });
+
+// Graceful shutdown
+const shutdown = () => {
+  logger("INFO", "Shutting down gracefully...");
+  server.close(() => {
+    logger("INFO", "Server closed");
+    process.exit(0);
+  });
+};
+
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
