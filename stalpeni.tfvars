@@ -1,6 +1,7 @@
 servers = [
   {
     ip       = "192.168.0.101"
+    ssh_ip       = "192.168.0.101"
     port     = 22
     user     = "root"
     master   = true

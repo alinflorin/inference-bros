@@ -15,7 +15,7 @@ locals {
 # Install first master
 
 resource "ssh_sensitive_resource" "install_k3s_first_master" {
-  host        = local.first_master.ip
+  host        = local.first_master.ssh_ip
   user        = local.first_master.user
   port        = local.first_master.port
   agent       = false
@@ -47,6 +47,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
       node-name: ${local.first_master.hostname}
       tls-san:
         - ${local.first_master.ip}
+        - ${local.first_master.ssh_ip}
         - ${var.k3s_vip}
         - k3s.${var.domain}
       disable:
@@ -100,8 +101,8 @@ locals {
   ).token
   k3s_kubeconfig = replace(base64decode(jsondecode(
     ssh_sensitive_resource.install_k3s_first_master.result
-  ).kubeconfig_b64), "127.0.0.1", local.first_master.ip)
-  k3s_kubeconfig_url       = "https://${local.first_master.ip}:6443"
+  ).kubeconfig_b64), "127.0.0.1", local.first_master.ssh_ip)
+  k3s_kubeconfig_url       = "https://${local.first_master.ssh_ip}:6443"
   k3s_kubeconfig_object    = yamldecode(local.k3s_kubeconfig)
   k3s_kubeconfig_for_users = <<-EOT
     apiVersion: v1
@@ -232,7 +233,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 
   }
 
-  host        = each.value.ip
+  host        = each.value.ssh_ip
   user        = each.value.user
   port        = each.value.port
   agent       = false
@@ -260,6 +261,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
       node-name: ${each.value.hostname}
       tls-san:
         - ${each.value.ip}
+        - ${each.value.ssh_ip}
         - ${var.k3s_vip}
         - k3s.${var.domain}
       disable:
@@ -311,7 +313,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
 
   }
 
-  host        = each.value.ip
+  host        = each.value.ssh_ip
   user        = each.value.user
   port        = each.value.port
   agent       = false

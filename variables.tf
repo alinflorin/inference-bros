@@ -34,6 +34,7 @@ variable "domain" {
 variable "servers" {
   type = list(object({
     ip       = string
+    ssh_ip = string
     hostname = string
     port     = number
     user     = string
