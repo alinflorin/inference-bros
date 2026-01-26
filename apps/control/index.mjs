@@ -76,21 +76,28 @@ function request(url, options = {}) {
 
 async function validateApiKey(apiKey) {
   try {
-    const url = `${CONFIG.bifrostUrl}/api/governance/virtual-keys/${encodeURIComponent(apiKey)}`;
+    const url = `${CONFIG.bifrostUrl}/api/governance/virtual-keys`;
     const response = await request(url);
     
-    if (response.virtual_key && response.virtual_key.is_active) {
-      return {
-        valid: true,
-        keyId: response.virtual_key.id,
-        keyName: response.virtual_key.name,
-      };
+    const allKeys = response.virtual_keys || [];
+    const matchingKey = allKeys.find((vk) => vk.value === apiKey);
+    
+    if (!matchingKey) {
+      return { valid: false, reason: "Key not found" };
     }
     
-    return { valid: false, reason: "Key inactive" };
+    if (!matchingKey.is_active) {
+      return { valid: false, reason: "Key inactive" };
+    }
+    
+    return {
+      valid: true,
+      keyId: matchingKey.id,
+      keyName: matchingKey.name,
+    };
   } catch (err) {
     logger("WARN", `API key validation failed`, err.message);
-    return { valid: false, reason: "Key not found" };
+    return { valid: false, reason: "Service error" };
   }
 }
 
@@ -1005,6 +1012,3 @@ const shutdown = () => {
     process.exit(0);
   });
 };
-
-process.on("SIGTERM", shutdown);
-process.on("SIGINT", shutdown);
