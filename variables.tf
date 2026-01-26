@@ -204,3 +204,16 @@ variable "nginx_hpa" {
     memory_utilization = number
   })
 }
+
+variable "enable_external_dns" {
+  type = bool
+}
+
+variable "cloudflare_api_token" {
+  type      = string
+  sensitive = true
+}
+
+variable "public_ip" {
+  type      = string
+}
