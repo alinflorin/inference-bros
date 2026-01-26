@@ -33,7 +33,7 @@ resource "helm_release" "longhorn" {
           enabled: true
       defaultSettings:
         storageReservedPercentageForDefaultDisk: 1
-        guaranteedInstanceManagerCPU: '{"v1":"3","v2":"3"}'
+        guaranteedInstanceManagerCPU: 0
         allowCollectingLonghornUsageMetrics: false
         storageMinimalAvailablePercentage: 1
         deletingConfirmationFlag: true
