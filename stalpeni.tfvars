@@ -109,3 +109,4 @@ enable_dns = false
 cloudflare_api_token = "#{CLOUDFLARE_API_TOKEN}"
 cloudflare_zone_id = "#{CLOUDFLARE_ZONE_ID}"
 public_ip = "192.168.1.240"
+dns_type = "wildcard"

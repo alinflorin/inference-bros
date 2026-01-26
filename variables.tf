@@ -224,3 +224,7 @@ variable "cloudflare_zone_id" {
 variable "public_ip" {
   type      = string
 }
+
+variable "dns_type" {
+  type    = string
+}

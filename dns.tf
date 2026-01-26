@@ -6,7 +6,18 @@ resource "cloudflare_dns_record" "k3s" {
   ttl = 300
   proxied = false
 
-  count = var.enable_dns ? 1 : 0
+  count = var.enable_dns == true && var.dns_type == "external-dns" ? 1 : 0
+}
+
+resource "cloudflare_dns_record" "wildcard" {
+  zone_id = var.cloudflare_zone_id
+  name = "*.${var.location}"
+  type = "A"
+  content = var.public_ip
+  ttl = 300
+  proxied = false
+
+  count = var.enable_dns == true && var.dns_type == "wildcard" ? 1 : 0
 }
 
 resource "helm_release" "external_dns" {
@@ -43,7 +54,7 @@ resource "helm_release" "external_dns" {
 
   ]
 
-  count = var.enable_dns ? 1 : 0
+  count = var.enable_dns == true && var.dns_type == "external-dns" ? 1 : 0
 
   depends_on = [helm_release.prometheus_operator_crds]
 }
