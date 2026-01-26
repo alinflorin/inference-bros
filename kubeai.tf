@@ -121,7 +121,7 @@ resource "helm_release" "kubeai_models_pvc" {
     EOT
   ]
 
-  depends_on = [helm_release.longhorn[0]]
+  depends_on = [helm_release.longhorn[0], helm_release.kubeai]
 }
 
 
