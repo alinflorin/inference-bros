@@ -1,4 +1,4 @@
-resource "cloudflare_dns_record" "wildcard" {
+resource "cloudflare_dns_record" "k3s" {
   zone_id = var.cloudflare_zone_id
   name = "k3s.${var.location}"
   type = "A"
