@@ -32,5 +32,7 @@ resource "helm_release" "external_dns" {
 
   ]
 
+  count = var.enable_external_dns ? 1 : 0
+
   depends_on = [helm_release.prometheus_operator_crds]
 }
