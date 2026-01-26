@@ -206,7 +206,7 @@ variable "nginx_hpa" {
   })
 }
 
-variable "enable_external_dns" {
+variable "enable_dns" {
   type = bool
 }
 

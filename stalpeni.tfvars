@@ -105,6 +105,6 @@ odoo_url                = "https://inferencebros.odoo.com"
 odoo_database           = "inferencebros"
 odoo_tax_id             = 129
 
-enable_external_dns = false
+enable_dns = false
 cloudflare_api_token = "#{CLOUDFLARE_API_TOKEN}"
 public_ip = "192.168.1.240"
