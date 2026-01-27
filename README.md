@@ -126,7 +126,8 @@ https://longhorn.stalpeni.inferencebros.com - PVC management
 https://prometheus.stalpeni.inferencebros.com  
 https://alertmanager.stalpeni.inferencebros.com  
 https://bifrost.stalpeni.inferencebros.com  - LLM gateway  
-https://control.stalpeni.inferencebros.com  - custom software 
+https://models.stalpeni.inferencebros.com  - PVC explorer for models  
+https://control.stalpeni.inferencebros.com  - control software 
 
 
 Installed software on k3s:  
@@ -145,4 +146,5 @@ Installed software on k3s:
 - oauth2-proxy - shared instance to protect open UIs like longhorn, bifrost    
 - KubeAI - vLLM runner  
 - Bifrost - LLM Gateway  
+- PVC Explorer for Models  
 - Custom scripts  
