@@ -1,9 +1,9 @@
 resource "cloudflare_dns_record" "k3s" {
   zone_id = var.cloudflare_zone_id
-  name = "k3s.${var.location}"
-  type = "A"
+  name    = "k3s.${var.location}"
+  type    = "A"
   content = var.public_ip
-  ttl = 300
+  ttl     = 300
   proxied = false
 
   count = var.enable_dns == true && var.dns_type == "external-dns" ? 1 : 0
@@ -11,10 +11,10 @@ resource "cloudflare_dns_record" "k3s" {
 
 resource "cloudflare_dns_record" "wildcard" {
   zone_id = var.cloudflare_zone_id
-  name = "*.${var.location}"
-  type = "A"
+  name    = "*.${var.location}"
+  type    = "A"
   content = var.public_ip
-  ttl = 300
+  ttl     = 300
   proxied = false
 
   count = var.enable_dns == true && var.dns_type == "wildcard" ? 1 : 0

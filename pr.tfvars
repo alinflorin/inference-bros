@@ -1,7 +1,7 @@
 servers = [
   {
     ip       = "192.168.0.101"
-    ssh_ip       = "192.168.1.159"
+    ssh_ip   = "192.168.1.159"
     port     = 22
     user     = "root"
     master   = true
@@ -92,8 +92,8 @@ odoo_url                = "https://inferencebros.odoo.com"
 odoo_database           = "inferencebros"
 odoo_tax_id             = 129
 
-enable_dns = false
+enable_dns           = false
 cloudflare_api_token = "----------------------------------------"
-cloudflare_zone_id = "..."
-public_ip = "192.168.1.240"
-dns_type = "external-dns"
+cloudflare_zone_id   = "..."
+public_ip            = "192.168.1.240"
+dns_type             = "external-dns"

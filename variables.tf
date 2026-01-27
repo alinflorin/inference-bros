@@ -34,7 +34,7 @@ variable "domain" {
 variable "servers" {
   type = list(object({
     ip       = string
-    ssh_ip = string
+    ssh_ip   = string
     hostname = string
     port     = number
     user     = string
@@ -222,9 +222,9 @@ variable "cloudflare_zone_id" {
 
 
 variable "public_ip" {
-  type      = string
+  type = string
 }
 
 variable "dns_type" {
-  type    = string
+  type = string
 }
