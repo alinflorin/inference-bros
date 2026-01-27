@@ -7,6 +7,7 @@
 # $ git config --global mergetool.keepBackup false
 *.orig
 /*.dot
+/temp
 tfplan
 *.tfplan
 /*.svg

@@ -93,7 +93,7 @@ odoo_database           = "inferencebros"
 odoo_tax_id             = 129
 
 enable_dns = false
-cloudflare_api_token = "..."
+cloudflare_api_token = "----------------------------------------"
 cloudflare_zone_id = "..."
 public_ip = "192.168.1.240"
 dns_type = "external-dns"
