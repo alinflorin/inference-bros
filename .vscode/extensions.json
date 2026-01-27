@@ -4,7 +4,8 @@
         "tim-koehler.helm-intellisense",
         "ms-kubernetes-tools.vscode-kubernetes-tools",
         "esbenp.prettier-vscode",
-        "redhat.vscode-yaml"
+        "redhat.vscode-yaml",
+        "editorconfig.editorconfig"
 
     ]
 }
