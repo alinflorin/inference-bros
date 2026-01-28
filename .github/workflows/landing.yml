@@ -52,4 +52,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_PAGES_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_PAGES_ACCOUNT_ID }}
-          command: pages deploy dist --project-name=inference-bros
+          command: pages deploy dist --project-name=inference-bros --branch=main
