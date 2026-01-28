@@ -65,20 +65,20 @@ resource "helm_release" "bifrost" {
                 responses_stream: true
                 count_tokens: true
                 embedding: true
-                speech: true
-                speech_stream: true
-                transcription: true
-                transcription_stream: true
-                batch_create: true
-                batch_list: true
-                batch_retrieve: true
-                batch_cancel: true
-                batch_results: true
-                file_upload: true
-                file_list: true
-                file_retrieve: true
-                file_delete: true
-                file_content: true
+                speech: false
+                speech_stream: false
+                transcription: false
+                transcription_stream: false
+                batch_create: false
+                batch_list: false
+                batch_retrieve: false
+                batch_cancel: false
+                batch_results: false
+                file_upload: false
+                file_list: false
+                file_retrieve: false
+                file_delete: false
+                file_content: false
         
         plugins:
           telemetry:
