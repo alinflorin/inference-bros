@@ -1043,6 +1043,8 @@ const server = http.createServer(async (req, res) => {
             input_cost_per_token: parseFloat(pricing.prompt || 0),
             output_cost_per_token: parseFloat(pricing.completion || 0),
             input_cost_per_request: parseFloat(pricing.request || 0),
+            mode: 'chat',
+            provider: 'kubeai'
           };
         } catch (e) {
           logger("WARN", `Failed to parse pricing for model ${modelName}`, e.message);
