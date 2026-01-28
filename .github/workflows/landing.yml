@@ -1,4 +1,4 @@
-name: Build and Deploy to Cloudflare Pages
+name: Landing CI/CD
 
 on:
   push:
