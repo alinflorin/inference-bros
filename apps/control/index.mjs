@@ -213,11 +213,24 @@ async function aggregateUsageFromStats(vkId, startDate, endDate) {
   const modelNames = await getK8sModelNames();
   const modelIds = Object.keys(modelNames);
   
-  // Now get stats per model
-  const modelUsage = {};
-  
-  for (const modelId of modelIds) {
+  // Map each modelId to a promise
+  const usagePromises = modelIds.map(async (modelId) => {
     const stats = await getUsageStats(vkId, startDate, endDate, modelId);
+    
+    // Return an object containing the ID and the stats so we can filter later
+    return {
+      modelId,
+      stats
+    };
+  });
+
+  // Execute all requests in parallel
+  const results = await Promise.all(usagePromises);
+  
+  const modelUsage = {};
+
+  // Build the final object
+  for (const { modelId, stats } of results) {
     if (stats.total_requests > 0 || stats.total_cost > 0) {
       modelUsage[modelId] = {
         total_tokens: stats.total_tokens,
