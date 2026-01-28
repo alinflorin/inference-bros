@@ -63,9 +63,9 @@ resource "helm_release" "kube_prometheus_stack" {
               datasource: Prometheus
               revision: 3
             external-dns:
-              gnetId: 15038
+              gnetId: 23969
               datasource: Prometheus
-              revision: 3
+              revision: 1
         additionalDataSources:
           - name: Tempo
             type: tempo
