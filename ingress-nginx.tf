@@ -33,6 +33,7 @@ resource "helm_release" "ingress_nginx" {
           otlp-collector-host: tempo.monitoring.svc.cluster.local
           otlp-collector-port: "4317"
           otel-service-name: ingress-nginx
+          opentelemetry-trust-incoming-span: "true"
           otel-sampler: AlwaysOn
         allowSnippetAnnotations: true
         service:
