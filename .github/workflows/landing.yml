@@ -13,6 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6 # or v6 if available in your runner
+        with:
+          node-version: 25 # Specify your version
+          cache: 'npm'
+          # CRITICAL: Point to the lockfile in your subdirectory
+          cache-dependency-path: src/landing/package-lock.json
+
       - name: Install dependencies
         run: npm ci
         working-directory: src/landing
