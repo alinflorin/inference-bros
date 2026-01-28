@@ -4,9 +4,15 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - src/terraform/
+      - .github/workflows/terraform.yml
   push:
     branches:
       - main
+    paths:
+      - src/terraform/
+      - .github/workflows/terraform.yml
   workflow_dispatch:
     inputs:
       environment:
@@ -35,7 +41,7 @@ env:
   TF_IN_AUTOMATION: true
   TF_INPUT: false
   TF_VERSION: 1.14.3
-  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/.terraform.d/plugin-cache
+  TF_PLUGIN_CACHE_DIR: ${{ github.workspace }}/src/terraform/.terraform.d/plugin-cache
   ENV: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'pr' }}
   BACKEND_TYPE: ${{ github.event_name == 'workflow_dispatch' && 'cloud' || 'local' }}
 
@@ -94,7 +100,7 @@ jobs:
       - name: Create Backend Override
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         run: |
-          cat <<EOF > backend_override.tf
+          cat <<EOF > /src/terraform/backend_override.tf
           terraform {
             cloud {
               organization = "${{ secrets.TF_ORG }}"
@@ -110,8 +116,8 @@ jobs:
         with:
           path: |
             ${{ env.TF_PLUGIN_CACHE_DIR }}
-            .terraform
-          key: terraform-${{ runner.os }}-${{ env.BACKEND_TYPE }}-${{ hashFiles('**/.terraform.lock.hcl') }}
+            src/terraform/.terraform
+          key: terraform-${{ runner.os }}-${{ env.BACKEND_TYPE }}-${{ hashFiles('src/terraform/.terraform.lock.hcl') }}
           restore-keys: |
             terraform-${{ runner.os }}-${{ env.BACKEND_TYPE }}-
 
@@ -119,25 +125,29 @@ jobs:
         run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
 
       - name: Terraform init
+        working-directory: src/terraform
         run: |
           terraform init
 
       - name: Terraform check fmt
+        working-directory: src/terraform
         run: terraform fmt -check -recursive
 
       - name: Terraform validate
+        working-directory: src/terraform
         run: terraform validate
 
       - name: Substitute Secrets
         uses: faradaytrs/substitute-secrets-action@2.6
         with:
-          input: "${{ env.ENV }}.tfvars"
+          input: "src/terraform/${{ env.ENV }}.tfvars"
           substitutionRegex: \#\{([A-Z0-9_]+)\}
           substitutionData: ${{ toJSON(secrets) }}
           throwOnDataMissing: false
 
       - name: Terraform plan
         id: plan
+        working-directory: src/terraform
         continue-on-error: true
         run: |
           # 1. Determine flags
@@ -220,7 +230,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
-          path: tfplan
+          path: src/terraform/tfplan
 
   apply:
     name: Terraform Apply
@@ -243,11 +253,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tfplan
+          path: src/terraform/tfplan
 
       - name: Create Backend Override
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         run: |
-          cat <<EOF > backend_override.tf
+          cat <<EOF > /src/terraform/backend_override.tf
           terraform {
             cloud {
               organization = "${{ secrets.TF_ORG }}"
@@ -263,8 +274,8 @@ jobs:
         with:
           path: |
             ${{ env.TF_PLUGIN_CACHE_DIR }}
-            .terraform
-          key: terraform-${{ runner.os }}-${{ env.BACKEND_TYPE }}-${{ hashFiles('**/.terraform.lock.hcl') }}
+            src/terraform/.terraform
+          key: terraform-${{ runner.os }}-${{ env.BACKEND_TYPE }}-${{ hashFiles('src/terraform/.terraform.lock.hcl') }}
           restore-keys: |
             terraform-${{ runner.os }}-${{ env.BACKEND_TYPE }}-
 
@@ -272,8 +283,10 @@ jobs:
         run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
 
       - name: Terraform init
+        working-directory: src/terraform
         run: |
           terraform init
 
-      - name: Terraform apply (same plan)
+      - name: Terraform apply
+        working-directory: src/terraform
         run: terraform apply -auto-approve tfplan

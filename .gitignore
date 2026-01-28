@@ -1,16 +1,11 @@
-# Created by https://www.toptal.com/developers/gitignore/api/git,windows,linux,macos,terraform,terragrunt,visualstudiocode
-# Edit at https://www.toptal.com/developers/gitignore?templates=git,windows,linux,macos,terraform,terragrunt,visualstudiocode
-**/node_modules
-/apps/*/node_modules
+# Created by https://www.toptal.com/developers/gitignore/api/windows,linux,macos,git
+# Edit at https://www.toptal.com/developers/gitignore?templates=windows,linux,macos,git
+
 ### Git ###
 # Created by git for backups. To disable backups in Git:
 # $ git config --global mergetool.keepBackup false
 *.orig
-/*.dot
-/temp
-tfplan
-*.tfplan
-/*.svg
+
 # Created by git when using merge tools for conflicts
 *.BACKUP.*
 *.BASE.*
@@ -69,69 +64,6 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
-### Terraform ###
-# Local .terraform directories
-**/.terraform/*
-
-# .tfstate files
-*.tfstate
-*.tfstate.*
-
-# Crash log files
-crash.log
-crash.*.log
-
-# Exclude all .tfvars files, which are likely to contain sensitive data, such as
-# password, private keys, and other secrets. These should not be part of version
-# control as they are data points which are potentially sensitive and subject
-# to change depending on the environment.
-terraform.tfvars
-terraform.tfvars.json
-
-# Ignore override files as they are usually used to override resources locally and so
-# are not checked in
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
-# Include override files you do wish to add to version control using negated pattern
-# !example_override.tf
-
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
-
-# Ignore CLI configuration files
-.terraformrc
-terraform.rc
-
-### Terragrunt ###
-# terragrunt cache directories
-**/.terragrunt-cache/*
-
-# Terragrunt debug output file (when using `--terragrunt-debug` option)
-# See: https://terragrunt.gruntwork.io/docs/reference/cli-options/#terragrunt-debug
-terragrunt-debug.tfvars.json
-
-### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
-
-# Local History for Visual Studio Code
-.history/
-
-# Built Visual Studio Code Extensions
-*.vsix
-
-### VisualStudioCode Patch ###
-# Ignore all local history of files
-.history
-.ionide
-
 ### Windows ###
 # Windows thumbnail cache files
 Thumbs.db
@@ -158,4 +90,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/git,windows,linux,macos,terraform,terragrunt,visualstudiocode
+# End of https://www.toptal.com/developers/gitignore/api/windows,linux,macos,git

@@ -1,0 +1,4 @@
+*.sh eol=lf
+*.conf eol=lf
+*.pub eol=lf
+*.tpl eol=lf
