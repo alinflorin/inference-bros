@@ -31,7 +31,7 @@ resource "helm_release" "bifrost" {
       bifrost:
         framework:
           pricing:
-            pricingUrl: 'http://control.control:8080/bifrost/pricingSheet'
+            pricingUrl: 'http://control.control/bifrost/pricingSheet'
             pricingSyncInterval: 3600
         encryptionKey: ${random_string.bifrost_enc_key.result}
         logLevel: info

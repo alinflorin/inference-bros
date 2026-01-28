@@ -55,7 +55,7 @@ resource "helm_release" "generic" {
       service:
         enabled: ${var.service_enabled == true ? "true" : "false"}
         ports:
-          - port: 8080
+          - port: 80
             targetPort: http
             protocol: TCP
             name: http
