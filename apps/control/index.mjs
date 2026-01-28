@@ -209,39 +209,14 @@ async function getUsageStats(vkId, startDate, endDate, model = null) {
 }
 
 async function aggregateUsageFromStats(vkId, startDate, endDate) {
-  // First get the list of all models used by fetching a page of logs
-  // (We need to know which models were used to query stats per model)
-  let page = 1;
-  const modelsUsed = new Set();
-  const startEnc = encodeURIComponent(startDate);
-  const endEnc = encodeURIComponent(endDate);
-  
-  // Fetch first few pages to discover models
-  while (page <= 10) { // Limit to 10 pages for model discovery
-    const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_time=${startEnc}&end_time=${endEnc}&page=${page}&limit=100`;
-    try {
-      const response = await request(url);
-      const logs = response.logs || [];
-      if (logs.length === 0) break;
-      
-      logs.forEach((log) => {
-        const mid = log.model || "unknown";
-        modelsUsed.add(mid);
-      });
-      
-      if (response.total_pages && page >= response.total_pages) break;
-      if (logs.length < 100) break;
-      page++;
-    } catch (err) {
-      logger("ERROR", `Model discovery failed for VK ${vkId}`, err.message);
-      break;
-    }
-  }
+  // Get the list of all available models from Kubernetes
+  const modelNames = await getK8sModelNames();
+  const modelIds = Object.keys(modelNames);
   
   // Now get stats per model
   const modelUsage = {};
   
-  for (const modelId of modelsUsed) {
+  for (const modelId of modelIds) {
     const stats = await getUsageStats(vkId, startDate, endDate, modelId);
     if (stats.total_requests > 0 || stats.total_cost > 0) {
       modelUsage[modelId] = {
@@ -872,7 +847,7 @@ const server = http.createServer(async (req, res) => {
       logger("INFO", `Key validated: ${validation.keyName} (${validation.keyId})`);
 
       // Calculate usage
-      const usage = await calculateUsage(apiKey, startDate, endDate);
+      const usage = await calculateUsage(validation.keyId, startDate, endDate);
 
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(usage, null, 2));
