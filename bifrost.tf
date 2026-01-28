@@ -29,7 +29,10 @@ resource "helm_release" "bifrost" {
         targetCPUUtilizationPercentage: ${var.bifrost_hpa.cpu_utilization}
         targetMemoryUtilizationPercentage: ${var.bifrost_hpa.memory_utilization}
       bifrost:
-
+        framework:
+          pricing:
+            pricingUrl: 'http://control.control:8080/bifrost/pricingSheet'
+            pricingSyncInterval: 3600
         encryptionKey: ${random_string.bifrost_enc_key.result}
         logLevel: info
         
@@ -146,7 +149,7 @@ resource "helm_release" "bifrost" {
 
   ]
 
-  depends_on = [helm_release.kubeai]
+  depends_on = [helm_release.kubeai, module.control]
 }
 
 resource "helm_release" "bifrost_service_monitor" {

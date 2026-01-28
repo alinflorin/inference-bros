@@ -140,7 +140,7 @@ function getBillingRange(referenceDate = null) {
 
 // --- CORE PRICING & USAGE LOGIC ---
 
-async function getK8sModelPricing() {
+async function getK8sModelNames() {
   let kubeData;
   try {
     if (!CONFIG.useInClusterAuth) {
@@ -166,62 +166,92 @@ async function getK8sModelPricing() {
       );
     }
   } catch (err) {
-    logger("ERROR", "Failed to fetch Kubernetes Model Pricing", err.message);
+    logger("ERROR", "Failed to fetch Kubernetes Model Names", err.message);
     return {};
   }
 
-  const pricingMap = {};
+  const nameMap = {};
   kubeData.items?.forEach((item) => {
     const raw = item.metadata.annotations?.["openrouter.ai/json"];
     if (!raw) return;
     try {
       const m = JSON.parse(raw);
-      pricingMap[m.id] = {
-        name: m.name,
-        prompt: parseFloat(m.pricing.prompt || 0),
-        completion: parseFloat(m.pricing.completion || 0),
-        request: parseFloat(m.pricing.request || 0),
-      };
+      nameMap[m.id] = m.name;
     } catch (e) {}
   });
-  return pricingMap;
+  return nameMap;
 }
 
-async function aggregateUsageFromLogs(vkId, startDate, endDate) {
-  let page = 1;
-  let hasMore = true;
-  const modelUsage = {};
+async function getUsageStats(vkId, startDate, endDate, model = null) {
   const startEnc = encodeURIComponent(startDate);
   const endEnc = encodeURIComponent(endDate);
-  const maxPages = 1000; // Safety limit to prevent infinite loops
+  
+  let url = `${CONFIG.bifrostUrl}/api/logs/stats?virtual_key_ids=${vkId}&start_time=${startEnc}&end_time=${endEnc}`;
+  if (model) {
+    url += `&models=${encodeURIComponent(model)}`;
+  }
+  
+  try {
+    const response = await request(url);
+    return {
+      total_requests: response.total_requests || 0,
+      total_tokens: response.total_tokens || 0,
+      total_cost: response.total_cost || 0,
+    };
+  } catch (err) {
+    logger("ERROR", `Stats aggregation failed for VK ${vkId}`, err.message);
+    return {
+      total_requests: 0,
+      total_tokens: 0,
+      total_cost: 0,
+    };
+  }
+}
 
-  while (hasMore && page <= maxPages) {
+async function aggregateUsageFromStats(vkId, startDate, endDate) {
+  // First get the list of all models used by fetching a page of logs
+  // (We need to know which models were used to query stats per model)
+  let page = 1;
+  const modelsUsed = new Set();
+  const startEnc = encodeURIComponent(startDate);
+  const endEnc = encodeURIComponent(endDate);
+  
+  // Fetch first few pages to discover models
+  while (page <= 10) { // Limit to 10 pages for model discovery
     const url = `${CONFIG.bifrostUrl}/api/logs?virtual_key=${vkId}&start_time=${startEnc}&end_time=${endEnc}&page=${page}&limit=100`;
     try {
       const response = await request(url);
       const logs = response.logs || [];
       if (logs.length === 0) break;
+      
       logs.forEach((log) => {
         const mid = log.model || "unknown";
-        if (!modelUsage[mid])
-          modelUsage[mid] = { prompt: 0, completion: 0, requests: 0 };
-        modelUsage[mid].prompt += log.token_usage?.prompt_tokens || 0;
-        modelUsage[mid].completion += log.token_usage?.completion_tokens || 0;
-        modelUsage[mid].requests += 1;
+        modelsUsed.add(mid);
       });
-      if (response.total_pages && page >= response.total_pages) hasMore = false;
-      else if (logs.length < 100) hasMore = false;
-      else page++;
+      
+      if (response.total_pages && page >= response.total_pages) break;
+      if (logs.length < 100) break;
+      page++;
     } catch (err) {
-      logger("ERROR", `Log aggregation failed for VK ${vkId}`, err.message);
-      hasMore = false;
+      logger("ERROR", `Model discovery failed for VK ${vkId}`, err.message);
+      break;
     }
   }
-
-  if (page > maxPages) {
-    logger("WARN", `Hit max page limit (${maxPages}) for VK ${vkId}`);
+  
+  // Now get stats per model
+  const modelUsage = {};
+  
+  for (const modelId of modelsUsed) {
+    const stats = await getUsageStats(vkId, startDate, endDate, modelId);
+    if (stats.total_requests > 0 || stats.total_cost > 0) {
+      modelUsage[modelId] = {
+        total_tokens: stats.total_tokens,
+        total_requests: stats.total_requests,
+        total_cost: stats.total_cost,
+      };
+    }
   }
-
+  
   return modelUsage;
 }
 
@@ -234,8 +264,8 @@ async function generateInvoices(nowString, referenceDate = null) {
     `Analyzing usage period: ${start_date} to ${end_date}${month_label ? ` (${month_label})` : ""}`,
   );
 
-  const [modelPricing, vkResponse] = await Promise.all([
-    getK8sModelPricing(),
+  const [modelNames, vkResponse] = await Promise.all([
+    getK8sModelNames(),
     request(`${CONFIG.bifrostUrl}/api/governance/virtual-keys`),
   ]);
 
@@ -256,23 +286,23 @@ async function generateInvoices(nowString, referenceDate = null) {
   const invoicePromises = Object.values(keysByCustomer).map(async (group) => {
     const usageResults = await Promise.all(
       group.keys.map((vk) =>
-        aggregateUsageFromLogs(vk.id, start_date, end_date),
+        aggregateUsageFromStats(vk.id, start_date, end_date),
       ),
     );
     const combinedUsage = {};
     usageResults.forEach((res) => {
       for (const [mid, stats] of Object.entries(res)) {
         if (!combinedUsage[mid])
-          combinedUsage[mid] = { prompt: 0, completion: 0, requests: 0 };
-        combinedUsage[mid].prompt += stats.prompt;
-        combinedUsage[mid].completion += stats.completion;
-        combinedUsage[mid].requests += stats.requests;
+          combinedUsage[mid] = { total_tokens: 0, total_requests: 0, total_cost: 0 };
+        combinedUsage[mid].total_tokens += stats.total_tokens;
+        combinedUsage[mid].total_requests += stats.total_requests;
+        combinedUsage[mid].total_cost += stats.total_cost;
       }
     });
     return buildInvoice(
       group,
       combinedUsage,
-      modelPricing,
+      modelNames,
       start_date,
       end_date,
       month_label,
@@ -287,7 +317,7 @@ async function generateInvoices(nowString, referenceDate = null) {
 function buildInvoice(
   customer,
   combinedUsage,
-  pricing,
+  modelNames,
   start,
   end,
   monthLabel,
@@ -314,22 +344,17 @@ function buildInvoice(
   };
 
   for (const [mid, usage] of Object.entries(combinedUsage)) {
-    const rates = pricing[mid];
-    const pCost = rates ? usage.prompt * rates.prompt : 0;
-    const cCost = rates ? usage.completion * rates.completion : 0;
-    const rCost = rates ? usage.requests * rates.request : 0;
-    const totalModelCost = pCost + cCost + rCost;
+    const modelName = modelNames[mid] || mid;
 
     inv.models[mid] = {
-      model_name: rates?.name || mid,
-      prompt_tokens: usage.prompt,
-      completion_tokens: usage.completion,
-      total_requests: usage.requests,
-      cost: Number(totalModelCost.toFixed(6)),
+      model_name: modelName,
+      total_tokens: usage.total_tokens,
+      total_requests: usage.total_requests,
+      cost: Number(usage.total_cost.toFixed(6)),
     };
 
-    inv.total_tokens += usage.prompt + usage.completion;
-    inv.total_cost += totalModelCost;
+    inv.total_tokens += usage.total_tokens;
+    inv.total_cost += usage.total_cost;
   }
 
   inv.total_cost = Number(inv.total_cost.toFixed(6));
@@ -341,49 +366,30 @@ function buildInvoice(
 async function calculateUsage(apiKey, startDate, endDate) {
   logger("INFO", `Calculating usage for key ${apiKey} from ${startDate} to ${endDate}`);
   
-  const [modelPricing, usageData] = await Promise.all([
-    getK8sModelPricing(),
-    aggregateUsageFromLogs(apiKey, startDate, endDate),
+  const [modelNames, usageData] = await Promise.all([
+    getK8sModelNames(),
+    aggregateUsageFromStats(apiKey, startDate, endDate),
   ]);
 
   const models = [];
-  let totalPromptTokens = 0;
-  let totalCompletionTokens = 0;
+  let totalTokens = 0;
   let totalRequests = 0;
   let totalCost = 0;
 
   for (const [modelId, usage] of Object.entries(usageData)) {
-    const pricing = modelPricing[modelId];
-    
-    const promptCost = pricing ? usage.prompt * pricing.prompt : 0;
-    const completionCost = pricing ? usage.completion * pricing.completion : 0;
-    const requestCost = pricing ? usage.requests * pricing.request : 0;
-    const modelTotalCost = promptCost + completionCost + requestCost;
+    const modelName = modelNames[modelId] || modelId;
 
     models.push({
       model_id: modelId,
-      model_name: pricing?.name || modelId,
-      prompt_tokens: usage.prompt,
-      completion_tokens: usage.completion,
-      total_tokens: usage.prompt + usage.completion,
-      total_requests: usage.requests,
-      cost_breakdown: {
-        prompt_cost: Number(promptCost.toFixed(6)),
-        completion_cost: Number(completionCost.toFixed(6)),
-        request_cost: Number(requestCost.toFixed(6)),
-      },
-      total_cost: Number(modelTotalCost.toFixed(6)),
-      pricing: pricing ? {
-        prompt_per_token: pricing.prompt,
-        completion_per_token: pricing.completion,
-        per_request: pricing.request,
-      } : null,
+      model_name: modelName,
+      total_tokens: usage.total_tokens,
+      total_requests: usage.total_requests,
+      total_cost: Number(usage.total_cost.toFixed(6)),
     });
 
-    totalPromptTokens += usage.prompt;
-    totalCompletionTokens += usage.completion;
-    totalRequests += usage.requests;
-    totalCost += modelTotalCost;
+    totalTokens += usage.total_tokens;
+    totalRequests += usage.total_requests;
+    totalCost += usage.total_cost;
   }
 
   // Sort by cost descending
@@ -395,9 +401,7 @@ async function calculateUsage(apiKey, startDate, endDate) {
       end: endDate,
     },
     summary: {
-      total_prompt_tokens: totalPromptTokens,
-      total_completion_tokens: totalCompletionTokens,
-      total_tokens: totalPromptTokens + totalCompletionTokens,
+      total_tokens: totalTokens,
       total_requests: totalRequests,
       total_cost: Number(totalCost.toFixed(6)),
       currency: "EUR",
@@ -519,7 +523,7 @@ async function pushToOdoo(invoice, dryRun = "none") {
     0,
     0,
     {
-      name: `AI Usage: ${m.model_name} (${m.prompt_tokens.toLocaleString()} prompt tokens, ${m.completion_tokens.toLocaleString()} completion tokens${m.pricing?.request > 0 && m.total_requests > 0 ? `, ${m.total_requests.toLocaleString()} requests` : ""})`,
+      name: `AI Usage: ${m.model_name} (${m.total_tokens.toLocaleString()} tokens, ${m.total_requests.toLocaleString()} requests)`,
       quantity: 1,
       price_unit: m.cost,
       tax_ids: [[6, 0, [CONFIG.odooTaxId]]],
@@ -990,6 +994,78 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Bifrost pricing sheet endpoint (NEW)
+  if (req.url === "/bifrost/pricingSheet" && req.method === "GET") {
+    try {
+      let kubeData;
+      
+      if (!CONFIG.useInClusterAuth) {
+        // Development mode: use kubectl
+        const kubeconfigArg = CONFIG.kubeconfig
+          ? `--kubeconfig=${CONFIG.kubeconfig}`
+          : "";
+        const { stdout } = await execAsync(
+          `kubectl ${kubeconfigArg} get models.kubeai.org -n kubeai -o json`,
+        );
+        kubeData = JSON.parse(stdout);
+      } else {
+        // Production mode: use in-cluster auth
+        const token = fs.readFileSync(CONFIG.tokenPath, "utf8");
+        const ca = fs.readFileSync(CONFIG.caPath);
+        kubeData = await request(
+          `https://${CONFIG.k8sHost}:${CONFIG.k8sPort}/apis/kubeai.org/v1/models`,
+          {
+            ca,
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+          },
+        );
+      }
+
+      const pricingSheet = {};
+      
+      kubeData.items?.forEach((item) => {
+        const modelName = item.metadata.name;
+        const annotationRaw = item.metadata.annotations?.["openrouter.ai/json"];
+        
+        if (!annotationRaw) return;
+        
+        try {
+          const annotation = JSON.parse(annotationRaw);
+          const pricing = annotation.pricing || {};
+          
+          // Format: kubeai/<model-name>
+          const key = `kubeai/${modelName}`;
+          
+          pricingSheet[key] = {
+            input_cost_per_token: parseFloat(pricing.prompt || 0),
+            output_cost_per_token: parseFloat(pricing.completion || 0),
+            input_cost_per_request: parseFloat(pricing.request || 0),
+          };
+        } catch (e) {
+          logger("WARN", `Failed to parse pricing for model ${modelName}`, e.message);
+        }
+      });
+
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(pricingSheet, null, 2));
+      
+      logger("INFO", `Pricing sheet generated with ${Object.keys(pricingSheet).length} models`);
+    } catch (err) {
+      logger("ERROR", "Pricing sheet endpoint failed", err.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          error: "Failed to generate pricing sheet",
+          message: err.message,
+        }),
+      );
+    }
+    return;
+  }
+
   // 404 for other routes
   res.writeHead(404);
   res.end();
@@ -1001,6 +1077,7 @@ server.listen(PORT, () => {
   logger("INFO", `  - GET /invoicing/generate?date=<ISO>&dry_run=<all|validate|none>`);
   logger("INFO", `  - GET /usage?start_date=<ISO>&end_date=<ISO> (requires Authorization: Bearer <key>)`);
   logger("INFO", `  - GET /openrouter/models`);
+  logger("INFO", `  - GET /bifrost/pricingSheet`);
   initCron();
 });
 
