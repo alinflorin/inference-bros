@@ -5,13 +5,13 @@ on:
     branches: 
       - main
     paths:
-      - src/landing/
+      - src/landing/**/*
       - .github/workflows/landing.yml
   pull_request:
     branches:
       - main
     paths:
-      - src/landing/
+      - src/landing/**/*
       - .github/workflows/landing.yml
   workflow_dispatch:
 
