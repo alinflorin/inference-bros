@@ -28,7 +28,7 @@ resource "helm_release" "control_public_ingress" {
   chart            = "resource"
   namespace        = "control"
   create_namespace = true
-  version          = "0.1.0"
+  version          = "0.1.1"
   atomic           = true
   wait             = true
 

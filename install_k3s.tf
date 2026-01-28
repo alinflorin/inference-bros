@@ -146,13 +146,15 @@ resource "helm_release" "kube_vip" {
   repository       = "https://kube-vip.github.io/helm-charts/"
   chart            = "kube-vip"
   namespace        = "kube-system"
-  version          = "0.9.3"
+  version          = "0.9.5"
   create_namespace = true
   atomic           = true
   wait             = true
 
   values = [
     <<-EOT
+      image:
+        tag: v1.0.3
       config:
         address: "${var.k3s_vip}"
 
@@ -196,7 +198,7 @@ resource "helm_release" "coredns_custom_config" {
   chart            = "resource"
   namespace        = "kube-system"
   create_namespace = true
-  version          = "0.1.0"
+  version          = "0.1.1"
   atomic           = true
   wait             = true
 

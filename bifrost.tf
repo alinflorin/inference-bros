@@ -18,7 +18,7 @@ resource "helm_release" "bifrost" {
   create_namespace = true
   atomic           = true
   wait             = true
-  version          = "1.5.2"
+  version          = "1.7.0"
 
   values = [
     <<-EOT
@@ -158,7 +158,7 @@ resource "helm_release" "bifrost_service_monitor" {
   chart            = "resource"
   namespace        = "bifrost"
   create_namespace = true
-  version          = "0.1.0"
+  version          = "0.1.1"
   atomic           = true
   wait             = true
 
@@ -196,7 +196,7 @@ resource "helm_release" "bifrost_openai_ingress" {
   chart            = "resource"
   namespace        = "bifrost"
   create_namespace = true
-  version          = "0.1.0"
+  version          = "0.1.1"
   atomic           = true
   wait             = true
 
@@ -287,7 +287,7 @@ resource "helm_release" "bifrost_openai_ingress_insecure" {
   chart            = "resource"
   namespace        = "bifrost"
   create_namespace = true
-  version          = "0.1.0"
+  version          = "0.1.1"
   atomic           = true
   wait             = true
 

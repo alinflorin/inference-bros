@@ -4,7 +4,7 @@ resource "helm_release" "kube_prometheus_stack" {
   chart            = "kube-prometheus-stack"
   namespace        = "monitoring"
   create_namespace = true
-  version          = "80.13.0"
+  version          = "81.2.2"
   atomic           = true
   wait             = true
 

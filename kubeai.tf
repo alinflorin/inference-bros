@@ -57,7 +57,7 @@ resource "helm_release" "kubeai_hpa" {
   repository = "https://dasmeta.github.io/helm/"
   chart      = "resource"
   namespace  = "kubeai"
-  version    = "0.1.0"
+  version    = "0.1.1"
   atomic     = true
   wait       = true
 
@@ -100,7 +100,7 @@ resource "helm_release" "kubeai_models_pvc" {
   repository = "https://dasmeta.github.io/helm/"
   chart      = "resource"
   namespace  = "kubeai"
-  version    = "0.1.0"
+  version    = "0.1.1"
   atomic     = false
   wait       = false
 
@@ -130,7 +130,7 @@ resource "helm_release" "kubeai_models_explorer" {
   repository = "https://stakater.github.io/stakater-charts"
   chart      = "application"
   namespace  = "kubeai"
-  version    = "6.14.0"
+  version    = "6.14.1"
   atomic     = true
   wait       = true
 

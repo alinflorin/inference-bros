@@ -80,7 +80,7 @@ resource "helm_release" "cert_manager_self_signed_issuer" {
   chart            = "resource"
   namespace        = "cert-manager"
   create_namespace = true
-  version          = "0.1.0"
+  version          = "0.1.1"
   atomic           = true
   wait             = true
 

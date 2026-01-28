@@ -4,7 +4,7 @@ resource "helm_release" "generic" {
   chart            = "application"
   namespace        = var.namespace
   create_namespace = true
-  version          = "6.14.0"
+  version          = "6.14.1"
   atomic           = true
   wait             = true
 

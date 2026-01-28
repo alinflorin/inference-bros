@@ -4,7 +4,7 @@ resource "helm_release" "ingress_nginx" {
   chart            = "ingress-nginx"
   namespace        = "ingress-nginx"
   create_namespace = true
-  version          = "4.14.1"
+  version          = "4.14.2"
   atomic           = true
   wait             = true
 
