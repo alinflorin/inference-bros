@@ -52,6 +52,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "25.x"
+          cache: "npm"
+
+      - uses: azure/setup-helm@v4.3.0
+        name: Setup Helm
+
+      - name: Run TF 2 Helm
+        run: |
+          npx -y tf-to-helm-umbrella transform "./*.tf" "./chart"
+
+      - name: Helm update
+        working-directory: chart
+        run: |
+          helm dependency update
+
       - name: Run Trivy in GitHub SBOM mode and submit results to Dependency Graph
         uses: aquasecurity/trivy-action@0.33.1
         with:
@@ -68,6 +86,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "25.x"
+          cache: "npm"
+
+      - uses: azure/setup-helm@v4.3.0
+        name: Setup Helm
+
+      - name: Run TF 2 Helm
+        run: |
+          npx -y tf-to-helm-umbrella transform "./*.tf" "./chart"
+
+      - name: Helm update
+        working-directory: chart
+        run: |
+          helm dependency update
+
       - name: Run Trivy vulnerability scanner in IaC mode
         uses: aquasecurity/trivy-action@0.33.1
         with:
@@ -83,6 +119,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
+  
   plan:
     name: Terraform Plan / Validate
     runs-on: ubuntu-latest
