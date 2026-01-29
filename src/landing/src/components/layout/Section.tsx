@@ -15,21 +15,21 @@ const useStyles = makeStyles({
     position: "relative",
   },
   paddingSmall: {
-    ...shorthands.padding("3rem", "1.5rem"),
+    ...shorthands.padding("2.5rem", "1.5rem"),
     "@media (min-width: 768px)": {
-      ...shorthands.padding("4rem", "2rem"),
+      ...shorthands.padding("3.5rem", "2rem"),
     },
   },
   paddingMedium: {
-    ...shorthands.padding("4rem", "1.5rem"),
+    ...shorthands.padding("3.5rem", "1.5rem"),
     "@media (min-width: 768px)": {
-      ...shorthands.padding("6rem", "2rem"),
+      ...shorthands.padding("5rem", "2rem"),
     },
   },
   paddingLarge: {
-    ...shorthands.padding("5rem", "1.5rem"),
+    ...shorthands.padding("4.5rem", "1.5rem"),
     "@media (min-width: 768px)": {
-      ...shorthands.padding("8rem", "2rem"),
+      ...shorthands.padding("6.5rem", "2rem"),
     },
   },
   bgDefault: {

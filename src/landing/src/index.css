@@ -1,13 +1,28 @@
-html, body {
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   width: 100%;
   height: 100%;
+  background-color: #0A0A0A;
 }
 
 body {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  background-color: #0A0A0A;
+  color: #FFFFFF;
 }
 
 #root {
   width: 100%;
   height: 100%;
+  background-color: #0A0A0A;
 }
