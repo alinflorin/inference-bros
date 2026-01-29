@@ -1,6 +1,7 @@
 import { Outlet } from "react-router";
 import { makeStyles } from "@fluentui/react-components";
 import { Header } from "./components/Header";
+import Footer from "./components/navigation/Footer";
 
 const useStyles = makeStyles({
   root: {
@@ -24,6 +25,7 @@ function App() {
       <main className={styles.main}>
         <Outlet />
       </main>
+      <Footer />
     </div>
   );
 }
