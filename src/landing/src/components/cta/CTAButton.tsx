@@ -1,13 +1,23 @@
 import { Button } from "@fluentui/react-components";
-import type { ButtonProps } from "@fluentui/react-components";
+import type { ReactNode } from "react";
 
-interface CTAButtonProps extends Omit<ButtonProps, "appearance" | "onClick"> {
+interface CTAButtonProps {
   variant?: "primary" | "secondary";
   href?: string;
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
+  children?: ReactNode;
+  className?: string;
+  disabled?: boolean;
 }
 
-export default function CTAButton({ variant = "primary", href, children, onClick, ...props }: CTAButtonProps) {
+export default function CTAButton({
+  variant = "primary",
+  href,
+  children,
+  onClick,
+  className,
+  disabled
+}: CTAButtonProps) {
   const appearance = variant === "primary" ? "primary" : "outline";
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
@@ -24,7 +34,13 @@ export default function CTAButton({ variant = "primary", href, children, onClick
   };
 
   return (
-    <Button appearance={appearance} size="large" onClick={handleClick} {...props}>
+    <Button
+      appearance={appearance}
+      size="large"
+      onClick={handleClick}
+      className={className}
+      disabled={disabled}
+    >
       {children}
     </Button>
   );
