@@ -1,9 +1,10 @@
 import { Button } from "@fluentui/react-components";
 import type { ButtonProps } from "@fluentui/react-components";
 
-interface CTAButtonProps extends Omit<ButtonProps, "appearance"> {
+interface CTAButtonProps extends Omit<ButtonProps, "appearance" | "onClick"> {
   variant?: "primary" | "secondary";
   href?: string;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void;
 }
 
 export default function CTAButton({ variant = "primary", href, children, onClick, ...props }: CTAButtonProps) {
@@ -19,7 +20,7 @@ export default function CTAButton({ variant = "primary", href, children, onClick
         window.location.href = href;
       }
     }
-    onClick?.(e as React.MouseEvent<HTMLButtonElement>);
+    onClick?.(e);
   };
 
   return (
