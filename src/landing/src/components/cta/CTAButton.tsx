@@ -1,4 +1,5 @@
-import { Button, ButtonProps } from "@fluentui/react-components";
+import { Button } from "@fluentui/react-components";
+import type { ButtonProps } from "@fluentui/react-components";
 
 interface CTAButtonProps extends Omit<ButtonProps, "appearance"> {
   variant?: "primary" | "secondary";

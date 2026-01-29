@@ -1,5 +1,5 @@
 import { makeStyles } from "@fluentui/react-components";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface ContainerProps {
   children: ReactNode;

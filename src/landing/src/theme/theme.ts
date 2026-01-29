@@ -1,4 +1,5 @@
-import { createLightTheme, Theme } from "@fluentui/react-components";
+import { createLightTheme } from "@fluentui/react-components";
+import type { Theme } from "@fluentui/react-components";
 
 // Custom brand colors for Inference Bros - Professional B2B theme
 const inferenceBrosBrand = {

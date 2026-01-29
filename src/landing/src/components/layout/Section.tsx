@@ -1,5 +1,5 @@
 import { makeStyles, shorthands, tokens } from "@fluentui/react-components";
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 interface SectionProps {
   children: ReactNode;
