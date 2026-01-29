@@ -9,32 +9,35 @@ interface FeatureCardProps {
 
 const useStyles = makeStyles({
   card: {
-    ...shorthands.padding("2rem"),
+    ...shorthands.padding("2.5rem"),
     height: "100%",
     display: "flex",
     flexDirection: "column",
-    ...shorthands.gap("1rem"),
+    ...shorthands.gap("1.25rem"),
     backgroundColor: tokens.colorNeutralBackground1,
     boxShadow: tokens.shadow4,
+    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.transition("all", "0.2s", "ease-in-out"),
     ":hover": {
-      boxShadow: tokens.shadow8,
-      transform: "translateY(-2px)",
-      ...shorthands.transition("all", "0.3s", "ease"),
+      boxShadow: tokens.shadow16,
+      transform: "translateY(-4px)",
     },
   },
   iconWrapper: {
-    fontSize: "32px",
+    fontSize: "40px",
     color: tokens.colorBrandForeground1,
     lineHeight: "1",
+    marginBottom: "0.5rem",
   },
   title: {
-    fontSize: tokens.fontSizeBase500,
+    fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
+    lineHeight: "1.3",
   },
   description: {
-    fontSize: tokens.fontSizeBase300,
-    lineHeight: "1.6",
+    fontSize: tokens.fontSizeBase400,
+    lineHeight: "1.7",
     color: tokens.colorNeutralForeground2,
   },
 });

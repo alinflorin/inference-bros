@@ -2,7 +2,10 @@
 
 export const heroContent = {
   headline: "Enterprise-Grade LLM Inference at Scale",
-  subheadline: "Power your platform with production-ready AI infrastructure. Built on Kubernetes, optimized for performance, designed for intermediaries.",
+  subheadline: [
+    "Power your platform with production-ready AI infrastructure.",
+    "Built on Kubernetes, optimized for performance, designed for intermediaries."
+  ],
   primaryCTA: "Request Demo",
   secondaryCTA: "View Documentation",
 };
@@ -84,7 +87,7 @@ export const pricingTiers = [
   {
     title: "Starter",
     subtitle: "For prototyping and development",
-    price: "Contact Sales",
+    price: "",
     features: [
       "Up to 1M tokens/month",
       "Access to 50+ models",
@@ -99,7 +102,7 @@ export const pricingTiers = [
   {
     title: "Professional",
     subtitle: "For growing intermediaries",
-    price: "Contact Sales",
+    price: "",
     features: [
       "Up to 100M tokens/month",
       "Access to 100+ models",
@@ -116,7 +119,7 @@ export const pricingTiers = [
   {
     title: "Enterprise",
     subtitle: "Custom solutions for scale",
-    price: "Custom",
+    price: "",
     features: [
       "Unlimited token volume",
       "All models + custom deployments",

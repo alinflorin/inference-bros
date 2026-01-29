@@ -8,8 +8,11 @@ const useStyles = makeStyles({
   content: {
     display: "flex",
     flexDirection: "column",
-    ...shorthands.gap("3rem"),
+    ...shorthands.gap("2.5rem"),
     alignItems: "center",
+    "@media (min-width: 768px)": {
+      ...shorthands.gap("3rem"),
+    },
   },
   header: {
     textAlign: "center",
@@ -18,19 +21,26 @@ const useStyles = makeStyles({
     ...shorthands.gap("1rem"),
   },
   headline: {
-    fontSize: "2.5rem",
+    fontSize: "2rem",
     fontWeight: tokens.fontWeightBold,
     color: tokens.colorNeutralForeground1,
+    lineHeight: "1.2",
+    textAlign: "center",
     "@media (min-width: 768px)": {
-      fontSize: "3rem",
+      fontSize: "2.75rem",
     },
   },
   subheadline: {
     fontSize: tokens.fontSizeBase400,
     color: tokens.colorNeutralForeground2,
-    maxWidth: "600px",
+    maxWidth: "650px",
     marginLeft: "auto",
     marginRight: "auto",
+    lineHeight: "1.6",
+    textAlign: "center",
+    "@media (min-width: 768px)": {
+      fontSize: tokens.fontSizeBase500,
+    },
   },
   formContainer: {
     width: "100%",

@@ -13,25 +13,27 @@ const useStyles = makeStyles({
     flexDirection: "column",
     alignItems: "center",
     textAlign: "center",
-    gap: "0.75rem",
+    gap: "0.875rem",
+    padding: "1rem",
   },
   iconWrapper: {
-    fontSize: "28px",
+    fontSize: "32px",
     color: tokens.colorBrandForeground1,
   },
   value: {
-    fontSize: "2.5rem",
+    fontSize: "2.25rem",
     fontWeight: tokens.fontWeightBold,
     color: tokens.colorNeutralForeground1,
-    lineHeight: "1",
+    lineHeight: "1.1",
     "@media (min-width: 768px)": {
-      fontSize: "3rem",
+      fontSize: "2.75rem",
     },
   },
   label: {
-    fontSize: tokens.fontSizeBase300,
+    fontSize: tokens.fontSizeBase400,
     color: tokens.colorNeutralForeground2,
-    fontWeight: tokens.fontWeightMedium,
+    fontWeight: tokens.fontWeightSemibold,
+    lineHeight: "1.4",
   },
 });
 

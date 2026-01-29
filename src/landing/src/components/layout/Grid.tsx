@@ -17,10 +17,16 @@ const useStyles = makeStyles({
     gap: "1rem",
   },
   gapMedium: {
-    gap: "2rem",
+    gap: "1.5rem",
+    "@media (min-width: 768px)": {
+      gap: "2rem",
+    },
   },
   gapLarge: {
-    gap: "3rem",
+    gap: "2rem",
+    "@media (min-width: 768px)": {
+      gap: "2.5rem",
+    },
   },
   cols1: {
     gridTemplateColumns: "1fr",
@@ -34,9 +40,6 @@ const useStyles = makeStyles({
   cols3: {
     gridTemplateColumns: "1fr",
     "@media (min-width: 768px)": {
-      gridTemplateColumns: "repeat(2, 1fr)",
-    },
-    "@media (min-width: 1024px)": {
       gridTemplateColumns: "repeat(3, 1fr)",
     },
   },

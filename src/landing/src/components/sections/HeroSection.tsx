@@ -12,7 +12,7 @@ const useStyles = makeStyles({
     justifyContent: "center",
   },
   heroContent: {
-    maxWidth: "900px",
+    maxWidth: "1100px",
     marginLeft: "auto",
     marginRight: "auto",
     textAlign: "center",
@@ -26,11 +26,14 @@ const useStyles = makeStyles({
     fontWeight: tokens.fontWeightBold,
     color: tokens.colorNeutralForeground1,
     lineHeight: "1.2",
+    textAlign: "center",
     "@media (min-width: 768px)": {
       fontSize: "3.5rem",
+      whiteSpace: "nowrap",
     },
     "@media (min-width: 1024px)": {
       fontSize: "4rem",
+      whiteSpace: "nowrap",
     },
   },
   subheadline: {
@@ -38,6 +41,11 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground2,
     lineHeight: "1.6",
     maxWidth: "700px",
+    display: "flex",
+    flexDirection: "column",
+    ...shorthands.gap("0.5rem"),
+    textAlign: "center",
+    alignItems: "center",
     "@media (min-width: 768px)": {
       fontSize: tokens.fontSizeBase500,
     },
@@ -62,7 +70,16 @@ export default function HeroSection() {
       <Container maxWidth="large">
         <div className={styles.heroContent}>
           <Text className={styles.headline}>{heroContent.headline}</Text>
-          <Text className={styles.subheadline}>{heroContent.subheadline}</Text>
+          <div className={styles.subheadline}>
+            {Array.isArray(heroContent.subheadline)
+              ? heroContent.subheadline.map((line, index) => (
+                  <Text key={index} as="p" style={{ margin: 0 }}>
+                    {line}
+                  </Text>
+                ))
+              : <Text>{heroContent.subheadline}</Text>
+            }
+          </div>
           <div className={styles.ctaGroup}>
             <CTAButton variant="primary" href="#contact">
               {heroContent.primaryCTA}

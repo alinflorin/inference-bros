@@ -8,17 +8,22 @@ import * as FluentIcons from "@fluentui/react-icons";
 const useStyles = makeStyles({
   header: {
     textAlign: "center",
-    marginBottom: "4rem",
+    marginBottom: "3rem",
     display: "flex",
     flexDirection: "column",
     ...shorthands.gap("1rem"),
+    "@media (min-width: 768px)": {
+      marginBottom: "4rem",
+    },
   },
   title: {
-    fontSize: "2.5rem",
+    fontSize: "2rem",
     fontWeight: tokens.fontWeightBold,
     color: tokens.colorNeutralForeground1,
+    lineHeight: "1.2",
+    textAlign: "center",
     "@media (min-width: 768px)": {
-      fontSize: "3rem",
+      fontSize: "2.75rem",
     },
   },
   subtitle: {
@@ -27,28 +32,41 @@ const useStyles = makeStyles({
     maxWidth: "700px",
     marginLeft: "auto",
     marginRight: "auto",
+    lineHeight: "1.6",
+    textAlign: "center",
+    "@media (min-width: 768px)": {
+      fontSize: tokens.fontSizeBase500,
+    },
   },
   useCaseCard: {
-    ...shorthands.padding("2.5rem", "2rem"),
+    ...shorthands.padding("2.5rem"),
     display: "flex",
     flexDirection: "column",
-    ...shorthands.gap("1.5rem"),
+    ...shorthands.gap("1.25rem"),
     height: "100%",
     backgroundColor: tokens.colorNeutralBackground1,
     boxShadow: tokens.shadow4,
+    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.transition("all", "0.2s", "ease-in-out"),
+    ":hover": {
+      boxShadow: tokens.shadow16,
+      transform: "translateY(-4px)",
+    },
   },
   iconWrapper: {
-    fontSize: "48px",
+    fontSize: "44px",
     color: tokens.colorBrandForeground1,
+    marginBottom: "0.5rem",
   },
   useCaseTitle: {
-    fontSize: tokens.fontSizeBase500,
+    fontSize: tokens.fontSizeBase600,
     fontWeight: tokens.fontWeightSemibold,
     color: tokens.colorNeutralForeground1,
+    lineHeight: "1.3",
   },
   useCaseDescription: {
-    fontSize: tokens.fontSizeBase300,
-    lineHeight: "1.6",
+    fontSize: tokens.fontSizeBase400,
+    lineHeight: "1.7",
     color: tokens.colorNeutralForeground2,
   },
 });
