@@ -9,17 +9,22 @@ import * as FluentIcons from "@fluentui/react-icons";
 const useStyles = makeStyles({
   header: {
     textAlign: "center",
-    marginBottom: "4rem",
+    marginBottom: "3rem",
     display: "flex",
     flexDirection: "column",
     ...shorthands.gap("1rem"),
+    "@media (min-width: 768px)": {
+      marginBottom: "4rem",
+    },
   },
   title: {
-    fontSize: "2.5rem",
+    fontSize: "2rem",
     fontWeight: tokens.fontWeightBold,
     color: tokens.colorNeutralForeground1,
+    lineHeight: "1.2",
+    textAlign: "center",
     "@media (min-width: 768px)": {
-      fontSize: "3rem",
+      fontSize: "2.75rem",
     },
   },
   subtitle: {
@@ -28,6 +33,11 @@ const useStyles = makeStyles({
     maxWidth: "700px",
     marginLeft: "auto",
     marginRight: "auto",
+    lineHeight: "1.6",
+    textAlign: "center",
+    "@media (min-width: 768px)": {
+      fontSize: tokens.fontSizeBase500,
+    },
   },
 });
 
@@ -43,7 +53,7 @@ export default function FeaturesSection() {
             Everything you need to power AI features at scale, backed by battle-tested Kubernetes infrastructure.
           </Text>
         </div>
-        <Grid columns={3} gap="large">
+        <Grid columns={2} gap="large">
           {features.map((feature, index) => (
             <FeatureCard
               key={index}

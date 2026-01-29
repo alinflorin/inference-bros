@@ -14,21 +14,26 @@ const useStyles = makeStyles({
   form: {
     display: "flex",
     flexDirection: "column",
-    ...shorthands.gap("1.5rem"),
-    maxWidth: "600px",
+    ...shorthands.gap("1.75rem"),
+    maxWidth: "100%",
     marginLeft: "auto",
     marginRight: "auto",
   },
   row: {
     display: "grid",
     gridTemplateColumns: "1fr",
-    ...shorthands.gap("1.5rem"),
+    ...shorthands.gap("1.75rem"),
     "@media (min-width: 768px)": {
       gridTemplateColumns: "1fr 1fr",
     },
   },
   submitButton: {
-    marginTop: "1rem",
+    marginTop: "0.5rem",
+    width: "100%",
+    "@media (min-width: 768px)": {
+      width: "auto",
+      minWidth: "200px",
+    },
   },
 });
 
