@@ -108,10 +108,11 @@ jobs:
           scan-type: 'config'
           scan-ref: ./src/terraform
           hide-progress: true
-          format: 'table'
-          #output: 'src/terraform/trivy-results.sarif'
+          tf-vars: ./src/terraform/pr.tfvars
+          format: 'sarif'
+          output: 'src/terraform/trivy-results.sarif'
           exit-code: '1'
-          severity: 'LOW,MEDIUM,HIGH,CRITICAL'
+          severity: 'HIGH,CRITICAL'
 
       - name: Upload Trivy scan results to GitHub Security tab
         if: always()
