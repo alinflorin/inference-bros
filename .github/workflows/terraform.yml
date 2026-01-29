@@ -108,8 +108,8 @@ jobs:
           scan-type: 'config'
           scan-ref: ./src/terraform
           hide-progress: true
-          format: 'sarif'
-          output: 'src/terraform/trivy-results.sarif'
+          format: 'table'
+          #output: 'src/terraform/trivy-results.sarif'
           exit-code: '1'
           severity: 'LOW,MEDIUM,HIGH,CRITICAL'
 
