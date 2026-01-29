@@ -14,13 +14,13 @@ const useStyles = makeStyles({
     alignItems: "center",
     justifyContent: "center",
     minHeight: "calc(100vh - 64px)",
-    ...shorthands.padding("64px", "32px"),
+    ...shorthands.padding("80px", "32px"),
     background: `linear-gradient(135deg, ${tokens.colorBrandBackground} 0%, #0d7ba8 50%, #094d6b 100%)`,
     position: "relative",
     ...shorthands.overflow("hidden"),
     "@media (max-width: 768px)": {
       minHeight: "calc(100vh - 52px)",
-      ...shorthands.padding("48px", "20px"),
+      ...shorthands.padding("60px", "20px"),
     },
   },
   heroBackground: {
@@ -141,19 +141,19 @@ const useStyles = makeStyles({
     textAlign: "center",
     fontSize: "20px",
     color: tokens.colorNeutralForeground2,
-    ...shorthands.margin(0, 0, "64px", 0),
+    ...shorthands.margin(0, 0, "48px", 0),
     maxWidth: "600px",
     marginLeft: "auto",
     marginRight: "auto",
     "@media (max-width: 768px)": {
       fontSize: "16px",
-      ...shorthands.margin(0, 0, "48px", 0),
+      ...shorthands.margin(0, 0, "40px", 0),
     },
   },
   featuresGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    ...shorthands.gap("32px"),
+    ...shorthands.gap("24px"),
     "@media (max-width: 768px)": {
       gridTemplateColumns: "1fr",
       ...shorthands.gap("24px"),
@@ -179,7 +179,7 @@ const useStyles = makeStyles({
     ...shorthands.borderRadius("12px"),
     backgroundColor: tokens.colorBrandBackground2,
     color: tokens.colorBrandForeground1,
-    marginBottom: "20px",
+    marginBottom: "24px",
     fontSize: "24px",
   },
   featureTitle: {
@@ -207,9 +207,9 @@ const useStyles = makeStyles({
     margin: "0 auto",
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-    ...shorthands.gap("48px"),
+    ...shorthands.gap("40px"),
     "@media (max-width: 768px)": {
-      ...shorthands.gap("32px"),
+      ...shorthands.gap("40px"),
     },
   },
   statItem: {
@@ -254,13 +254,13 @@ const useStyles = makeStyles({
     textAlign: "center",
     fontSize: "20px",
     color: tokens.colorNeutralForeground2,
-    ...shorthands.margin(0, 0, "64px", 0),
+    ...shorthands.margin(0, 0, "48px", 0),
     maxWidth: "600px",
     marginLeft: "auto",
     marginRight: "auto",
     "@media (max-width: 768px)": {
       fontSize: "16px",
-      ...shorthands.margin(0, 0, "48px", 0),
+      ...shorthands.margin(0, 0, "40px", 0),
     },
   },
   useCasesGrid: {
@@ -295,11 +295,11 @@ const useStyles = makeStyles({
     ...shorthands.margin(0),
   },
   cta: {
-    ...shorthands.padding("100px", "32px"),
+    ...shorthands.padding("80px", "32px"),
     background: `linear-gradient(135deg, ${tokens.colorBrandBackground} 0%, #0d7ba8 100%)`,
     textAlign: "center",
     "@media (max-width: 768px)": {
-      ...shorthands.padding("64px", "20px"),
+      ...shorthands.padding("60px", "20px"),
     },
   },
   ctaContainer: {
