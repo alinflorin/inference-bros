@@ -9,7 +9,7 @@ interface CTAButtonProps extends Omit<ButtonProps, "appearance"> {
 export default function CTAButton({ variant = "primary", href, children, onClick, ...props }: CTAButtonProps) {
   const appearance = variant === "primary" ? "primary" : "outline";
 
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     if (href) {
       e.preventDefault();
       if (href.startsWith("#")) {
@@ -19,7 +19,7 @@ export default function CTAButton({ variant = "primary", href, children, onClick
         window.location.href = href;
       }
     }
-    onClick?.(e);
+    onClick?.(e as React.MouseEvent<HTMLButtonElement>);
   };
 
   return (
