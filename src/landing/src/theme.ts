@@ -1,27 +1,27 @@
-import { createLightTheme } from "@fluentui/react-components";
+import { createDarkTheme } from "@fluentui/react-components";
 import type { Theme } from "@fluentui/react-components";
 
-// Custom brand colors for Inference Bros - Professional B2B theme
-const inferenceBrosBrand = {
-  10: "#020305",
-  20: "#0F1419",
-  30: "#16202B",
-  40: "#1C2A3A",
-  50: "#233549",
-  60: "#2B4158",
-  70: "#344D68",
-  80: "#3D5978",
-  90: "#466689",
-  100: "#50739A",
-  110: "#5A81AC",
-  120: "#658EBE",
-  130: "#709CD1",
-  140: "#7BAAE4",
-  150: "#88B8F7",
-  160: "#A0C7FF",
+// Lamborghini-inspired theme - Orange Arancio with Black
+const lamborghiniBrand = {
+  10: "#1A0A00",
+  20: "#331500",
+  30: "#4D1F00",
+  40: "#662A00",
+  50: "#803500",
+  60: "#993F00",
+  70: "#B34A00",
+  80: "#CC5500",
+  90: "#E66000",
+  100: "#FF6B00",
+  110: "#FF7F1A",
+  120: "#FF9333",
+  130: "#FFA64D",
+  140: "#FFB966",
+  150: "#FFCC80",
+  160: "#FFDF99",
 };
 
-export const customTheme: Theme = createLightTheme(inferenceBrosBrand);
+export const customTheme: Theme = createDarkTheme(lamborghiniBrand);
 
 // Additional theme customizations
 customTheme.fontFamilyBase = "'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
