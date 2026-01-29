@@ -56,7 +56,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "25.x"
-          cache: "npm"
 
       - uses: azure/setup-helm@v4.3.0
         name: Setup Helm
@@ -90,7 +89,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "25.x"
-          cache: "npm"
 
       - uses: azure/setup-helm@v4.3.0
         name: Setup Helm
