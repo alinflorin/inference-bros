@@ -1,29 +1,33 @@
-import {
-  createLightTheme,
-  type BrandVariants,
-} from "@fluentui/react-components";
+import { createLightTheme } from "@fluentui/react-components";
+import type { Theme } from "@fluentui/react-components";
 
-// Custom brand colors based on #1098CA
-const inferenceBrosBrand: BrandVariants = {
-  10: "#030608",
-  20: "#0A1419",
-  30: "#0E1F28",
-  40: "#122A37",
-  50: "#153546",
-  60: "#184056",
-  70: "#1B4C66",
-  80: "#1E5876",
-  90: "#1098CA", // Primary brand color
-  100: "#2BA4D3",
-  110: "#46B0DC",
-  120: "#61BCE5",
-  130: "#7CC8EE",
-  140: "#97D4F7",
-  150: "#B2E0FF",
-  160: "#CDECFF",
+// Custom brand colors for Inference Bros - Professional B2B theme
+const inferenceBrosBrand = {
+  10: "#020305",
+  20: "#0F1419",
+  30: "#16202B",
+  40: "#1C2A3A",
+  50: "#233549",
+  60: "#2B4158",
+  70: "#344D68",
+  80: "#3D5978",
+  90: "#466689",
+  100: "#50739A",
+  110: "#5A81AC",
+  120: "#658EBE",
+  130: "#709CD1",
+  140: "#7BAAE4",
+  150: "#88B8F7",
+  160: "#A0C7FF",
 };
 
-// Create the custom light theme
-const inferenceBrosTheme = createLightTheme(inferenceBrosBrand);
+export const customTheme: Theme = createLightTheme(inferenceBrosBrand);
 
-export default inferenceBrosTheme;
+// Additional theme customizations
+customTheme.fontFamilyBase = "'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif";
+customTheme.fontSizeBase300 = "14px";
+customTheme.fontSizeBase400 = "16px";
+customTheme.fontSizeBase500 = "18px";
+customTheme.lineHeightBase300 = "1.5";
+customTheme.lineHeightBase400 = "1.6";
+customTheme.lineHeightBase500 = "1.7";

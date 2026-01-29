@@ -5,14 +5,14 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import Home from "./routes/Home.tsx";
 import NotFound from "./routes/NotFound.tsx";
 import { FluentProvider } from "@fluentui/react-components";
-import inferenceBrosTheme from "./theme.ts";
+import { customTheme } from "./theme.ts";
 import About from "./routes/About.tsx";
 import Contact from "./routes/Contact.tsx";
 import Services from "./routes/Services.tsx";
 
 
 createRoot(document.getElementById("root")!).render(
-  <FluentProvider theme={inferenceBrosTheme} style={{height: '100vh'}}>
+  <FluentProvider theme={customTheme} style={{height: '100vh'}}>
     <BrowserRouter>
       <Routes>
         <Route element={<App />}>
