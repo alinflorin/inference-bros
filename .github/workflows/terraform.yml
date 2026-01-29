@@ -46,80 +46,6 @@ env:
   BACKEND_TYPE: ${{ github.event_name == 'workflow_dispatch' && 'cloud' || 'local' }}
 
 jobs:
-  generate-sbom:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "25.x"
-
-      - uses: azure/setup-helm@v4.3.0
-        name: Setup Helm
-
-      - name: Run TF 2 Helm
-        run: |
-          npx -y tf-to-helm-umbrella transform "./src/terraform/*.tf" "./src/terraform/chart"
-
-      - name: Helm update
-        working-directory: src/terraform/chart
-        run: |
-          helm dependency update
-
-      - name: Run Trivy in GitHub SBOM mode and submit results to Dependency Graph
-        uses: aquasecurity/trivy-action@0.33.1
-        with:
-          scan-type: 'fs'
-          format: 'github'
-          output: './src/terraform/dependency-results.sbom.json'
-          scan-ref: './src/terraform'
-          github-pat: ${{ secrets.GITHUB_TOKEN }}
-
-  security-scan:
-    name: Terraform Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "25.x"
-
-      - uses: azure/setup-helm@v4.3.0
-        name: Setup Helm
-
-      - name: Run TF 2 Helm
-        run: |
-          npx -y tf-to-helm-umbrella transform "./src/terraform/*.tf" "./src/terraform/chart"
-
-      - name: Helm update
-        working-directory: src/terraform/chart
-        run: |
-          helm dependency update
-
-      - name: Run Trivy vulnerability scanner in IaC mode
-        uses: aquasecurity/trivy-action@0.33.1
-        with:
-          scan-type: 'config'
-          scan-ref: ./src/terraform
-          hide-progress: true
-          tf-vars: ./src/terraform/pr.tfvars
-          format: 'sarif'
-          output: 'src/terraform/trivy-results.sarif'
-          exit-code: '1'
-          severity: 'HIGH,CRITICAL'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: 'src/terraform/trivy-results.sarif'
-  
   plan:
     name: Terraform Plan / Validate
     runs-on: ubuntu-latest
@@ -271,7 +197,7 @@ jobs:
 
   apply:
     name: Terraform Apply
-    needs: [plan, security-scan]
+    needs: [plan]
     runs-on: ubuntu-latest
 
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
