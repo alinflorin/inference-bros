@@ -187,25 +187,6 @@ locals {
 
 }
 
-# Install kube-vip on first master
-resource "helm_release" "kube_vip" {
-  name             = "kube-vip"
-  repository       = "https://kube-vip.github.io/helm-charts/"
-  chart            = "kube-vip"
-  namespace        = "kube-system"
-  version          = "0.9.5"
-  create_namespace = true
-  atomic           = true
-  wait             = true
-
-  values = [
-
-
-  ]
-
-  depends_on = [ssh_sensitive_resource.install_k3s_first_master]
-}
-
 resource "helm_release" "coredns_custom_config" {
   name             = "coredns-custom-config"
   repository       = "https://dasmeta.github.io/helm/"
