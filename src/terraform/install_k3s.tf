@@ -293,7 +293,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
     "echo OK",
   ]
 
-  depends_on = [helm_release.kube_vip]
+  depends_on = [helm_release.coredns_custom_config]
 }
 
 
@@ -351,7 +351,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
     "echo OK",
   ]
 
-  depends_on = [helm_release.kube_vip]
+  depends_on = [helm_release.coredns_custom_config]
 }
 
 
