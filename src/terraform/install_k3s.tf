@@ -40,6 +40,45 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   }
 
   file {
+    destination = "/root/kube-vip-values.yaml"
+    permissions = "0700"
+    content     = <<-EOT
+      image:
+        tag: v1.0.3
+      config:
+        address: "${var.k3s_vip}"
+
+      env:
+        vip_arp: "true"
+        lb_enable: "true"
+        lb_port: "6443"
+        vip_subnet: "32"
+        cp_enable: "true"
+        svc_enable: "false"
+        svc_election: "false"
+        vip_leaderelection: "false"
+
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node-role.kubernetes.io/master
+                operator: Exists
+            - matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: Exists
+      resources:
+        requests:
+          cpu: 50m
+          memory: 64Mi
+        limits:
+          cpu: 100m
+          memory: 128Mi
+    EOT
+  }
+
+  file {
     content = <<-EOT
       write-kubeconfig-mode: "0644"
       node-ip: ${local.first_master.ip}
@@ -75,13 +114,21 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
 
   commands = [
     "apt-get update",
-    "apt-get install -y curl jq iptables open-iscsi",
+    "apt-get install -y curl jq iptables open-iscsi gpg apt-transport-https",
+    "curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null",
+    "echo \"deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main\" | tee /etc/apt/sources.list.d/helm-stable-debian.list",
+    "apt-get update",
+    "apt-get install -y helm",
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
     "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -",
     "curl -sfL https://get.k3s.io | sh -",
     "sleep 30",
     "k3s kubectl create namespace cert-manager",
     "k3s kubectl create secret generic root-ca --from-file=tls.crt=/var/lib/rancher/k3s/server/tls/root-ca.pem --from-file=tls.key=/var/lib/rancher/k3s/server/tls/root-ca.key -n cert-manager",
+    "helm repo add kube-vip https://kube-vip.github.io/helm-charts/",
+    "helm repo update",
+    "helm install kube-vip kube-vip/kube-vip --version 0.9.5 --namespace kube-system --wait --timeout 5m --values /root/kube-vip-values.yaml --kubeconfig /etc/rancher/k3s/k3s.yaml",
+    "sleep 10",
     <<-EOCMD
       jq -n \
         --arg token "$(cat /var/lib/rancher/k3s/server/token)" \
@@ -152,40 +199,7 @@ resource "helm_release" "kube_vip" {
   wait             = true
 
   values = [
-    <<-EOT
-      image:
-        tag: v1.0.3
-      config:
-        address: "${var.k3s_vip}"
 
-      env:
-        vip_arp: "true"
-        lb_enable: "true"
-        lb_port: "6443"
-        vip_subnet: "32"
-        cp_enable: "true"
-        svc_enable: "false"
-        svc_election: "false"
-        vip_leaderelection: "false"
-
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-            - matchExpressions:
-              - key: node-role.kubernetes.io/master
-                operator: Exists
-            - matchExpressions:
-              - key: node-role.kubernetes.io/control-plane
-                operator: Exists
-      resources:
-        requests:
-          cpu: 50m
-          memory: 64Mi
-        limits:
-          cpu: 100m
-          memory: 128Mi
-    EOT
 
   ]
 
