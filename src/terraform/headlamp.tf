@@ -70,6 +70,6 @@ resource "helm_release" "headlamp" {
 
   ]
 
-  depends_on = [null_resource.k3s_installed]
+  depends_on = [null_resource.k3s_installed, helm_release.ingress_nginx]
   count      = var.monitoring_enabled ? 1 : 0
 }

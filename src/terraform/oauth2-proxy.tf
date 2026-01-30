@@ -80,5 +80,5 @@ resource "helm_release" "oauth2_proxy" {
 
   ]
 
-  depends_on = [helm_release.prometheus_operator_crds]
+  depends_on = [helm_release.prometheus_operator_crds, helm_release.ingress_nginx]
 }

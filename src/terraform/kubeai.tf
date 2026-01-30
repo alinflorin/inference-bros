@@ -47,7 +47,7 @@ resource "helm_release" "kubeai" {
 
   ]
 
-  depends_on = [helm_release.prometheus_operator_crds]
+  depends_on = [helm_release.prometheus_operator_crds, helm_release.ingress_nginx]
 }
 
 resource "helm_release" "kubeai_hpa" {

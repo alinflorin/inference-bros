@@ -55,5 +55,5 @@ resource "helm_release" "longhorn" {
 
   count = var.longhorn_enabled ? 1 : 0
 
-  depends_on = [helm_release.prometheus_operator_crds]
+  depends_on = [helm_release.prometheus_operator_crds, helm_release.ingress_nginx]
 }
