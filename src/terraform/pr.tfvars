@@ -1,11 +1,11 @@
 servers = [
   {
-    ip       = "192.168.0.101"
-    ssh_ip   = "192.168.1.159"
-    port     = 22
-    user     = "root"
-    master   = true
-    hostname = "k3s-master-1"
+    ip                 = "192.168.0.101"
+    ssh_ip_or_hostname = "192.168.1.159"
+    port               = 22
+    user               = "root"
+    master             = true
+    hostname           = "k3s-master-1"
   }
 ]
 k3s_vip          = "192.168.0.252"

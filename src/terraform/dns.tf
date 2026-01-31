@@ -9,7 +9,7 @@ resource "cloudflare_dns_record" "k3s" {
   count = var.enable_dns == true && var.dns_type == "external-dns" ? 1 : 0
 }
 
-resource "cloudflare_dns_record" "wildcard" {
+resource "cloudflare_dns_record" "wildcard_a" {
   zone_id = var.cloudflare_zone_id
   name    = "*.${var.location}"
   type    = "A"
@@ -17,7 +17,18 @@ resource "cloudflare_dns_record" "wildcard" {
   ttl     = 300
   proxied = false
 
-  count = var.enable_dns == true && var.dns_type == "wildcard" ? 1 : 0
+  count = var.enable_dns == true && var.dns_type == "wildcard" && var.public_ip != "" && var.public_ip != null ? 1 : 0
+}
+
+resource "cloudflare_dns_record" "wildcard_cname" {
+  zone_id = var.cloudflare_zone_id
+  name    = "*.${var.location}"
+  type    = "CNAME"
+  content = var.public_hostname
+  ttl     = 300
+  proxied = false
+
+  count = var.enable_dns == true && var.dns_type == "wildcard" && var.public_hostname != "" && var.public_hostname != null ? 1 : 0
 }
 
 resource "helm_release" "external_dns" {

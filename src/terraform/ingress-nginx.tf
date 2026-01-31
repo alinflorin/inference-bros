@@ -38,8 +38,7 @@ resource "helm_release" "ingress_nginx" {
         allowSnippetAnnotations: true
         service:
           loadBalancerIP: "${var.nginx_metallb_ip}"
-          externalIPs:
-            - "${var.public_ip}"
+          ${var.enable_dns == true && var.public_ip != "" && var.public_ip != null && var.dns_type == "external-dns" ? "externalIPs: [${var.public_ip}]" : ""}
         metrics:
           enabled: true
           serviceMonitor:

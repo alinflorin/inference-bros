@@ -15,7 +15,7 @@ locals {
 # Install first master
 
 resource "ssh_sensitive_resource" "install_k3s_first_master" {
-  host        = local.first_master.ssh_ip
+  host        = local.first_master.ssh_ip_or_hostname
   user        = local.first_master.user
   port        = local.first_master.port
   agent       = false
@@ -85,7 +85,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
       flannel-backend: "vxlan"
       node-name: ${local.first_master.hostname}
       tls-san:
-        - ${local.first_master.ssh_ip}
+        - ${local.first_master.ssh_ip_or_hostname}
         - ${var.k3s_vip}
         - k3s.${var.domain}
       disable:
@@ -147,8 +147,8 @@ locals {
   ).token
   k3s_kubeconfig = replace(base64decode(jsondecode(
     ssh_sensitive_resource.install_k3s_first_master.result
-  ).kubeconfig_b64), "127.0.0.1", local.first_master.ssh_ip)
-  k3s_kubeconfig_url       = "https://${local.first_master.ssh_ip}:6443"
+  ).kubeconfig_b64), "127.0.0.1", local.first_master.ssh_ip_or_hostname)
+  k3s_kubeconfig_url       = "https://${local.first_master.ssh_ip_or_hostname}:6443"
   k3s_kubeconfig_object    = yamldecode(local.k3s_kubeconfig)
   k3s_kubeconfig_for_users = <<-EOT
     apiVersion: v1
@@ -229,7 +229,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 
   }
 
-  host        = each.value.ssh_ip
+  host        = each.value.ssh_ip_or_hostname
   user        = each.value.user
   port        = each.value.port
   agent       = false
@@ -256,7 +256,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
       flannel-backend: "vxlan"
       node-name: ${each.value.hostname}
       tls-san:
-        - ${each.value.ssh_ip}
+        - ${each.value.ssh_ip_or_hostname}
         - ${var.k3s_vip}
         - k3s.${var.domain}
       disable:
@@ -308,7 +308,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
 
   }
 
-  host        = each.value.ssh_ip
+  host        = each.value.ssh_ip_or_hostname
   user        = each.value.user
   port        = each.value.port
   agent       = false

@@ -33,12 +33,12 @@ variable "domain" {
 
 variable "servers" {
   type = list(object({
-    ip       = string
-    ssh_ip   = string
-    hostname = string
-    port     = number
-    user     = string
-    master   = bool
+    ip                 = string
+    ssh_ip_or_hostname = string
+    hostname           = string
+    port               = number
+    user               = string
+    master             = bool
   }))
 }
 
@@ -222,7 +222,13 @@ variable "cloudflare_zone_id" {
 
 
 variable "public_ip" {
-  type = string
+  type     = string
+  nullable = true
+}
+
+variable "public_hostname" {
+  type     = string
+  nullable = true
 }
 
 variable "dns_type" {
