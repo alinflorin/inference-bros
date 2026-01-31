@@ -18,7 +18,7 @@ resource "helm_release" "bifrost" {
   create_namespace = true
   atomic           = true
   wait             = true
-  version          = "1.7.0"
+  version          = "2.0.1"
 
   values = [
     <<-EOT
@@ -35,7 +35,7 @@ resource "helm_release" "bifrost" {
             pricingSyncInterval: 3600
         encryptionKey: ${random_string.bifrost_enc_key.result}
         logLevel: info
-        
+
         client:
           prometheusLabels: ["team", "environment", "organization", "project"]
           dropExcessRequests: true
@@ -79,7 +79,7 @@ resource "helm_release" "bifrost" {
                 file_retrieve: false
                 file_delete: false
                 file_content: false
-        
+
         plugins:
           telemetry:
             enabled: true
