@@ -23,8 +23,8 @@ resource "helm_release" "tempo" {
             cpu: 100m
             memory: 256Mi
           limits:
-            cpu: 200m
-            memory: 512Mi
+            cpu: 300m
+            memory: 1Gi
     EOT
   ]
 
