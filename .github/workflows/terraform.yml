@@ -216,7 +216,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: tfplan
-          path: src/terraform/tfplan
+          path: src/terraform
 
       - name: Create Backend Override
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
