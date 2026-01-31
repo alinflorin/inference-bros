@@ -97,3 +97,4 @@ cloudflare_api_token = "----------------------------------------"
 cloudflare_zone_id   = "..."
 public_ip            = "192.168.1.240"
 dns_type             = "external-dns"
+public_hostname      = null
