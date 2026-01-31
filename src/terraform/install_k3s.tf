@@ -231,7 +231,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 
   triggers = {
     k3s_vip = var.k3s_vip
-    ip      = each.ip
+    ip      = each.value.ip
     domain  = var.domain
   }
 
@@ -314,7 +314,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
 
   triggers = {
     k3s_vip = var.k3s_vip
-    ip      = each.ip
+    ip      = each.value.ip
     domain  = var.domain
   }
 
