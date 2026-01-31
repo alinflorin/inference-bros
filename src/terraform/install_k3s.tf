@@ -265,6 +265,8 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
         - servicelb
         - traefik
         ${var.longhorn_enabled == false ? "" : "- local-storage"}
+      kubelet-arg:
+        - "feature-gates=DevicePlugins=true"
       kube-apiserver-arg:
         - "oidc-issuer-url=https://dex.${var.domain}"
         - "oidc-client-id=k3s"
@@ -288,7 +290,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 
   commands = [
     "apt-get update",
-    "apt-get install -y curl jq iptables open-iscsi",
+    "apt-get install -y curl jq iptables open-iscsi nfs-common",
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
     "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -",
     "curl -sfL https://get.k3s.io | sh -",
@@ -338,7 +340,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
 
   commands = [
     "apt-get update",
-    "apt-get install -y curl jq iptables open-iscsi",
+    "apt-get install -y curl jq iptables open-iscsi nfs-common",
     "curl -sfL https://get.k3s.io | sh -s - agent",
     "echo OK",
   ]
