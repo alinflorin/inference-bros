@@ -114,7 +114,7 @@ resource "helm_release" "kubeai_models_pvc" {
           namespace: kubeai
         spec:
           accessModes:
-            - ${var.longhorn_enabled ? "ReadWriteOnce" : "ReadWriteOnce"}
+            - ${var.longhorn_enabled && var.longhorn_replica_count >= 3 ? "ReadWriteMany" : "ReadWriteOnce"}
           resources:
             requests:
               storage: ${var.kubeai_pvc_storage_gb}Gi
@@ -144,26 +144,26 @@ resource "helm_release" "kubeai_models_explorer" {
       deployment:
         enabled: true
         replicas: 1
-        
+
         # Container Image
         image:
           repository: gtstef/filebrowser
           tag: stable-slim
           pullPolicy: IfNotPresent
-        
+
         # Environment Variables
         env:
           FILEBROWSER_CONFIG:
             value: "/home/filebrowser/config/config.yaml"
           # TZ:
           #   value: "America/New_York"
-        
+
         # Container Ports
         ports:
           - containerPort: 80
             name: http
             protocol: TCP
-        
+
         # Volumes
         volumes:
           db-data:
@@ -174,7 +174,7 @@ resource "helm_release" "kubeai_models_explorer" {
           files:
             persistentVolumeClaim:
               claimName: models
-        
+
         # Volume Mounts
         volumeMounts:
           db-data:
@@ -183,17 +183,17 @@ resource "helm_release" "kubeai_models_explorer" {
             mountPath: /home/filebrowser/config
           files:
             mountPath: /folder
-        
+
         # Security Context - Run as non-root user
         containerSecurityContext:
           readOnlyRootFilesystem: false
           runAsNonRoot: true
           runAsUser: 1000
           runAsGroup: 1000
-        
+
         securityContext:
           fsGroup: 1000
-        
+
         # Health Probes
         readinessProbe:
           enabled: true
@@ -206,7 +206,7 @@ resource "helm_release" "kubeai_models_explorer" {
           timeoutSeconds: 5
           successThreshold: 1
           failureThreshold: 3
-        
+
         livenessProbe:
           enabled: true
           httpGet:
@@ -218,7 +218,7 @@ resource "helm_release" "kubeai_models_explorer" {
           timeoutSeconds: 5
           successThreshold: 1
           failureThreshold: 3
-        
+
         # Resource Limits
         resources:
           requests:
@@ -227,7 +227,7 @@ resource "helm_release" "kubeai_models_explorer" {
           limits:
             memory: 256Mi
             cpu: 100m
-        
+
 
       # Service Configuration
       service:
