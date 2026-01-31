@@ -79,9 +79,9 @@ loki_storage_gb         = 10
 grafana_storage_gb      = 10
 tempo_storage_gb        = 10
 mail_storage_gb         = 1
-bifrost_storage_gb      = 100
+bifrost_storage_gb      = 20
 alertmanager_storage_gb = 5
-kubeai_pvc_storage_gb   = 100
+kubeai_pvc_storage_gb   = 20
 
 smtp_username       = "#{SMTP_USERNAME}"
 smtp_password       = "#{SMTP_PASSWORD}"
