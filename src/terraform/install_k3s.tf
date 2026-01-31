@@ -92,6 +92,8 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
         - servicelb
         - traefik
         ${var.longhorn_enabled == false ? "" : "- local-storage"}
+      kubelet-arg:
+        - "feature-gates=DevicePlugins=true"
       kube-apiserver-arg:
         - "oidc-issuer-url=https://dex.${var.domain}"
         - "oidc-client-id=k3s"
