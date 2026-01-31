@@ -23,11 +23,11 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
 
   when = "create"
 
-  triggers = {
-    k3s_vip = var.k3s_vip
-    ip      = local.first_master.ip
-    domain  = var.domain
-  }
+  # triggers = {
+  #   k3s_vip = var.k3s_vip
+  #   ip      = local.first_master.ip
+  #   domain  = var.domain
+  # }
 
   file {
     content     = var.root_ca_crt
@@ -218,6 +218,11 @@ resource "helm_release" "coredns_custom_config" {
 
   ]
 
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [depends_on]
+  }
+
   depends_on = [ssh_sensitive_resource.install_k3s_first_master]
 }
 
@@ -227,11 +232,11 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
     for s in local.other_masters : s.hostname => s
   }
 
-  triggers = {
-    k3s_vip = var.k3s_vip
-    ip      = each.value.ip
-    domain  = var.domain
-  }
+  # triggers = {
+  #   k3s_vip = var.k3s_vip
+  #   ip      = each.value.ip
+  #   domain  = var.domain
+  # }
 
   host        = each.value.ssh_ip_or_hostname
   user        = each.value.user
@@ -297,6 +302,11 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
     "echo OK",
   ]
 
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [depends_on]
+  }
+
   depends_on = [helm_release.coredns_custom_config]
 }
 
@@ -308,11 +318,11 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
     for s in local.workers : s.hostname => s
   }
 
-  triggers = {
-    k3s_vip = var.k3s_vip
-    ip      = each.value.ip
-    domain  = var.domain
-  }
+  # triggers = {
+  #   k3s_vip = var.k3s_vip
+  #   ip      = each.value.ip
+  #   domain  = var.domain
+  # }
 
   host        = each.value.ssh_ip_or_hostname
   user        = each.value.user
@@ -347,6 +357,11 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
     "echo OK",
   ]
 
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [depends_on]
+  }
+
   depends_on = [helm_release.coredns_custom_config]
 }
 
@@ -373,6 +388,11 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
 }
 
 resource "null_resource" "k3s_installed" {
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [depends_on]
+  }
+
   depends_on = [
     ssh_sensitive_resource.install_k3s_first_master,
     ssh_sensitive_resource.install_k3s_other_masters,
