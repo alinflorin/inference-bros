@@ -63,7 +63,7 @@ jobs:
       - name: Create Backend Override
         if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
         run: |
-          cat <<EOF > /src/terraform/backend_override.tf
+          cat <<EOF > ./src/terraform/backend_override.tf
           terraform {
             cloud {
               organization = "${{ secrets.TF_ORG }}"
