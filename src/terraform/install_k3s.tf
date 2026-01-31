@@ -123,11 +123,11 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -",
     "curl -sfL https://get.k3s.io | sh -",
     "sleep 180",
-    "k3s kubectl create namespace cert-manager",
-    "k3s kubectl create secret generic root-ca --from-file=tls.crt=/var/lib/rancher/k3s/server/tls/root-ca.pem --from-file=tls.key=/var/lib/rancher/k3s/server/tls/root-ca.key -n cert-manager",
-    "helm repo add kube-vip https://kube-vip.github.io/helm-charts/",
+    "k3s kubectl create namespace cert-manager || true",
+    "k3s kubectl create secret generic root-ca --from-file=tls.crt=/var/lib/rancher/k3s/server/tls/root-ca.pem --from-file=tls.key=/var/lib/rancher/k3s/server/tls/root-ca.key -n cert-manager || true",
+    "helm repo add kube-vip https://kube-vip.github.io/helm-charts/ || true",
     "helm repo update",
-    "helm install kube-vip kube-vip/kube-vip --version 0.9.5 --namespace kube-system --wait --timeout 5m --values /root/kube-vip-values.yaml --kubeconfig /etc/rancher/k3s/k3s.yaml",
+    "helm upgrade --install kube-vip kube-vip/kube-vip --version 0.9.5 --namespace kube-system --wait --timeout 5m --values /root/kube-vip-values.yaml --kubeconfig /etc/rancher/k3s/k3s.yaml",
     "sleep 10",
     <<-EOCMD
       jq -n \
