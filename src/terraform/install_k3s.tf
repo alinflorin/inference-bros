@@ -318,16 +318,6 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
 
   file {
     content = <<-EOT
-      #!/bin/sh
-      mount --make-rshared /
-    EOT
-
-    destination = "/etc/local.d/mount.rshared.start"
-    permissions = "0755"
-  }
-
-  file {
-    content = <<-EOT
       node-ip: ${each.value.ip}
       node-name: ${each.value.hostname}
       server: https://${var.k3s_vip}:6443
