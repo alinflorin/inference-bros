@@ -128,7 +128,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     "helm repo add kube-vip https://kube-vip.github.io/helm-charts/ || true",
     "helm repo update",
     "helm upgrade --install kube-vip kube-vip/kube-vip --version 0.9.5 --namespace kube-system --wait --timeout 5m --values /root/kube-vip-values.yaml --kubeconfig /etc/rancher/k3s/k3s.yaml",
-    "sleep 10",
+    "sleep 60",
     <<-EOCMD
       jq -n \
         --arg token "$(cat /var/lib/rancher/k3s/server/token)" \
