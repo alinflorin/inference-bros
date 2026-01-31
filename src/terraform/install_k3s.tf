@@ -218,11 +218,6 @@ resource "helm_release" "coredns_custom_config" {
 
   ]
 
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes        = [depends_on]
-  }
-
   depends_on = [ssh_sensitive_resource.install_k3s_first_master]
 }
 
@@ -302,11 +297,6 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
     "echo OK",
   ]
 
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes        = [depends_on]
-  }
-
   depends_on = [helm_release.coredns_custom_config]
 }
 
@@ -357,11 +347,6 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
     "echo OK",
   ]
 
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes        = [depends_on]
-  }
-
   depends_on = [helm_release.coredns_custom_config]
 }
 
@@ -388,10 +373,6 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
 }
 
 resource "null_resource" "k3s_installed" {
-  lifecycle {
-    create_before_destroy = true
-    ignore_changes        = [depends_on]
-  }
 
   depends_on = [
     ssh_sensitive_resource.install_k3s_first_master,
