@@ -114,7 +114,7 @@ resource "helm_release" "kubeai_models_pvc" {
           namespace: kubeai
         spec:
           accessModes:
-            - ${var.longhorn_enabled ? "ReadWriteMany" : "ReadWriteOnce"}
+            - ${var.longhorn_enabled ? "ReadWriteOnce" : "ReadWriteOnce"}
           resources:
             requests:
               storage: ${var.kubeai_pvc_storage_gb}Gi
