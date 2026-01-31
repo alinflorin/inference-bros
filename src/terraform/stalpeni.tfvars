@@ -1,6 +1,6 @@
 servers = [
   {
-    ip                 = "192.168.0.101"
+    ip                 = "192.168.1.101"
     ssh_ip_or_hostname = "inferencebros-stalpeni.go.ro"
     port               = 2201
     user               = "root"
@@ -8,9 +8,9 @@ servers = [
     hostname           = "k3s-master-1"
   }
 ]
-k3s_vip          = "192.168.0.252"
-metallb_range    = "192.168.0.240-192.168.0.249"
-nginx_metallb_ip = "192.168.0.240"
+k3s_vip          = "192.168.1.252"
+metallb_range    = "192.168.1.240-192.168.1.249"
+nginx_metallb_ip = "192.168.1.240"
 domain           = "stalpeni.inferencebros.com"
 root_ca_crt      = <<EOF
 #{ROOT_CA_CRT}
