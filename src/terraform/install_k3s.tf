@@ -21,6 +21,10 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   agent       = false
   private_key = var.ssh_private_key
 
+  triggers = {
+    script_version = "v1"
+  }
+
   file {
     content     = <<-EOT
       fs.inotify.max_user_watches=524288
@@ -238,6 +242,10 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   agent       = false
   private_key = var.ssh_private_key
 
+  triggers = {
+    script_version = "v1"
+  }
+
   file {
     content     = <<-EOT
       fs.inotify.max_user_watches=524288
@@ -324,6 +332,10 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   agent       = false
   private_key = var.ssh_private_key
 
+  triggers = {
+    script_version = "v1"
+  }
+
   file {
     content = <<-EOT
       node-ip: ${each.value.ip}
@@ -382,12 +394,20 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
 
   timeout = "15m"
 
+  triggers = {
+    script_version = "v1"
+  }
+
   commands = [
     "(pkill -9 -f 'k3s|containerd|longhorn'|| true) && (sleep 10 || true) && (k3s-killall.sh || true) && (k3s-uninstall.sh || true) && (k3s-agent-uninstall.sh || true) && (rm -rf /etc/rancher /var/lib/rancher /root/install_k3s.sh /var/log/k3s* /var/lib/longhorn /var/lib/containerd || true)",
   ]
 }
 
 resource "null_resource" "k3s_installed" {
+
+  triggers = {
+    recreate_tag = "v1"
+  }
 
   depends_on = [
     ssh_sensitive_resource.install_k3s_first_master,
