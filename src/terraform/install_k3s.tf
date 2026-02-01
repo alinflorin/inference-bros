@@ -24,6 +24,19 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   when = "create"
 
   triggers = {
+    # Only recreate if these critical values change
+    k3s_vip    = var.k3s_vip
+    server_ip  = local.first_master.ip
+    domain     = var.domain
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to commands and files
+      commands,
+      pre_commands,
+      file,
+    ]
   }
 
   file {
@@ -238,6 +251,19 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   }
 
   triggers = {
+    # Only recreate if these critical values change
+    k3s_vip    = var.k3s_vip
+    server_ip  = each.value.ip
+    domain     = var.domain
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to commands and files
+      commands,
+      pre_commands,
+      file,
+    ]
   }
 
   host        = each.value.ssh_ip_or_hostname
@@ -328,7 +354,21 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
     for s in local.workers : s.hostname => s
   }
 
+
   triggers = {
+    # Only recreate if these critical values change
+    k3s_vip    = var.k3s_vip
+    server_ip  = each.value.ip
+    domain     = var.domain
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to commands and files
+      commands,
+      pre_commands,
+      file,
+    ]
   }
 
   host        = each.value.ssh_ip_or_hostname
