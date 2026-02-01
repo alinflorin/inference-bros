@@ -128,7 +128,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     "apt-get update",
     "apt-get install -y helm",
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
-    "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -",
+    "if [ ! -f /usr/local/bin/k3s ]; then curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -; fi",
     "curl -sfL https://get.k3s.io | sh -",
     "sleep 180",
     "k3s kubectl create namespace cert-manager || true",
@@ -303,7 +303,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
     "apt-get update",
     "apt-get install -y curl jq iptables open-iscsi nfs-common",
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
-    "curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -",
+    "if [ ! -f /usr/local/bin/k3s ]; then curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -; fi",
     "curl -sfL https://get.k3s.io | sh -",
     "echo OK",
   ]
