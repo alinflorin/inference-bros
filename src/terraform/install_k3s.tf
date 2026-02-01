@@ -24,9 +24,6 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   when = "create"
 
   triggers = {
-    k3s_vip = var.k3s_vip
-    ip      = local.first_master.ip
-    domain  = var.domain
   }
 
   file {
@@ -241,9 +238,6 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   }
 
   triggers = {
-    k3s_vip = var.k3s_vip
-    ip      = each.value.ip
-    domain  = var.domain
   }
 
   host        = each.value.ssh_ip_or_hostname
@@ -335,9 +329,6 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   }
 
   triggers = {
-    k3s_vip = var.k3s_vip
-    ip      = each.value.ip
-    domain  = var.domain
   }
 
   host        = each.value.ssh_ip_or_hostname
