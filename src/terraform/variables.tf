@@ -131,6 +131,10 @@ variable "kubeai_compute_processor" {
   type = string
 }
 
+variable "nvidia_timeslicing_replicas" {
+  type = number
+}
+
 variable "longhorn_replica_count" {
   type = number
 }

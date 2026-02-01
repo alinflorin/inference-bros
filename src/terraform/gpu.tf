@@ -1,3 +1,40 @@
+resource "helm_release" "nvidia_gpu_time_slicing" {
+  name             = "nvidia-gpu-time-slicing"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "gpu-operator"
+  create_namespace = true
+  version          = "0.1.1"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: time-slicing-config-all
+          namespace: gpu-operator
+        data:
+          any: |-
+            version: v1
+            flags:
+              migStrategy: none
+            sharing:
+              timeSlicing:
+                resources:
+                - name: nvidia.com/gpu
+                  replicas: ${var.nvidia_timeslicing_replicas}
+
+    EOT
+
+  ]
+  count = var.kubeai_compute_processor == "nvidia" ? 1 : 0
+
+  depends_on = [null_resource.k3s_installed]
+}
+
 resource "helm_release" "nvidia_gpu_operator" {
   name             = "nvidia-gpu-operator"
   repository       = "https://helm.ngc.nvidia.com/nvidia"
@@ -33,7 +70,7 @@ resource "helm_release" "nvidia_gpu_operator" {
 
   count = var.kubeai_compute_processor == "nvidia" ? 1 : 0
 
-  depends_on = [null_resource.k3s_installed]
+  depends_on = [helm_release.nvidia_gpu_time_slicing[0]]
 }
 
 resource "helm_release" "amd_gpu_operator" {

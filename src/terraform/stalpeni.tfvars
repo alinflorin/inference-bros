@@ -111,3 +111,4 @@ cloudflare_zone_id   = "#{CLOUDFLARE_ZONE_ID}"
 public_ip            = null
 public_hostname      = "inferencebros-stalpeni.go.ro"
 dns_type             = "wildcard"
+nvidia_timeslicing_replicas = 4
