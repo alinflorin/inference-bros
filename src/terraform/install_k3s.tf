@@ -21,6 +21,9 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   agent       = false
   private_key = var.ssh_private_key
 
+  triggers = {
+    script_version = "v1"
+  }
 
   file {
     content     = <<-EOT
@@ -239,6 +242,10 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   agent       = false
   private_key = var.ssh_private_key
 
+  triggers = {
+    script_version = "v1"
+  }
+
   file {
     content     = <<-EOT
       fs.inotify.max_user_watches=524288
@@ -324,6 +331,10 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   port        = each.value.port
   agent       = false
   private_key = var.ssh_private_key
+
+  triggers = {
+    script_version = "v1"
+  }
 
   file {
     content = <<-EOT
