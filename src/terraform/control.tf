@@ -12,7 +12,7 @@ module "control" {
   memory_request    = "128Mi"
   cpu_limit         = "100m"
   memory_limit      = "256Mi"
-  depends_on        = [null_resource.k3s_installed, helm_release.ingress_nginx]
+  depends_on        = [helm_release.bifrost]
   env = {
     "ODOO_URL"      = var.odoo_url,
     "ODOO_API_KEY"  = var.odoo_api_key
@@ -65,7 +65,7 @@ resource "helm_release" "control_public_ingress" {
                         name: control
                         port:
                           number: 80
-                  
+
     EOT
 
   ]
