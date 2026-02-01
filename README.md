@@ -28,6 +28,16 @@ deb-src http://deb.debian.org/debian-security trixie-security main non-free-firm
 apt update
 apt install linux-headers-$(uname -r) build-essential
 apt install nvidia-driver firmware-misc-nonfree
+
+############# Should work now, but if DKMS didn't install:
+dkms status
+dkms build nvidia-current/550.163.01 # or your version
+dkms install nvidia-current/550.163.01
+modprobe nvidia
+nvidia-smi
+#############
+
+
 reboot
 ```
 - Check
