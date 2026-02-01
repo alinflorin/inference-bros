@@ -43,9 +43,22 @@ function logger(level, message, data = "") {
 function request(url, options = {}) {
   return new Promise((resolve, reject) => {
     const protocol = url.startsWith("https") ? https : http;
-    const timeout = options.timeout || 30000; // 30 second default timeout
+    const timeout = options.timeout || 30000;
 
-    const req = protocol.request(url, options, (res) => {
+    // 1. Handle JSON serialization automatically
+    let requestBody = options.body;
+    const headers = { ...options.headers };
+
+    if (requestBody && typeof requestBody === 'object') {
+      requestBody = JSON.stringify(requestBody);
+      headers['Content-Type'] = 'application/json';
+      headers['Content-Length'] = Buffer.byteLength(requestBody);
+    }
+
+    // 2. Merge updated headers back into options
+    const requestOptions = { ...options, headers };
+
+    const req = protocol.request(url, requestOptions, (res) => {
       let body = "";
       res.on("data", (chunk) => (body += chunk));
       res.on("end", () => {
@@ -67,7 +80,10 @@ function request(url, options = {}) {
     });
 
     req.on("error", reject);
-    if (options.body) req.write(options.body);
+
+    if (requestBody) {
+      req.write(requestBody);
+    }
     req.end();
   });
 }
@@ -78,18 +94,18 @@ async function validateApiKey(apiKey) {
   try {
     const url = `${CONFIG.bifrostUrl}/api/governance/virtual-keys`;
     const response = await request(url);
-    
+
     const allKeys = response.virtual_keys || [];
     const matchingKey = allKeys.find((vk) => vk.value === apiKey);
-    
+
     if (!matchingKey) {
       return { valid: false, reason: "Key not found" };
     }
-    
+
     if (!matchingKey.is_active) {
       return { valid: false, reason: "Key inactive" };
     }
-    
+
     return {
       valid: true,
       keyId: matchingKey.id,
@@ -185,12 +201,12 @@ async function getK8sModelNames() {
 async function getUsageStats(vkId, startDate, endDate, model = null) {
   const startEnc = encodeURIComponent(startDate);
   const endEnc = encodeURIComponent(endDate);
-  
+
   let url = `${CONFIG.bifrostUrl}/api/logs/stats?virtual_key_ids=${vkId}&start_time=${startEnc}&end_time=${endEnc}`;
   if (model) {
     url += `&models=${encodeURIComponent(model)}`;
   }
-  
+
   try {
     const response = await request(url);
     return {
@@ -212,11 +228,11 @@ async function aggregateUsageFromStats(vkId, startDate, endDate) {
   // Get the list of all available models from Kubernetes
   const modelNames = await getK8sModelNames();
   const modelIds = Object.keys(modelNames);
-  
+
   // Map each modelId to a promise
   const usagePromises = modelIds.map(async (modelId) => {
     const stats = await getUsageStats(vkId, startDate, endDate, modelId);
-    
+
     // Return an object containing the ID and the stats so we can filter later
     return {
       modelId,
@@ -226,7 +242,7 @@ async function aggregateUsageFromStats(vkId, startDate, endDate) {
 
   // Execute all requests in parallel
   const results = await Promise.all(usagePromises);
-  
+
   const modelUsage = {};
 
   // Build the final object
@@ -239,7 +255,7 @@ async function aggregateUsageFromStats(vkId, startDate, endDate) {
       };
     }
   }
-  
+
   return modelUsage;
 }
 
@@ -353,7 +369,7 @@ function buildInvoice(
 
 async function calculateUsage(apiKey, startDate, endDate) {
   logger("INFO", `Calculating usage for key ${apiKey} from ${startDate} to ${endDate}`);
-  
+
   const [modelNames, usageData] = await Promise.all([
     getK8sModelNames(),
     aggregateUsageFromStats(apiKey, startDate, endDate),
@@ -821,7 +837,7 @@ const server = http.createServer(async (req, res) => {
       // Validate date formats
       const startParsed = new Date(startDate);
       const endParsed = new Date(endDate);
-      
+
       if (isNaN(startParsed.getTime()) || isNaN(endParsed.getTime())) {
         res.writeHead(400, { "Content-Type": "application/json" });
         res.end(
@@ -845,7 +861,7 @@ const server = http.createServer(async (req, res) => {
       // Validate API key
       logger("INFO", `Validating API key: ${apiKey.substring(0, 8)}...`);
       const validation = await validateApiKey(apiKey);
-      
+
       if (!validation.valid) {
         res.writeHead(401, { "Content-Type": "application/json" });
         res.end(
@@ -864,7 +880,7 @@ const server = http.createServer(async (req, res) => {
 
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(usage, null, 2));
-      
+
       logger("INFO", `Usage query completed`, {
         key: validation.keyName,
         period: `${startDate} to ${endDate}`,
@@ -986,7 +1002,7 @@ const server = http.createServer(async (req, res) => {
   if (req.url === "/bifrost/pricingSheet" && req.method === "GET") {
     try {
       let kubeData;
-      
+
       if (!CONFIG.useInClusterAuth) {
         // Development mode: use kubectl
         const kubeconfigArg = CONFIG.kubeconfig
@@ -1013,20 +1029,20 @@ const server = http.createServer(async (req, res) => {
       }
 
       const pricingSheet = {};
-      
+
       kubeData.items?.forEach((item) => {
         const modelName = item.metadata.name;
         const annotationRaw = item.metadata.annotations?.["openrouter.ai/json"];
-        
+
         if (!annotationRaw) return;
-        
+
         try {
           const annotation = JSON.parse(annotationRaw);
           const pricing = annotation.pricing || {};
-          
+
           // Format: kubeai/<model-name>
           const key = `kubeai/${modelName}`;
-          
+
           pricingSheet[key] = {
             input_cost_per_token: parseFloat(pricing.prompt || 0),
             output_cost_per_token: parseFloat(pricing.completion || 0),
@@ -1041,7 +1057,7 @@ const server = http.createServer(async (req, res) => {
 
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(pricingSheet, null, 2));
-      
+
       logger("INFO", `Pricing sheet generated with ${Object.keys(pricingSheet).length} models`);
     } catch (err) {
       logger("ERROR", "Pricing sheet endpoint failed", err.message);
@@ -1061,6 +1077,36 @@ const server = http.createServer(async (req, res) => {
   res.end();
 });
 
+async function runBifrostReconfig() {
+  const i = setInterval(() => {
+    (async () => {
+      logger("INFO", `Trying to reconfigure Bifrost...`);
+      try {
+        let config = await request(`${CONFIG.bifrostUrl}/api/config?from_db=true`);
+        if (config.framework_config.pricing_url !== 'http://control.control/bifrost/pricingSheet') {
+          logger("INFO", `Old config: ` + JSON.stringify(config));
+          config.framework_config.pricing_url = 'http://control.control/bifrost/pricingSheet';
+          config.framework_config.pricing_sync_interval = 3600;
+          logger("INFO", `New config: ` + JSON.stringify(config));
+          await request(`${CONFIG.bifrostUrl}/api/config`, {
+            method: 'PUT',
+            body: config
+          });
+          logger("INFO", `Bifrost config updated!`);
+          await request(`${CONFIG.bifrostUrl}/api/pricing/force-sync`, {
+            method: 'POST'
+          });
+          logger("INFO", `Bifrost pricing synced!`);
+        }
+        logger("INFO", `Bifrost reconfiguration finished successfully!`);
+        clearInterval(i);
+      } catch (err) {
+        logger("ERROR", `Bifrost reconfig failed`, err.message);
+      }
+    })();
+  }, 10000);
+}
+
 server.listen(PORT, () => {
   logger("INFO", `Invoicing Service online on port ${PORT}`);
   logger("INFO", `Endpoints:`);
@@ -1068,14 +1114,7 @@ server.listen(PORT, () => {
   logger("INFO", `  - GET /usage?start_date=<ISO>&end_date=<ISO> (requires Authorization: Bearer <key>)`);
   logger("INFO", `  - GET /openrouter/models`);
   logger("INFO", `  - GET /bifrost/pricingSheet`);
+  runBifrostReconfig();
   initCron();
 });
 
-// Graceful shutdown
-const shutdown = () => {
-  logger("INFO", "Shutting down gracefully...");
-  server.close(() => {
-    logger("INFO", "Server closed");
-    process.exit(0);
-  });
-};
