@@ -32,6 +32,7 @@ resource "helm_release" "longhorn" {
         serviceMonitor:
           enabled: true
       defaultSettings:
+        nodeDrainPolicy: always-allow
         storageReservedPercentageForDefaultDisk: 1
         guaranteedInstanceManagerCPU: 0
         allowCollectingLonghornUsageMetrics: false
