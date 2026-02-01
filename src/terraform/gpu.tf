@@ -29,7 +29,7 @@ resource "helm_release" "nvidia_gpu_operator" {
 
   count = var.kubeai_compute_processor == "nvidia" ? 1 : 0
 
-  depends_on = [null_resource.k3s_installed]
+  depends_on = [null_resource.k3s_installed, null_resource.nvidia_driver_installed]
 }
 
 resource "helm_release" "amd_gpu_operator" {

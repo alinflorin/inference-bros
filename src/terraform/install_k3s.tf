@@ -139,7 +139,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     EOCMD
   ]
 
-  depends_on = [ssh_sensitive_resource.destroy_k3s_all]
+  depends_on = [ssh_sensitive_resource.destroy_k3s_all, null_resource.nvidia_driver_installed]
 }
 
 
