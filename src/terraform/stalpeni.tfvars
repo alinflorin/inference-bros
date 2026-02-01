@@ -90,7 +90,7 @@ smtp_allowed_domain = "inferencebros.com"
 
 slack_webhook_url        = "#{SLACK_WEBHOOK_URL}"
 huggingface_token        = "#{HF_TOKEN}"
-kubeai_compute_processor = "cpu"
+kubeai_compute_processor = "nvidia"
 longhorn_replica_count   = 1
 longhorn_enabled         = true
 
