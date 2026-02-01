@@ -394,6 +394,10 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
 
   timeout = "15m"
 
+  triggers = {
+    script_version = "v1"
+  }
+
   commands = [
     "(pkill -9 k3s || true) && (k3s-killall.sh || true) && (k3s-uninstall.sh || true) && (k3s-agent-uninstall.sh || true) && (rm -rf /etc/rancher /var/lib/rancher /root/install_k3s.sh /var/log/k3s* /var/lib/longhorn /var/lib/containerd || true)",
   ]
