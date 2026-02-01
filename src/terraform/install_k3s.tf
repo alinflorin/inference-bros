@@ -130,7 +130,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
     "if [ ! -f /usr/local/bin/k3s ]; then curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -; fi",
     "curl -sfL https://get.k3s.io | sh -",
-    "sleep 180",
+    "sleep 150",
     "k3s kubectl create namespace cert-manager || true",
     "k3s kubectl create secret generic root-ca --from-file=tls.crt=/var/lib/rancher/k3s/server/tls/root-ca.pem --from-file=tls.key=/var/lib/rancher/k3s/server/tls/root-ca.key -n cert-manager || true",
     "helm repo add kube-vip https://kube-vip.github.io/helm-charts/ || true",
