@@ -179,13 +179,13 @@ locals {
     contexts:
     - context:
         cluster: k3s-${var.location}
-        user: oidc
+        user: oidc-${var.location}
       name: k3s-${var.location}
     current-context: k3s-${var.location}
     kind: Config
     preferences: {}
     users:
-    - name: oidc
+    - name: oidc-${var.location}
       user:
         exec:
           apiVersion: client.authentication.k8s.io/v1beta1
