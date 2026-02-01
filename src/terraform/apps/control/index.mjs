@@ -1083,6 +1083,7 @@ async function runBifrostReconfig() {
       logger("INFO", `Trying to reconfigure Bifrost...`);
       try {
         let config = await request(`${CONFIG.bifrostUrl}/api/config?from_db=true`);
+        delete config.client_config;
         if (config.framework_config.pricing_url !== 'http://control.control/bifrost/pricingSheet') {
           logger("INFO", `Old config: ` + JSON.stringify(config));
           config.framework_config.pricing_url = 'http://control.control/bifrost/pricingSheet';
