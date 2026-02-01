@@ -9,6 +9,31 @@
 - Domain and DNS management
 - A type record for domain.com and *.domain.com (or with CNAMES) to point to public IP.
 
+## GPU Installation
+
+# Nvidia on Debian
+- nano /etc/apt/sources.list:
+```
+deb http://deb.debian.org/debian/ trixie main non-free-firmware non-free contrib
+deb-src http://deb.debian.org/debian/ trixie main non-free-firmware non-free contrib
+
+deb http://deb.debian.org/debian/ trixie-updates main non-free-firmware non-free contrib
+deb-src http://deb.debian.org/debian/ trixie-updates main non-free-firmware non-free contrib
+
+deb http://deb.debian.org/debian-security trixie-security main non-free-firmware non-free contrib
+deb-src http://deb.debian.org/debian-security trixie-security main non-free-firmware non-free contrib
+```
+- Install driver
+```
+apt update
+apt install linux-headers-$(uname -r) build-essential
+apt install nvidia-driver firmware-misc-nonfree
+reboot
+```
+- Check
+```
+nvidia-smi
+```
 
 ## Local dev
 Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcyquWPW4AF9pN?usp=share_link   
@@ -131,7 +156,7 @@ https://control.stalpeni.inferencebros.com  - control software
 
 
 Installed software on k3s:  
-- GPU drivers  
+- GPU operators  
 - MetalLB - LoadBalancer type services
 - Kube-VIP - K3S master HA
 - longhorn - CSI persistent volumes manager
@@ -140,7 +165,7 @@ Installed software on k3s:
 - dex IdP - internal identity provider
 - kube-prometheus-stack: prometheus operator, prometheus, alertmanager - metrics, alerting  
 - loki - log store  
-- promtail - log reader daemon  
+- fluent-bit - log reader daemon  
 - grafana - nice ui for logging, monitoring and alerting  
 - headlamp - k8s management dashboard  
 - oauth2-proxy - shared instance to protect open UIs like longhorn, bifrost    
