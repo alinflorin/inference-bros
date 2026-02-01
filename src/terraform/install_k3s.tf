@@ -25,9 +25,9 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
 
   triggers = {
     # Only recreate if these critical values change
-    k3s_vip    = var.k3s_vip
-    server_ip  = local.first_master.ip
-    domain     = var.domain
+    k3s_vip   = var.k3s_vip
+    server_ip = local.first_master.ip
+    domain    = var.domain
   }
 
   lifecycle {
@@ -252,9 +252,9 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 
   triggers = {
     # Only recreate if these critical values change
-    k3s_vip    = var.k3s_vip
-    server_ip  = each.value.ip
-    domain     = var.domain
+    k3s_vip   = var.k3s_vip
+    server_ip = each.value.ip
+    domain    = var.domain
   }
 
   lifecycle {
@@ -357,9 +357,9 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
 
   triggers = {
     # Only recreate if these critical values change
-    k3s_vip    = var.k3s_vip
-    server_ip  = each.value.ip
-    domain     = var.domain
+    k3s_vip   = var.k3s_vip
+    server_ip = each.value.ip
+    domain    = var.domain
   }
 
   lifecycle {
