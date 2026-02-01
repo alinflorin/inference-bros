@@ -21,23 +21,6 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   agent       = false
   private_key = var.ssh_private_key
 
-  when = "create"
-
-  triggers = {
-    # Only recreate if these critical values change
-    k3s_vip   = var.k3s_vip
-    server_ip = local.first_master.ip
-    domain    = var.domain
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to commands and files
-      commands,
-      pre_commands,
-      file,
-    ]
-  }
 
   file {
     content     = <<-EOT
@@ -250,29 +233,11 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
     for s in local.other_masters : s.hostname => s
   }
 
-  triggers = {
-    # Only recreate if these critical values change
-    k3s_vip   = var.k3s_vip
-    server_ip = each.value.ip
-    domain    = var.domain
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to commands and files
-      commands,
-      pre_commands,
-      file,
-    ]
-  }
-
   host        = each.value.ssh_ip_or_hostname
   user        = each.value.user
   port        = each.value.port
   agent       = false
   private_key = var.ssh_private_key
-
-  when = "create"
 
   file {
     content     = <<-EOT
@@ -354,30 +319,11 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
     for s in local.workers : s.hostname => s
   }
 
-
-  triggers = {
-    # Only recreate if these critical values change
-    k3s_vip   = var.k3s_vip
-    server_ip = each.value.ip
-    domain    = var.domain
-  }
-
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to commands and files
-      commands,
-      pre_commands,
-      file,
-    ]
-  }
-
   host        = each.value.ssh_ip_or_hostname
   user        = each.value.user
   port        = each.value.port
   agent       = false
   private_key = var.ssh_private_key
-
-  when = "create"
 
   file {
     content = <<-EOT
@@ -443,6 +389,11 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
 }
 
 resource "null_resource" "k3s_installed" {
+
+  triggers = {
+    kubeconfig = local.k3s_kubeconfig
+    vip              = var.k3s_vip
+  }
 
   depends_on = [
     ssh_sensitive_resource.install_k3s_first_master,
