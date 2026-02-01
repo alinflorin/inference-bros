@@ -57,7 +57,7 @@ resource "helm_release" "nvidia_gpu_operator" {
         enabled: true
         env:
           - name: CONTAINERD_CONFIG
-            value: "/etc/containerd/config.toml.tmpl"
+            value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
           - name: CONTAINERD_SOCKET
             value: /run/k3s/containerd/containerd.sock
           - name: CONTAINERD_RUNTIME_CLASS
