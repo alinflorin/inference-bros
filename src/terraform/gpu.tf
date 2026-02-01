@@ -12,11 +12,15 @@ resource "helm_release" "nvidia_gpu_operator" {
     <<-EOT
       driver:
         enabled: false
+      devicePlugin:
+        config:
+          name: time-slicing-config-all
+          default: any
       toolkit:
         enabled: true
         env:
           - name: CONTAINERD_CONFIG
-            value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
+            value: "/etc/containerd/config.toml.tmpl"
           - name: CONTAINERD_SOCKET
             value: /run/k3s/containerd/containerd.sock
           - name: CONTAINERD_RUNTIME_CLASS
