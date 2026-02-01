@@ -392,7 +392,7 @@ resource "null_resource" "k3s_installed" {
 
   triggers = {
     kubeconfig = local.k3s_kubeconfig
-    vip              = var.k3s_vip
+    vip        = var.k3s_vip
   }
 
   depends_on = [
