@@ -30,7 +30,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   }
 
   file {
-    content = <<-EOT
+    content     = <<-EOT
       fs.inotify.max_user_watches=524288
       fs.inotify.max_user_instances=512
       fs.inotify.max_queued_events=32768
@@ -255,7 +255,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   when = "create"
 
   file {
-    content = <<-EOT
+    content     = <<-EOT
       fs.inotify.max_user_watches=524288
       fs.inotify.max_user_instances=512
       fs.inotify.max_queued_events=32768
@@ -361,7 +361,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   }
 
   file {
-    content = <<-EOT
+    content     = <<-EOT
       fs.inotify.max_user_watches=524288
       fs.inotify.max_user_instances=512
       fs.inotify.max_queued_events=32768
