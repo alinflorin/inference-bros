@@ -30,6 +30,16 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   }
 
   file {
+    content = <<-EOT
+      fs.inotify.max_user_watches=524288
+      fs.inotify.max_user_instances=512
+      fs.inotify.max_queued_events=32768
+    EOT
+    permissions = "0700"
+    destination = "/etc/sysctl.d/99-inotify.conf"
+  }
+
+  file {
     content     = var.root_ca_crt
     destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
     permissions = "0700"
@@ -115,6 +125,9 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   ]
 
   commands = [
+    "sysctl -w fs.inotify.max_user_watches=524288",
+    "sysctl -w fs.inotify.max_user_instances=512",
+    "sysctl -w fs.inotify.max_queued_events=32768",
     "apt-get update",
     "apt-get install -y curl jq iptables open-iscsi gpg apt-transport-https nfs-common",
     "curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null",
@@ -242,6 +255,16 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   when = "create"
 
   file {
+    content = <<-EOT
+      fs.inotify.max_user_watches=524288
+      fs.inotify.max_user_instances=512
+      fs.inotify.max_queued_events=32768
+    EOT
+    permissions = "0700"
+    destination = "/etc/sysctl.d/99-inotify.conf"
+  }
+
+  file {
     content     = var.root_ca_crt
     destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
     permissions = "0700"
@@ -289,6 +312,9 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   ]
 
   commands = [
+    "sysctl -w fs.inotify.max_user_watches=524288",
+    "sysctl -w fs.inotify.max_user_instances=512",
+    "sysctl -w fs.inotify.max_queued_events=32768",
     "apt-get update",
     "apt-get install -y curl jq iptables open-iscsi nfs-common",
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
@@ -334,6 +360,16 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
     permissions = "0700"
   }
 
+  file {
+    content = <<-EOT
+      fs.inotify.max_user_watches=524288
+      fs.inotify.max_user_instances=512
+      fs.inotify.max_queued_events=32768
+    EOT
+    permissions = "0700"
+    destination = "/etc/sysctl.d/99-inotify.conf"
+  }
+
   timeout = "20m"
 
   pre_commands = [
@@ -341,6 +377,9 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   ]
 
   commands = [
+    "sysctl -w fs.inotify.max_user_watches=524288",
+    "sysctl -w fs.inotify.max_user_instances=512",
+    "sysctl -w fs.inotify.max_queued_events=32768",
     "apt-get update",
     "apt-get install -y curl jq iptables open-iscsi nfs-common",
     "curl -sfL https://get.k3s.io | sh -s - agent",
