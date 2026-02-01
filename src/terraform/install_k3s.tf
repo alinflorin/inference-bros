@@ -130,7 +130,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
     "if [ ! -f /usr/local/bin/k3s ]; then curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -; fi",
     "curl -sfL https://get.k3s.io | sh -",
-    "sleep 150",
+    "sleep 180",
     "k3s kubectl create namespace cert-manager || true",
     "k3s kubectl create secret generic root-ca --from-file=tls.crt=/var/lib/rancher/k3s/server/tls/root-ca.pem --from-file=tls.key=/var/lib/rancher/k3s/server/tls/root-ca.key -n cert-manager || true",
     "helm repo add kube-vip https://kube-vip.github.io/helm-charts/ || true",
@@ -384,20 +384,19 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
   timeout = "15m"
 
   commands = [
-    "(k3s-killall.sh || true) && (k3s-uninstall.sh || true) && (k3s-agent-uninstall.sh || true) && (rm -rf /etc/rancher /var/lib/rancher /root/install_k3s.sh /var/log/k3s* /var/lib/longhorn /var/lib/containerd || true)",
+    "pkill -9 k3s && (k3s-killall.sh || true) && (k3s-uninstall.sh || true) && (k3s-agent-uninstall.sh || true) && (rm -rf /etc/rancher /var/lib/rancher /root/install_k3s.sh /var/log/k3s* /var/lib/longhorn /var/lib/containerd || true)",
   ]
 }
 
 resource "null_resource" "k3s_installed" {
 
   triggers = {
-    kubeconfig = local.k3s_kubeconfig
-    vip        = var.k3s_vip
+    recreate_tag = "v1"
   }
 
   depends_on = [
-    ssh_sensitive_resource.install_k3s_first_master,
-    ssh_sensitive_resource.install_k3s_other_masters,
-    ssh_sensitive_resource.install_k3s_workers
+    # ssh_sensitive_resource.install_k3s_first_master,
+    # ssh_sensitive_resource.install_k3s_other_masters,
+    # ssh_sensitive_resource.install_k3s_workers
   ]
 }
