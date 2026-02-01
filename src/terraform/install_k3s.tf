@@ -149,6 +149,14 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   ]
 
   depends_on = [ssh_sensitive_resource.destroy_k3s_all]
+
+  lifecycle {
+    ignore_changes = [
+      file,         # Ignores all 'file' blocks and their content
+      commands,     # Ignores the main installation script list
+      pre_commands, # Ignores the directory creation commands
+    ]
+  }
 }
 
 
@@ -316,6 +324,14 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   ]
 
   depends_on = [helm_release.coredns_custom_config]
+
+  lifecycle {
+    ignore_changes = [
+      file,         # Ignores all 'file' blocks and their content
+      commands,     # Ignores the main installation script list
+      pre_commands, # Ignores the directory creation commands
+    ]
+  }
 }
 
 
@@ -375,6 +391,14 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   ]
 
   depends_on = [helm_release.coredns_custom_config]
+
+  lifecycle {
+    ignore_changes = [
+      file,         # Ignores all 'file' blocks and their content
+      commands,     # Ignores the main installation script list
+      pre_commands, # Ignores the directory creation commands
+    ]
+  }
 }
 
 
