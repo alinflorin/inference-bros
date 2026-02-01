@@ -21,10 +21,6 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   agent       = false
   private_key = var.ssh_private_key
 
-  triggers = {
-    script_version = "v1"
-  }
-
   file {
     content     = <<-EOT
       fs.inotify.max_user_watches=524288
@@ -133,7 +129,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     "echo '${var.nginx_metallb_ip} dex.${var.domain}' | tee -a /etc/hosts",
     "if [ ! -f /usr/local/bin/k3s ]; then curl -sL https://github.com/k3s-io/k3s/raw/main/contrib/util/generate-custom-ca-certs.sh | bash -; fi",
     "curl -sfL https://get.k3s.io | sh -",
-    "sleep 150",
+    "sleep 180",
     "k3s kubectl create namespace cert-manager || true",
     "k3s kubectl create secret generic root-ca --from-file=tls.crt=/var/lib/rancher/k3s/server/tls/root-ca.pem --from-file=tls.key=/var/lib/rancher/k3s/server/tls/root-ca.key -n cert-manager || true",
     "helm repo add kube-vip https://kube-vip.github.io/helm-charts/ || true",
@@ -242,10 +238,6 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   agent       = false
   private_key = var.ssh_private_key
 
-  triggers = {
-    script_version = "v1"
-  }
-
   file {
     content     = <<-EOT
       fs.inotify.max_user_watches=524288
@@ -332,10 +324,6 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   agent       = false
   private_key = var.ssh_private_key
 
-  triggers = {
-    script_version = "v1"
-  }
-
   file {
     content = <<-EOT
       node-ip: ${each.value.ip}
@@ -394,20 +382,12 @@ resource "ssh_sensitive_resource" "destroy_k3s_all" {
 
   timeout = "15m"
 
-  triggers = {
-    script_version = "v1"
-  }
-
   commands = [
     "(pkill -9 -f 'k3s|containerd|longhorn'|| true) && (sleep 10 || true) && (k3s-killall.sh || true) && (k3s-uninstall.sh || true) && (k3s-agent-uninstall.sh || true) && (rm -rf /etc/rancher /var/lib/rancher /root/install_k3s.sh /var/log/k3s* /var/lib/longhorn /var/lib/containerd || true)",
   ]
 }
 
 resource "null_resource" "k3s_installed" {
-
-  triggers = {
-    recreate_tag = "v1"
-  }
 
   depends_on = [
     ssh_sensitive_resource.install_k3s_first_master,
