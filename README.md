@@ -51,7 +51,7 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 
 
 ## Sample model
-GPU:
+NVidia GPU unlimited, ollama runner:
 ```
 apiVersion: kubeai.org/v1
 kind: Model
@@ -102,10 +102,10 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: nvidia-unlimited:1
-  url: ollama://llama3.2:1b
+  url: ollama://hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:llama-3.2-1b-instruct-q8_0.gguf
 ```
 
-CPU:
+CPU unlimited, ollama runner:
 ```
 apiVersion: kubeai.org/v1
 kind: Model
@@ -156,7 +156,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: cpu-unlimited:1
-  url: ollama://llama3.2:1b
+  url: ollama://hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:llama-3.2-1b-instruct-q8_0.gguf
 ```
 
 
