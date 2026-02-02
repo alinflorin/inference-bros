@@ -33,8 +33,10 @@ apt-get update
 apt install linux-headers-$(uname -r) build-essential
 apt install nvidia-driver firmware-misc-nonfree nvidia-smi nvidia-container-runtime
 
+mkdir -p ./tmp
 wget https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run
-sh cuda_12.9.0_575.51.03_linux.run --toolkit --silent --override
+sh cuda_12.9.0_575.51.03_linux.run --toolkit --silent --override --tmpdir ./tmp
+rm -rf ./tmp
 
 reboot
 ```
