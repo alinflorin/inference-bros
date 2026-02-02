@@ -51,6 +51,8 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 
 
 ## Sample model
+hf://Qwen/Qwen2-0.5B  
+
 NVidia older GPU unlimited, VLLM runner:
 ```
 apiVersion: kubeai.org/v1
@@ -59,9 +61,9 @@ metadata:
   annotations:
     openrouter.ai/json: |
       {
-        "id": "qwen-gpu",
-        "hugging_face_id": "qwen-gpu",
-        "name": "qwen-gpu",
+        "id": "qwen-gpu-vllm",
+        "hugging_face_id": "qwen-gpu-vllm",
+        "name": "qwen-gpu-vllm",
         "created": 1690502400,
         "input_modalities": ["text"],
         "output_modalities": ["text"],
@@ -83,9 +85,9 @@ metadata:
           "structured_outputs",
           "web_search"
         ],
-        "description": "qwen-gpu",
+        "description": "qwen-gpu-vllm",
         "openrouter": {
-          "slug": "inferencebros-stalpeni/qwen-gpu"
+          "slug": "inferencebros-stalpeni/qwen-gpu-vllm"
         },
         "datacenters": [
           {
@@ -93,7 +95,7 @@ metadata:
           }
         ]
       }
-  name: qwen-gpu
+  name: qwen-gpu-vllm
   namespace: kubeai
 spec:
   engine: VLLM
@@ -105,7 +107,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: nvidia-older-unlimited:1
-  url: hf://Qwen/Qwen1.5-0.5B-Chat
+  url: hf://Qwen/Qwen2-0.5B
 ```
 
 NVidia GPU unlimited, ollama runner:
@@ -116,9 +118,9 @@ metadata:
   annotations:
     openrouter.ai/json: |
       {
-        "id": "llama-gpu",
-        "hugging_face_id": "llama-gpu",
-        "name": "llama-gpu",
+        "id": "qwen-gpu-ollama",
+        "hugging_face_id": "qwen-gpu-ollama",
+        "name": "qwen-gpu-ollama",
         "created": 1690502400,
         "input_modalities": ["text"],
         "output_modalities": ["text"],
@@ -140,9 +142,9 @@ metadata:
           "structured_outputs",
           "web_search"
         ],
-        "description": "llama-gpu",
+        "description": "qwen-gpu-ollama",
         "openrouter": {
-          "slug": "inferencebros-stalpeni/llama-gpu"
+          "slug": "inferencebros-stalpeni/qwen-gpu-ollama"
         },
         "datacenters": [
           {
@@ -150,7 +152,7 @@ metadata:
           }
         ]
       }
-  name: llama-gpu
+  name: qwen-gpu-ollama
   namespace: kubeai
 spec:
   engine: OLlama
@@ -159,7 +161,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: nvidia-unlimited:1
-  url: ollama://hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:llama-3.2-1b-instruct-q8_0.gguf
+  url: hf://Qwen/Qwen2-0.5B
 ```
 
 CPU unlimited, ollama runner:
@@ -170,9 +172,9 @@ metadata:
   annotations:
     openrouter.ai/json: |
       {
-        "id": "llama-cpu",
-        "hugging_face_id": "llama-cpu",
-        "name": "llama-cpu",
+        "id": "qwen-cpu-ollama",
+        "hugging_face_id": "qwen-cpu-ollama",
+        "name": "qwen-cpu-ollama",
         "created": 1690502400,
         "input_modalities": ["text"],
         "output_modalities": ["text"],
@@ -194,9 +196,9 @@ metadata:
           "structured_outputs",
           "web_search"
         ],
-        "description": "llama-cpu",
+        "description": "qwen-cpu-ollama",
         "openrouter": {
-          "slug": "inferencebros-stalpeni/llama-cpu"
+          "slug": "inferencebros-stalpeni/qwen-cpu-ollama"
         },
         "datacenters": [
           {
@@ -204,7 +206,7 @@ metadata:
           }
         ]
       }
-  name: llama-cpu
+  name: qwen-cpu-ollama
   namespace: kubeai
 spec:
   engine: OLlama
@@ -213,7 +215,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: cpu-unlimited:1
-  url: ollama://hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:llama-3.2-1b-instruct-q8_0.gguf
+  url: hf://Qwen/Qwen2-0.5B
 ```
 
 
