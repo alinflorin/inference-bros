@@ -50,6 +50,11 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 - To get kubeconfig run after apply: terraform output k3s_kubeconfig_for_users
 
 
+# Usage
+Use headlamp to create Model resources for kubeai.  
+Use bifrost for client management and api key management. it will log usage and costs.
+Use control from invoice generation: https://control.<env>.inferencebros.com
+
 ## Sample model
 HuggingFace's Qwen/Qwen2.5-0.5B-Instruct
 
