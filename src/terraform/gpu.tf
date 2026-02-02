@@ -85,7 +85,10 @@ resource "helm_release" "amd_gpu_operator" {
 
   values = [
     <<-EOT
-
+      driver:
+        enabled: false
+      devicePlugin:
+        enabled: true
     EOT
 
   ]
