@@ -17,7 +17,7 @@ resource "helm_release" "kubeai" {
           images:
             default: "vllm/vllm-openai:latest"
             nvidia-gpu: "vllm/vllm-openai:latest"
-            nvidia-older-gpu: "ghcr.io/sasha0552/vllm:v0.10.0"
+            nvidia-older-gpu: "ghcr.io/sasha0552/vllm:latest"
             cpu: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:latest"
             google-tpu: "vllm/vllm-tpu:nightly"
             gh200: "vllm/vllm-openai:latest"
