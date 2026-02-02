@@ -124,7 +124,6 @@ spec:
   engine: VLLM
   features:
   - TextGeneration
-  image: vllm/vllm-openai:v0.8.5
   minReplicas: 1
   replicas: 1
   resourceProfile: nvidia:1
