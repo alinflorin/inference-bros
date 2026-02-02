@@ -111,6 +111,61 @@ spec:
   url: hf://Qwen/Qwen2.5-0.5B-Instruct
 ```
 
+CPU unlimited, VLLM runner:
+```
+apiVersion: kubeai.org/v1
+kind: Model
+metadata:
+  annotations:
+    openrouter.ai/json: |
+      {
+        "id": "qwen-cpu-vllm",
+        "hugging_face_id": "qwen-cpu-vllm",
+        "name": "qwen-cpu-vllm",
+        "created": 1690502400,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "quantization": "bf16",
+        "context_length": 4096,
+        "max_output_length": 8000,
+        "pricing": {
+          "prompt": "0.000008",
+          "completion": "0.000024",
+          "image": "0",
+          "request": "0",
+          "input_cache_read": "0",
+          "input_cache_write": "0"
+        },
+        "supported_sampling_parameters": ["temperature", "stop"],
+        "supported_features": [
+          "tools",
+          "json_mode",
+          "structured_outputs",
+          "web_search"
+        ],
+        "description": "qwen-cpu-vllm",
+        "openrouter": {
+          "slug": "inferencebros-stalpeni/qwen-cpu-vllm"
+        },
+        "datacenters": [
+          {
+            "country_code": "RO"
+          }
+        ]
+      }
+  name: qwen-cpu-vllm
+  namespace: kubeai
+spec:
+  engine: VLLM
+  features:
+  - TextGeneration
+  minReplicas: 1
+  replicas: 1
+  resourceProfile: cpu-unlimited:1
+  url: hf://Qwen/Qwen2.5-0.5B-Instruct
+```
+
+
 NVidia GPU unlimited, ollama runner:
 ```
 apiVersion: kubeai.org/v1
