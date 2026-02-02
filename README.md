@@ -100,8 +100,9 @@ metadata:
 spec:
   engine: VLLM
   args:
-    - --gpu-memory-utilization=0.7
+    - --gpu-memory-utilization=0.9
     - --dtype=half
+    - --max-model-len=1024
   features:
   - TextGeneration
   minReplicas: 1
