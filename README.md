@@ -33,8 +33,11 @@ apt-get update
 apt install linux-headers-$(uname -r) build-essential
 apt install nvidia-driver firmware-misc-nonfree nvidia-smi nvidia-container-runtime
 
-- Download and install CUDA driver 12.9
-https://developer.nvidia.com/cuda-12-9-0-download-archive?target_os=Linux&target_arch=x86_64&Distribution=Debian&target_version=12&target_type=deb_local
+wget https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda-repo-debian12-12-9-local_12.9.0-575.51.03-1_amd64.deb
+dpkg -i cuda-repo-debian12-12-9-local_12.9.0-575.51.03-1_amd64.deb
+cp /var/cuda-repo-debian12-12-9-local/cuda-*-keyring.gpg /usr/share/keyrings/
+apt-get update
+apt-get -y install cuda-toolkit-12-9
 
 reboot
 ```
