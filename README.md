@@ -12,38 +12,7 @@
 ## GPU Installation
 
 # Nvidia on Debian
-- nano /etc/apt/sources.list:
-```
-deb http://deb.debian.org/debian/ trixie main non-free-firmware non-free contrib
-deb-src http://deb.debian.org/debian/ trixie main non-free-firmware non-free contrib
-
-deb http://deb.debian.org/debian/ trixie-updates main non-free-firmware non-free contrib
-deb-src http://deb.debian.org/debian/ trixie-updates main non-free-firmware non-free contrib
-
-deb http://deb.debian.org/debian-security trixie-security main non-free-firmware non-free contrib
-deb-src http://deb.debian.org/debian-security trixie-security main non-free-firmware non-free contrib
-```
-- Install driver
-```
-apt-get update
-apt-get install -y gpg curl wget
-curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
-curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
-apt-get update
-apt install linux-headers-$(uname -r) build-essential
-apt install nvidia-driver firmware-misc-nonfree nvidia-smi nvidia-container-runtime
-
-mkdir -p ./tmp
-wget https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run
-sh cuda_12.9.0_575.51.03_linux.run --toolkit --silent --override --tmpdir ./tmp
-rm -rf ./tmp
-
-reboot
-```
-- Check
-```
-nvidia-smi
-```
+https://docs.nvidia.com/datacenter/tesla/driver-installation-guide/debian.html. 
 
 ## Local dev
 Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcyquWPW4AF9pN?usp=share_link   
