@@ -17,7 +17,6 @@ resource "helm_release" "kubeai" {
           images:
             default: "vllm/vllm-openai:latest"
             nvidia-gpu: "vllm/vllm-openai:latest"
-            nvidia-pascal-gpu: "vllm/vllm-openai:v0.4.2"
             cpu: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:latest"
             google-tpu: "vllm/vllm-tpu:nightly"
             gh200: "vllm/vllm-openai:latest"
@@ -49,13 +48,6 @@ resource "helm_release" "kubeai" {
           imageName: "cpu"
         nvidia-unlimited:
           imageName: "nvidia-gpu"
-          nodeSelector:
-            nvidia.com/gpu.present: "true"
-          limits:
-            nvidia.com/gpu: "1"
-          runtimeClassName: nvidia
-        nvidia-pascal-unlimited:
-          imageName: "nvidia-pascal-gpu"
           nodeSelector:
             nvidia.com/gpu.present: "true"
           limits:
