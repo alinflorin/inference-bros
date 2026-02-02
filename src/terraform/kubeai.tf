@@ -19,6 +19,7 @@ resource "helm_release" "kubeai" {
             nvidia-gpu: "vllm/vllm-openai:latest"
             nvidia-older-gpu: "ghcr.io/sasha0552/vllm:latest"
             cpu: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:latest"
+            cpu-avx2: "ghcr.io/southball/vllm-avx2-docker:latest"
             google-tpu: "vllm/vllm-tpu:nightly"
             gh200: "vllm/vllm-openai:latest"
             amd-gpu: "rocm/vllm:latest"
@@ -47,6 +48,8 @@ resource "helm_release" "kubeai" {
       resourceProfiles:
         cpu-unlimited:
           imageName: "cpu"
+        cpu-avx2-unlimited:
+          imageName: "cpu-avx2"
         nvidia-unlimited:
           imageName: "nvidia-gpu"
           nodeSelector:
