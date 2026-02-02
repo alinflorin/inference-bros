@@ -157,6 +157,17 @@ metadata:
   namespace: kubeai
 spec:
   engine: VLLM
+  env:
+      VLLM_TARGET_DEVICE: "cpu"
+  args:
+    - "--device"
+    - "cpu"
+    - "--dtype"
+    - "half" 
+    - "--kv-cache-dtype"
+    - "fp8"
+    - "--max-model-len"
+    - "2048"
   features:
   - TextGeneration
   minReplicas: 1
