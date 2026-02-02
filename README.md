@@ -123,7 +123,7 @@ spec:
   features: [TextGeneration]
   url: ollama://qwen2.5:0.5b
   engine: OLlama
-  resourceProfile: cpu:1
+  resourceProfile: nvidia:1
   minReplicas: 1
   replicas: 1
   cacheProfile: storage # only when longhorn is installed!
