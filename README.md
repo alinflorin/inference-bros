@@ -51,6 +51,63 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 
 
 ## Sample model
+NVidia older GPU unlimited, VLLM runner:
+```
+apiVersion: kubeai.org/v1
+kind: Model
+metadata:
+  annotations:
+    openrouter.ai/json: |
+      {
+        "id": "qwen-gpu",
+        "hugging_face_id": "qwen-gpu",
+        "name": "qwen-gpu",
+        "created": 1690502400,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "quantization": "bf16",
+        "context_length": 4096,
+        "max_output_length": 8000,
+        "pricing": {
+          "prompt": "0.000008",
+          "completion": "0.000024",
+          "image": "0",
+          "request": "0",
+          "input_cache_read": "0",
+          "input_cache_write": "0"
+        },
+        "supported_sampling_parameters": ["temperature", "stop"],
+        "supported_features": [
+          "tools",
+          "json_mode",
+          "structured_outputs",
+          "web_search"
+        ],
+        "description": "qwen-gpu",
+        "openrouter": {
+          "slug": "inferencebros-stalpeni/qwen-gpu"
+        },
+        "datacenters": [
+          {
+            "country_code": "RO"
+          }
+        ]
+      }
+  name: qwen-gpu
+  namespace: kubeai
+spec:
+  engine: VLLM
+  args:
+    - --gpu-memory-utilization=0.7
+    - --dtype=half
+  features:
+  - TextGeneration
+  minReplicas: 1
+  replicas: 1
+  resourceProfile: nvidia-older-unlimited:1
+  url: hf://Qwen/Qwen1.5-0.5B-Chat
+```
+
 NVidia GPU unlimited, ollama runner:
 ```
 apiVersion: kubeai.org/v1
