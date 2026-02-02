@@ -32,7 +32,7 @@ resource "helm_release" "nvidia_gpu_time_slicing" {
   ]
   count = var.kubeai_compute_processor == "nvidia" ? 1 : 0
 
-  depends_on = [null_resource.k3s_installed]
+  depends_on = [helm_release.cert_manager]
 }
 
 resource "helm_release" "nvidia_gpu_operator" {
