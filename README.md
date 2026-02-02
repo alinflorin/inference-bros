@@ -26,18 +26,15 @@ deb-src http://deb.debian.org/debian-security trixie-security main non-free-firm
 - Install driver
 ```
 apt-get update
-apt-get install -y gpg curl
+apt-get install -y gpg curl wget
 curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
 curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 apt-get update
 apt install linux-headers-$(uname -r) build-essential
 apt install nvidia-driver firmware-misc-nonfree nvidia-smi nvidia-container-runtime
 
-wget https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda-repo-debian12-12-9-local_12.9.0-575.51.03-1_amd64.deb
-dpkg -i cuda-repo-debian12-12-9-local_12.9.0-575.51.03-1_amd64.deb
-cp /var/cuda-repo-debian12-12-9-local/cuda-*-keyring.gpg /usr/share/keyrings/
-apt-get update
-apt-get -y install cuda-toolkit-12-9
+wget https://developer.download.nvidia.com/compute/cuda/12.9.0/local_installers/cuda_12.9.0_575.51.03_linux.run
+sh cuda_12.9.0_575.51.03_linux.run --toolkit --silent --override
 
 reboot
 ```
