@@ -36,6 +36,15 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   }
 
   file {
+    content     = <<-EOT
+      #!/bin/bash
+      /usr/local/bin/k3s crictl rmi --prune || true
+    EOT
+    permissions = "0700"
+    destination = "/etc/cron.daily/k3s-purge"
+  }
+
+  file {
     content     = var.root_ca_crt
     destination = "/var/lib/rancher/k3s/server/tls/root-ca.pem"
     permissions = "0700"
@@ -121,6 +130,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
   ]
 
   commands = [
+    "chmod +x /etc/cron.daily/k3s-purge",
     "sysctl -w fs.inotify.max_user_watches=524288",
     "sysctl -w fs.inotify.max_user_instances=512",
     "sysctl -w fs.inotify.max_queued_events=32768",
@@ -256,6 +266,15 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
 
   file {
     content     = <<-EOT
+      #!/bin/bash
+      /usr/local/bin/k3s crictl rmi --prune || true
+    EOT
+    permissions = "0700"
+    destination = "/etc/cron.daily/k3s-purge"
+  }
+
+  file {
+    content     = <<-EOT
       fs.inotify.max_user_watches=524288
       fs.inotify.max_user_instances=512
       fs.inotify.max_queued_events=32768
@@ -312,6 +331,7 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
   ]
 
   commands = [
+    "chmod +x /etc/cron.daily/k3s-purge",
     "sysctl -w fs.inotify.max_user_watches=524288",
     "sysctl -w fs.inotify.max_user_instances=512",
     "sysctl -w fs.inotify.max_queued_events=32768",
@@ -353,6 +373,15 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   }
 
   file {
+    content     = <<-EOT
+      #!/bin/bash
+      /usr/local/bin/k3s crictl rmi --prune || true
+    EOT
+    permissions = "0700"
+    destination = "/etc/cron.daily/k3s-purge"
+  }
+
+  file {
     content = <<-EOT
       node-ip: ${each.value.ip}
       node-name: ${each.value.hostname}
@@ -381,6 +410,7 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
   ]
 
   commands = [
+    "chmod +x /etc/cron.daily/k3s-purge",
     "sysctl -w fs.inotify.max_user_watches=524288",
     "sysctl -w fs.inotify.max_user_instances=512",
     "sysctl -w fs.inotify.max_queued_events=32768",
