@@ -52,8 +52,22 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 
 # Usage
 Use headlamp to create Model resources for kubeai.  
-Use bifrost for client management and api key management. it will log usage and costs.
-Use control from invoice generation: https://control.<env>.inferencebros.com
+The openrouter.ai/json annotation will contain the JSON exposed on control API, /openrouter/models
+Notes:  
+Model caching is supported only on VLLM.  
+Resource profiles available:
+- nvidia-unlimited
+- nvidia-older-unlimited (for Pascal)
+- cpu
+- cpu-unlimited
+- cpu-avx-unlimited (for i5)
+
+Use bifrost for client management and api key management.
+Use control: https://control.<env>.inferencebros.com for
+- /bifrost/pricingSheet
+- /openrouter/models
+- /usage?start_date=<ISO>&end_date=<ISO> (requires Authorization: Bearer <bifrost key>)
+- /invoicing/generate?date=<ISO>&dry_run=<all|validate|none>
 
 ## Sample model
 HuggingFace's Qwen/Qwen2.5-0.5B-Instruct
