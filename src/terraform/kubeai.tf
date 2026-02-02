@@ -10,32 +10,34 @@ resource "helm_release" "kubeai" {
 
   values = [
     <<-EOT
+      image:
+        tag: "latest"
       modelServers:
         VLLM:
           images:
-            default: "vllm/vllm-openai:v0.15.0"
-            nvidia-gpu: "vllm/vllm-openai:v0.15.0"
-            cpu: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:v0.15.0"
+            default: "vllm/vllm-openai:latest"
+            nvidia-gpu: "vllm/vllm-openai:latest"
+            cpu: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo:latest"
             google-tpu: "vllm/vllm-tpu:nightly"
-            gh200: "vllm/vllm-openai:v0.15.0"
+            gh200: "vllm/vllm-openai:latest"
             amd-gpu: "rocm/vllm:latest"
         OLlama:
           images:
-            default: "ollama/ollama:0.15.4"
-            nvidia-gpu: "ollama/ollama:0.15.4"
-            amd-gpu: "ollama/ollama:0.15.4-rocm"
+            default: "ollama/ollama:latest"
+            nvidia-gpu: "ollama/ollama:latest"
+            amd-gpu: "ollama/ollama:rocm"
         FasterWhisper:
           images:
             default: "fedirz/faster-whisper-server:latest-cpu"
             nvidia-gpu: "fedirz/faster-whisper-server:latest-cuda"
         Infinity:
           images:
-            default: "michaelf34/infinity:0.0.77"
-            cpu: "michaelf34/infinity:0.0.77-cpu"
-            amd-gpu: "michaelf34/infinity:0.0.77-rocm"
-            nvidia-gpu: "michaelf34/infinity:0.0.77"
+            default: "michaelf34/infinity:latest"
+            cpu: "michaelf34/infinity:latest-cpu"
+            amd-gpu: "michaelf34/infinity:latest-rocm"
+            nvidia-gpu: "michaelf34/infinity:latest"
       modelLoading:
-        image: "ghcr.io/kubeai-project/kubeai-model-loader:v0.21.0"
+        image: "ghcr.io/kubeai-project/kubeai-model-loader:latest"
       cacheProfiles:
         storage:
           sharedFilesystem:
