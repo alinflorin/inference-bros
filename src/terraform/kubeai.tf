@@ -55,7 +55,7 @@ resource "helm_release" "kubeai" {
             nvidia.com/gpu: "1"
           runtimeClassName: nvidia
         nvidia-older-unlimited:
-          imageName: "nvidia-gpu"
+          imageName: "nvidia-older-gpu"
           nodeSelector:
             nvidia.com/gpu.present: "true"
           limits:
