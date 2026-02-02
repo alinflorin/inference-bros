@@ -14,6 +14,10 @@
 # Nvidia on Debian
 https://github.com/mexersus/debian-nvidia-drivers
 
+For older 1050Ti: v580 https://us.download.nvidia.com/XFree86/Linux-x86_64/580.126.09/NVIDIA-Linux-x86_64-580.126.09.run
+
+
+
 ## Local dev
 Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcyquWPW4AF9pN?usp=share_link   
 - Install VirtualBox + Extension Pack
