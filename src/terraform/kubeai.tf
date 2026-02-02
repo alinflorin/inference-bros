@@ -28,8 +28,8 @@ resource "helm_release" "kubeai" {
             amd-gpu: "ollama/ollama:rocm"
         FasterWhisper:
           images:
-            default: "fedirz/faster-whisper-server:latest-cpu"
-            nvidia-gpu: "fedirz/faster-whisper-server:latest-cuda"
+            default: "faizrajput07/faster-whisper-server:cpu"
+            nvidia-gpu: "faizrajput07/faster-whisper-server:cuda"
         Infinity:
           images:
             default: "michaelf34/infinity:latest"
