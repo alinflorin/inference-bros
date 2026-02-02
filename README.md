@@ -274,6 +274,17 @@ spec:
   url: ollama://hf.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF:qwen2.5-0.5b-instruct-q4_k_m.gguf
 ```
 
+# Testing with Cherry Studio
+- Go to Bifrost portal https://bifrost.<env like stalpeni>.inferencebros.com
+- Governance > Users & Groups > Customers - add a new customer with your name
+- Governance > Virtual Keys > create new key, link with the customer. Copy key.
+- Install Cherry Studio https://www.cherry-ai.com/download
+- Settings > Model Provider
+- Disable all existing providers
+- Add new provider. Type openai, URL https://bifrost.<env like stalpeni>.inferencebros.com and add key from bifrost
+- Click manage models and tick models you want.
+
+- Chat
 
 # Accounts and Services
 Google Drive - secret files - https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcyquWPW4AF9pN  
