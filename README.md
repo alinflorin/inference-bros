@@ -162,7 +162,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: nvidia-unlimited:1
-  url: hf://Qwen/Qwen2.5-0.5B
+  url: ollama://hf.co/Qwen/Qwen2.5-0.5B-GGUF
 ```
 
 CPU unlimited, ollama runner:
@@ -216,7 +216,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: cpu-unlimited:1
-  url: hf://Qwen/Qwen2.5-0.5B
+  url: ollama://hf.co/Qwen/Qwen2.5-0.5B-GGUF
 ```
 
 
