@@ -81,16 +81,14 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 apiVersion: kubeai.org/v1
 kind: Model
 metadata:
-  name: qwen-25-05b
-  namespace: kubeai
   annotations:
     openrouter.ai/json: |
       {
-        "id": "qwen-25-05b",
-        "hugging_face_id": "qwen-25-05b",
-        "name": "Qwen 2.5 0.5B",
+        "id": "llama",
+        "hugging_face_id": "llama",
+        "name": "Llama",
         "created": 1690502400,
-        "input_modalities": ["text", "image", "audio", "video", "file"],
+        "input_modalities": ["text"],
         "output_modalities": ["text"],
         "quantization": "bf16",
         "context_length": 4096,
@@ -108,12 +106,11 @@ metadata:
           "tools",
           "json_mode",
           "structured_outputs",
-          "web_search",
-          "reasoning"
+          "web_search"
         ],
-        "description": "Qwen 2.5 0.5B model",
+        "description": "Llama",
         "openrouter": {
-          "slug": "qwen/qwen-25-05b"
+          "slug": "inferencebros-stalpeni/llama"
         },
         "datacenters": [
           {
@@ -121,14 +118,19 @@ metadata:
           }
         ]
       }
+  name: llama
+  namespace: kubeai
 spec:
-  features: [TextGeneration]
-  url: ollama://qwen2.5:0.5b
-  engine: OLlama
-  resourceProfile: nvidia:1
+  engine: VLLM
+  features:
+  - TextGeneration
+  image: vllm/vllm-openai:v0.8.5
   minReplicas: 1
   replicas: 1
-  cacheProfile: storage # only when longhorn is installed!
+  resourceProfile: nvidia:1
+  url: hf://unsloth/Llama-3.2-1B-Instruct
+  args:
+    - --dtype=half # 1050 is small
 ```
 
 
