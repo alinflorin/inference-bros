@@ -304,3 +304,17 @@ spec:
 https://github.com/mexersus/debian-nvidia-drivers
 
 For older cards (1050Ti): https://us.download.nvidia.com/XFree86/Linux-x86_64/580.126.09/NVIDIA-Linux-x86_64-580.126.09.run
+
+## Available Locations/Environments
+
+The infrastructure supports multiple deployment locations. Each location is independent:
+
+- **local** - Development environment (uses self-signed certificates)
+- **stalpeni** - Production environment in Romania
+- **pr** - Preview/staging environment
+
+Each location has its own:
+- Domain: `{service}.{location}.inferencebros.com`
+- User accounts and access control via Dex
+- Independent customer database and billing
+- Separate model deployments and pricing
