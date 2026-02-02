@@ -114,7 +114,7 @@ spec:
   replicas: 1
   resourceProfile: nvidia-older-unlimited:1
   url: hf://Qwen/Qwen2.5-0.5B-Instruct
-  cacheProfile: storage #only if Longhorn is installed!
+  cacheProfile: storage #only if Longhorn is installed! only for VLLM
 ```
 
 AVX2 CPU unlimited, VLLM runner:
@@ -166,7 +166,7 @@ spec:
   features:
   - TextGeneration
   minReplicas: 1
-  cacheProfile: storage # only if Longhorn is installed!
+  cacheProfile: storage # only if Longhorn is installed! only for VLLM
   replicas: 1
   resourceProfile: cpu-avx2-unlimited:1
   url: hf://Qwen/Qwen2.5-0.5B-Instruct
