@@ -111,7 +111,7 @@ spec:
   url: hf://Qwen/Qwen2.5-0.5B-Instruct
 ```
 
-CPU unlimited, VLLM runner:
+NOT SUPPORTED: CPU unlimited, VLLM runner:
 ```
 apiVersion: kubeai.org/v1
 kind: Model
@@ -157,9 +157,6 @@ metadata:
   namespace: kubeai
 spec:
   engine: VLLM
-  args:
-    - "--dtype"
-    - "half"
   features:
   - TextGeneration
   minReplicas: 1
