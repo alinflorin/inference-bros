@@ -111,7 +111,7 @@ spec:
   url: hf://Qwen/Qwen2.5-0.5B-Instruct
 ```
 
-NOT SUPPORTED: CPU unlimited, VLLM runner:
+AVX2 CPU unlimited, VLLM runner:
 ```
 apiVersion: kubeai.org/v1
 kind: Model
@@ -161,7 +161,7 @@ spec:
   - TextGeneration
   minReplicas: 1
   replicas: 1
-  resourceProfile: cpu-unlimited:1
+  resourceProfile: cpu-avx2-unlimited:1
   url: hf://Qwen/Qwen2.5-0.5B-Instruct
 ```
 
