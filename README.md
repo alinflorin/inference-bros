@@ -103,8 +103,6 @@ spec:
   replicas: 1
   resourceProfile: nvidia:1
   url: hf://unsloth/Llama-3.2-1B-Instruct
-  args:
-    - --dtype=half # 1050 is small
 ```
 
 CPU:
