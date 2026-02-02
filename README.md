@@ -51,7 +51,7 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 
 
 ## Sample model
-hf://Qwen/Qwen2.5-0.5B
+HuggingFace's Qwen/Qwen2.5-0.5B-Instruct
 
 NVidia older GPU unlimited, VLLM runner:
 ```
@@ -108,7 +108,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: nvidia-older-unlimited:1
-  url: hf://Qwen/Qwen2.5-0.5B
+  url: hf://Qwen/Qwen2.5-0.5B-Instruct
 ```
 
 NVidia GPU unlimited, ollama runner:
@@ -162,7 +162,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: nvidia-unlimited:1
-  url: ollama://hf.co/Qwen/Qwen2.5-0.5B-GGUF
+  url: ollama://hf.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF:qwen2.5-0.5b-instruct-q4_k_m.gguf
 ```
 
 CPU unlimited, ollama runner:
@@ -216,7 +216,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: cpu-unlimited:1
-  url: ollama://hf.co/Qwen/Qwen2.5-0.5B-GGUF
+  url: ollama://hf.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF:qwen2.5-0.5b-instruct-q4_k_m.gguf
 ```
 
 
