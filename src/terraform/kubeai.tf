@@ -35,7 +35,7 @@ resource "helm_release" "kubeai" {
             amd-gpu: "michaelf34/infinity:0.0.77-rocm"
             nvidia-gpu: "michaelf34/infinity:0.0.77"
       modelLoading:
-        image: "ghcr.io/kubeai-project/kubeai-model-loader:v0.14.0"
+        image: "ghcr.io/kubeai-project/kubeai-model-loader:v0.21.0"
       cacheProfiles:
         storage:
           sharedFilesystem:
