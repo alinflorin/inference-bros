@@ -1,5 +1,7 @@
 name: Landing CI/CD
 
+run-name: "Landing CI/CD - ${{ github.event_name == 'pull_request' && format('PR #{0}', github.event.pull_request.number) || 'main' }} - ${{ github.sha }}"
+
 on:
   push:
     branches: 
