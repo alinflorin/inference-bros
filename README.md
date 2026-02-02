@@ -23,26 +23,31 @@ This platform allows you to:
 All services use pattern: `https://{service}.{location}.inferencebros.com`
 
 Example for Stalpeni location:
-- `grafana.stalpeni.inferencebros.com` - Monitoring & dashboards
+- `k3s.stalpeni.inferencebros.com:6443` - Kubernetes API
+- `dex.stalpeni.inferencebros.com` - Identity provider (OIDC)
+- `oauth2-proxy.stalpeni.inferencebros.com` - Authentication proxy
 - `headlamp.stalpeni.inferencebros.com` - Kubernetes management
+- `grafana.stalpeni.inferencebros.com` - Monitoring & dashboards
+- `prometheus.stalpeni.inferencebros.com` - Metrics collection
+- `alertmanager.stalpeni.inferencebros.com` - Alert management
+- `longhorn.stalpeni.inferencebros.com` - Storage management
 - `bifrost.stalpeni.inferencebros.com` - LLM gateway & customer management
 - `models.stalpeni.inferencebros.com` - Model storage browser
 - `control.stalpeni.inferencebros.com` - Invoicing & usage API
 
-## Production Hardware Requirements
+## Requirements
 
-- 1 or more Debian Linux servers with:
-  - Root SSH access
+- 1 or more **Debian 13 (trixie)** servers with:
+  - Root SSH access with your public key already trusted
   - GPU drivers installed (if using GPUs)
   - Static IPs configured on same LAN
 - At least 2 free IPs on your LAN subnet:
   - **kube_vip IP** - Virtual IP for high-availability Kubernetes API (e.g., 192.168.1.252)
   - **MetalLB NGINX IP** - LoadBalancer IP for all web services (e.g., 192.168.1.240)
-- Public IP with port forwarding for:
+- For production: Public IP with port forwarding for:
   - SSH (2201, 2202, etc. → server port 22)
   - HTTPS (443 → MetalLB NGINX IP)
   - K3s API (6443 → kube_vip IP)
-- Domain name with DNS management
 
 **IP Explanation:**
 - **Server IPs** - Each physical server's static IP on your LAN
@@ -52,17 +57,13 @@ Example for Stalpeni location:
 ## Development Setup
 
 ### 1. Prepare Secret Files
-Download from Google Drive:
-- `terraform.tfvars` - Add to repo root
-- `root-ca.crt` and `root-ca.key` - Add to local trust store
-- SSH keys - Add to `~/.ssh/`
+Download `terraform.tfvars` from Google Drive and add it to the repo root.
 
 ### 2. Configure Local Development
-- Install VirtualBox + Extension Pack
-- Download and import OVA file from Google Drive
-- Boot VM, note its IP address
-- Update `terraform.tfvars` with VM IP and network settings
-- Edit `/etc/hosts` on both dev machine AND VM:
+- You need a Debian 13 machine on your LAN with your SSH key added as trusted
+- Note the machine's IP address
+- Update `terraform.tfvars` with the machine IP and network settings
+- Edit `/etc/hosts` on both dev machine AND the Debian machine:
 
 ```
 192.168.1.252 k3s.local.inferencebros.com
@@ -228,18 +229,24 @@ spec:
 ## Customer Management
 
 ### Adding Customers
-1. Go to Bifrost: `https://bifrost.{location}.inferencebros.com`
-2. Governance > Users & Groups > Customers - Add customer
-3. Governance > Virtual Keys - Create key for customer
-4. Share key with customer
+1. Go to Bifrost portal: `https://bifrost.{location}.inferencebros.com`
+2. Navigate to **Governance > Users & Groups > Customers**
+3. Click **Add Customer** and create a new customer with your name
+4. Navigate to **Governance > Virtual Keys**
+5. Click **Create New Key**:
+   - Link it to the customer you just created
+   - Copy the generated API key
 
 ### Testing with Cherry Studio
-1. Install Cherry Studio: https://www.cherry-ai.com/download
-2. Settings > Model Provider
-3. Add OpenAI provider with:
+1. Install **Cherry Studio**: https://www.cherry-ai.com/download
+2. Open Cherry Studio and go to **Settings > Model Provider**
+3. Disable all existing providers
+4. Click **Add New Provider**:
+   - Type: `openai`
    - URL: `https://bifrost.{location}.inferencebros.com`
-   - API Key: (from Bifrost)
-4. Manage models and start chatting
+   - API Key: Paste the key from Bifrost
+5. Click **Manage Models** and select the models you want to use
+6. Start chatting!
 
 ## Monitoring & Operations
 
