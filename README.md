@@ -51,7 +51,7 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 
 
 ## Sample model
-NVidia GPU unlimited, ollama runner:
+NVidia GPU unlimited Pascal, ollama runner:
 ```
 apiVersion: kubeai.org/v1
 kind: Model
@@ -101,7 +101,7 @@ spec:
   - TextGeneration
   minReplicas: 1
   replicas: 1
-  resourceProfile: nvidia-unlimited:1
+  resourceProfile: nvidia-unlimited-pascal:1
   url: ollama://hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:llama-3.2-1b-instruct-q8_0.gguf
 ```
 
