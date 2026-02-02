@@ -101,7 +101,7 @@ spec:
   - TextGeneration
   minReplicas: 1
   replicas: 1
-  resourceProfile: nvidia-unlimited-pascal:1
+  resourceProfile: nvidia-unlimited:1
   url: ollama://hf.co/hugging-quants/Llama-3.2-1B-Instruct-Q8_0-GGUF:llama-3.2-1b-instruct-q8_0.gguf
 ```
 
