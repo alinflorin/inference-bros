@@ -309,9 +309,9 @@ For older cards (1050Ti): https://us.download.nvidia.com/XFree86/Linux-x86_64/58
 
 The infrastructure supports multiple deployment locations. Each location is independent:
 
-- **local** - Development environment (uses self-signed certificates)
+- **local** - Development environment
 - **stalpeni** - Production environment in Romania
-- **pr** - Preview/staging environment
+- **pr** - Preview/staging fake environment
 
 Each location has its own:
 - Domain: `{service}.{location}.inferencebros.com`
