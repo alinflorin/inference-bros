@@ -101,7 +101,7 @@ spec:
   - TextGeneration
   minReplicas: 1
   replicas: 1
-  resourceProfile: nvidia:1
+  resourceProfile: nvidia-unlimited:1
   url: ollama://llama3.2:1b
 ```
 
@@ -155,7 +155,7 @@ spec:
   - TextGeneration
   minReplicas: 1
   replicas: 1
-  resourceProfile: cpu:1
+  resourceProfile: cpu-unlimited:1
   url: ollama://llama3.2:1b
 ```
 

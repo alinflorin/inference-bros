@@ -16,15 +16,16 @@ resource "helm_release" "kubeai" {
             storageClassName: "${var.longhorn_enabled ? "longhorn" : "local-path"}"
       replicaCount: ${var.kubeai_proxy_replicas}
       resourceProfiles:
-        nvidia:
+        cpu-unlimited:
+          imageName: "cpu"
+        nvidia-unlimited:
+          imageName: "nvidia-gpu"
           nodeSelector:
             nvidia.com/gpu.present: "true"
           limits:
             nvidia.com/gpu: "1"
-          requests:
-            nvidia.com/gpu: "1"
           runtimeClassName: nvidia
-        amd:
+        amd-unlimited:
           limits:
             amd.com/gpu: "1"
           requests:
