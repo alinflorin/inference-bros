@@ -54,6 +54,7 @@ resource "helm_release" "kubeai" {
       cacheProfiles:
         storage:
           sharedFilesystem:
+            storageSize: ${var.kubeai_models_cache_storage_gb}Gi
             storageClassName: "${var.longhorn_enabled ? "longhorn" : "local-path"}"
       replicaCount: ${var.kubeai_proxy_replicas}
       resourceProfiles:

@@ -238,3 +238,7 @@ variable "public_hostname" {
 variable "dns_type" {
   type = string
 }
+
+variable "kubeai_models_cache_storage_gb" {
+  type = number
+}

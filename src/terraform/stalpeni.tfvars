@@ -112,3 +112,4 @@ public_ip                   = null
 public_hostname             = "inferencebros-stalpeni.go.ro"
 dns_type                    = "wildcard"
 nvidia_timeslicing_replicas = 4
+kubeai_models_cache_storage_gb = 10
