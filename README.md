@@ -157,12 +157,15 @@ metadata:
   namespace: kubeai
 spec:
   engine: VLLM
+  args:
+    - "--dtype"
+    - "half"
   features:
   - TextGeneration
   minReplicas: 1
   replicas: 1
   resourceProfile: cpu-unlimited:1
-  url: hf://Qwen/Qwen2.5-0.5B-Instruct-GGUF
+  url: hf://Qwen/Qwen2.5-0.5B-Instruct
 ```
 
 
