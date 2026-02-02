@@ -51,7 +51,7 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 
 
 ## Sample model
-NVidia GPU unlimited Pascal, ollama runner:
+NVidia GPU unlimited, ollama runner:
 ```
 apiVersion: kubeai.org/v1
 kind: Model
