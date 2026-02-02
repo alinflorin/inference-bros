@@ -38,6 +38,17 @@ resource "helm_release" "kubeai" {
             cpu: "michaelf34/infinity:latest-cpu"
             amd-gpu: "michaelf34/infinity:latest-rocm"
             nvidia-gpu: "michaelf34/infinity:latest"
+      modelServerPods:
+        securityContext:
+          readOnlyRootFilesystem: false
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+        jsonPatches:
+        - op: add
+          path: /spec/containers/0/imagePullPolicy
+          value: IfNotPresent
       modelLoading:
         image: "ghcr.io/kubeai-project/kubeai-model-loader:latest"
       cacheProfiles:

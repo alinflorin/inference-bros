@@ -166,6 +166,7 @@ spec:
   features:
   - TextGeneration
   minReplicas: 1
+  cacheProfile: storage # only if Longhorn is installed!
   replicas: 1
   resourceProfile: cpu-avx2-unlimited:1
   url: hf://Qwen/Qwen2.5-0.5B-Instruct
