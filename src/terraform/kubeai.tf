@@ -81,6 +81,8 @@ resource "helm_release" "kubeai" {
             amd.com/gpu: "1"
           requests:
             amd.com/gpu: "1"
+          nodeSelector:
+            feature.node.kubernetes.io/amd-gpu: "true"
       secrets:
         huggingface:
           token: ${var.huggingface_token}
