@@ -312,7 +312,7 @@ https://prometheus.stalpeni.inferencebros.com
 https://alertmanager.stalpeni.inferencebros.com  
 https://bifrost.stalpeni.inferencebros.com  - LLM gateway  
 https://models.stalpeni.inferencebros.com  - PVC explorer for models  
-https://control.stalpeni.inferencebros.com  - control software 
+https://control.stalpeni.inferencebros.com  - control software  
 
 
 Installed software on k3s:  
