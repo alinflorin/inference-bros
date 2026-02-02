@@ -2,9 +2,9 @@ name: Terraform CI/CD
 
 run-name: |
   Terraform CI/CD - ${{
-    github.event_name == 'push' && 'main validation' ||
-    github.event_name == 'pull_request' && format('PR validation #{0}', github.event.pull_request.number) ||
-    github.event_name == 'workflow_dispatch' && format('real run - {0}', github.event.inputs.environment) ||
+    github.event_name == 'push' && format('main validation - {0}', github.sha) ||
+    github.event_name == 'pull_request' && format('PR validation #{0} - {1}', github.event.pull_request.number, github.sha) ||
+    github.event_name == 'workflow_dispatch' && format('real run - {0} - {1}', github.event.inputs.environment, github.sha) ||
     'validation'
   }}
 
