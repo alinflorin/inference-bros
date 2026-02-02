@@ -102,7 +102,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: nvidia:1
-  url: hf://unsloth/Llama-3.2-1B-Instruct
+  url: ollama://llama3.2:1b
 ```
 
 CPU:
@@ -156,7 +156,7 @@ spec:
   minReplicas: 1
   replicas: 1
   resourceProfile: cpu:1
-  url: hf://unsloth/Llama-3.2-1B-Instruct
+  url: ollama://llama3.2:1b
 ```
 
 
