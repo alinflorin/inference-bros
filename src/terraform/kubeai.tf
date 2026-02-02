@@ -17,10 +17,13 @@ resource "helm_release" "kubeai" {
       replicaCount: ${var.kubeai_proxy_replicas}
       resourceProfiles:
         nvidia:
+          nodeSelector:
+            nvidia.com/gpu.present: "true"
           limits:
             nvidia.com/gpu: "1"
           requests:
             nvidia.com/gpu: "1"
+          runtimeClassName: nvidia
         amd:
           limits:
             amd.com/gpu: "1"
