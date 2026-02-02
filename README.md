@@ -12,7 +12,7 @@
 ## GPU Installation
 
 # Nvidia on Debian
-https://docs.nvidia.com/datacenter/tesla/driver-installation-guide/debian.html. 
+https://github.com/mexersus/debian-nvidia-drivers
 
 ## Local dev
 Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcyquWPW4AF9pN?usp=share_link   
