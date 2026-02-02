@@ -41,7 +41,7 @@ resource "helm_release" "nvidia_gpu_operator" {
   chart            = "gpu-operator"
   namespace        = "gpu-operator"
   create_namespace = true
-  version          = "v24.9.2"
+  version          = "v25.10.1"
   atomic           = true
   wait             = true
 
