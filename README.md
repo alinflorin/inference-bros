@@ -76,7 +76,7 @@ Google Drive link: https://drive.google.com/drive/folders/1M8WCE3i4FGNXZ1uMWLwcy
 
 
 ## Sample model
-
+GPU:
 ```
 apiVersion: kubeai.org/v1
 kind: Model
@@ -84,9 +84,9 @@ metadata:
   annotations:
     openrouter.ai/json: |
       {
-        "id": "llama",
-        "hugging_face_id": "llama",
-        "name": "Llama",
+        "id": "llama-gpu",
+        "hugging_face_id": "llama-gpu",
+        "name": "llama-gpu",
         "created": 1690502400,
         "input_modalities": ["text"],
         "output_modalities": ["text"],
@@ -108,9 +108,9 @@ metadata:
           "structured_outputs",
           "web_search"
         ],
-        "description": "Llama",
+        "description": "llama-gpu",
         "openrouter": {
-          "slug": "inferencebros-stalpeni/llama"
+          "slug": "inferencebros-stalpeni/llama-gpu"
         },
         "datacenters": [
           {
@@ -118,7 +118,7 @@ metadata:
           }
         ]
       }
-  name: llama
+  name: llama-gpu
   namespace: kubeai
 spec:
   engine: VLLM
@@ -132,7 +132,59 @@ spec:
     - --dtype=half # 1050 is small
 ```
 
-
+CPU:
+```
+apiVersion: kubeai.org/v1
+kind: Model
+metadata:
+  annotations:
+    openrouter.ai/json: |
+      {
+        "id": "llama-cpu",
+        "hugging_face_id": "llama-cpu",
+        "name": "llama-cpu",
+        "created": 1690502400,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "quantization": "bf16",
+        "context_length": 4096,
+        "max_output_length": 8000,
+        "pricing": {
+          "prompt": "0.000008",
+          "completion": "0.000024",
+          "image": "0",
+          "request": "0",
+          "input_cache_read": "0",
+          "input_cache_write": "0"
+        },
+        "supported_sampling_parameters": ["temperature", "stop"],
+        "supported_features": [
+          "tools",
+          "json_mode",
+          "structured_outputs",
+          "web_search"
+        ],
+        "description": "llama-cpu",
+        "openrouter": {
+          "slug": "inferencebros-stalpeni/llama-cpu"
+        },
+        "datacenters": [
+          {
+            "country_code": "RO"
+          }
+        ]
+      }
+  name: llama-cpu
+  namespace: kubeai
+spec:
+  engine: VLLM
+  features:
+  - TextGeneration
+  minReplicas: 1
+  replicas: 1
+  resourceProfile: cpu:1
+  url: hf://unsloth/Llama-3.2-1B-Instruct
+```
 
 
 # Accounts and Services
