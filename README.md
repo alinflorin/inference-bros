@@ -96,7 +96,7 @@ metadata:
   name: llama-gpu
   namespace: kubeai
 spec:
-  engine: VLLM
+  engine: OLlama
   features:
   - TextGeneration
   minReplicas: 1
@@ -152,7 +152,7 @@ metadata:
   name: llama-cpu
   namespace: kubeai
 spec:
-  engine: VLLM
+  engine: OLlama
   features:
   - TextGeneration
   minReplicas: 1
