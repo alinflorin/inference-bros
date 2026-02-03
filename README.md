@@ -88,8 +88,9 @@ terraform apply
 
 ### 4. Get Cluster Access
 ```bash
-terraform output k3s_kubeconfig_for_users
+terraform output k3s_kubeconfig_for_users # for local development tfstate
 ```
+For actual environments, go to app.terraform.io, go to the last State file, view. Kubeconfig should be at the top of the JSON, k3s_kubeconfig_for_users.
 
 ## Deploying Models
 
