@@ -109,7 +109,7 @@ Use Headlamp dashboard to create Model resources. All models need the `openroute
 
 ### Example Models
 
-**1. QWEN 2.5-0.5B-Instruct:**
+**QWEN 2.5-0.5B-Instruct:**
 ```yaml
 apiVersion: kubeai.org/v1
 kind: Model
