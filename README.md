@@ -251,7 +251,7 @@ spec:
 
 ### Control Module APIs
 
-The control service exposes several APIs at `control.{location}.inferencebros.com`:
+The control service exposes a GUI at `/` and several APIs at `control.{location}.inferencebros.com`:
 
 **Public Endpoints:**
 - `/openrouter/models` - List all available models with pricing

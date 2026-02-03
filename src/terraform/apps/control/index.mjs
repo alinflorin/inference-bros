@@ -8,6 +8,9 @@ const execAsync = promisify(exec);
 const PORT = 8080;
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
 
+// --- ADMIN GUI HTML ---
+const ADMIN_GUI_HTML = `hi there!`;
+
 // --- CONFIG ---
 const CONFIG = IS_PRODUCTION
   ? {
@@ -25,7 +28,7 @@ const CONFIG = IS_PRODUCTION
   : {
       bifrostUrl: "http://localhost:8082",
       useInClusterAuth: false,
-      kubeconfig: process.env.KUBECONFIG || `${process.env.HOME}/.kube/config`,
+      kubeconfig: process.env.KUBECONFIG || `${process.env.HOME}/.kube/local.txt`,
       odooUrl: process.env.ODOO_URL || "https://inferencebros.odoo.com",
       odooApiKey: process.env.ODOO_API_KEY || "",
       odooDatabase: process.env.ODOO_DATABASE || "inferencebros",
@@ -693,6 +696,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.url === "/" && req.method === "GET") {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.end(ADMIN_GUI_HTML);
+    return;
+  }
+
   if (req.url === "/health" && req.method === "GET") {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ status: "healthy", service: "invoicing" }));
@@ -753,14 +762,101 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // OpenRouter models endpoint (NEW)
   if (req.url === "/openrouter/models" && req.method === "GET") {
     try {
-      const modelNames = await getK8sModelNames();
-      res.writeHead(200, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ data: modelNames }));
+      if (!CONFIG.useInClusterAuth) {
+        // Development mode: use kubectl
+        const kubeconfigArg = CONFIG.kubeconfig
+          ? `--kubeconfig=${CONFIG.kubeconfig}`
+          : "";
+        const { stdout } = await execAsync(
+          `kubectl ${kubeconfigArg} get models.kubeai.org -n kubeai -o json`,
+        );
+        const kubeData = JSON.parse(stdout);
+
+        const openRouterModels = kubeData.items
+          .filter(
+            (item) =>
+              item.metadata.annotations &&
+              item.metadata.annotations["openrouter.ai/json"],
+          )
+          .map((item) => {
+            try {
+              return JSON.parse(
+                item.metadata.annotations["openrouter.ai/json"],
+              );
+            } catch (e) {
+              logger("ERROR", `Failed to parse annotation for ${item.metadata.name}`);
+              return null;
+            }
+          })
+          .filter((model) => model !== null);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ data: openRouterModels }));
+      } else {
+        // Production mode: use in-cluster auth
+        const token = fs.readFileSync(CONFIG.tokenPath, "utf8");
+        const ca = fs.readFileSync(CONFIG.caPath);
+
+        const options = {
+          hostname: CONFIG.k8sHost,
+          port: CONFIG.k8sPort,
+          path: "/apis/kubeai.org/v1/models",
+          method: "GET",
+          ca: ca,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        };
+
+        const k8sReq = https.request(options, (k8sRes) => {
+          let body = "";
+          k8sRes.on("data", (chunk) => (body += chunk));
+          k8sRes.on("end", () => {
+            if (k8sRes.statusCode === 200) {
+              const kubeData = JSON.parse(body);
+
+              const openRouterModels = kubeData.items
+                .filter(
+                  (item) =>
+                    item.metadata.annotations &&
+                    item.metadata.annotations["openrouter.ai/json"],
+                )
+                .map((item) => {
+                  try {
+                    return JSON.parse(
+                      item.metadata.annotations["openrouter.ai/json"],
+                    );
+                  } catch (e) {
+                    logger("ERROR", `Failed to parse annotation for ${item.metadata.name}`);
+                    return null;
+                  }
+                })
+                .filter((model) => model !== null);
+
+              res.writeHead(200, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ data: openRouterModels }));
+            } else {
+              res.writeHead(k8sRes.statusCode, { "Content-Type": "application/json" });
+              res.end(JSON.stringify({ error: "K8s API Error", details: body }));
+            }
+          });
+        });
+
+        k8sReq.on("error", (err) => {
+          logger("ERROR", "K8s request failed", err.message);
+          res.writeHead(500, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "Request Failed", msg: err.message }));
+        });
+        k8sReq.end();
+      }
     } catch (err) {
+      logger("ERROR", "OpenRouter models endpoint failed", err.message);
       res.writeHead(500, { "Content-Type": "application/json" });
-      res.end(JSON.stringify({ error: err.message }));
+      res.end(JSON.stringify({ error: "Internal Error", msg: err.message }));
     }
     return;
   }
@@ -852,6 +948,7 @@ async function runBifrostReconfig() {
 server.listen(PORT, () => {
   logger("INFO", `Invoicing Service online on port ${PORT}`);
   logger("INFO", `Endpoints:`);
+  logger("INFO", `  - GET / (Admin GUI)`);
   logger("INFO", `  - GET /invoicing/generate?date=<ISO>&dry_run=<all|validate|none>`);
   logger("INFO", `  - GET /usage?start_date=<ISO>&end_date=<ISO>`);
   logger("INFO", `  - GET /openrouter/models`);
