@@ -100,6 +100,7 @@ Use Headlamp dashboard to create Model resources. All models need the `openroute
 - `nvidia-older-unlimited` - Pascal architecture GPUs
 - `cpu-unlimited` - Generic CPU
 - `cpu-avx2-unlimited` - CPUs with AVX2 support
+- `amd-unlimited` - All AMD GPUs
 
 **Model Runners:**
 - VLLM - Recommended for production (supports model caching)
@@ -162,7 +163,7 @@ spec:
     - TextGeneration
   minReplicas: 1
   replicas: 1
-  resourceProfile: nvidia-older-unlimited:1 # or nvidia-unlimited:1 for newer NVidia cards. or amd-unlimited:1 for AMD cards. or cpu-unlimited:1 for CPU
+  resourceProfile: nvidia-older-unlimited:1 # Look in available resource profiles above and add the :1 suffix
   url: hf://Qwen/Qwen2.5-0.5B-Instruct # for OLlama use GGUF: ollama://hf.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF:qwen2.5-0.5b-instruct-q4_k_m.gguf
   cacheProfile: storage # for VLLM only and only if you use Longhorn, so ReadWriteMany works!
 ```
