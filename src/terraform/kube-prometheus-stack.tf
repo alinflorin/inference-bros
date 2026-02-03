@@ -199,7 +199,7 @@ resource "helm_release" "kube_prometheus_stack" {
               {{ define "slack.monzo.title" -}}
                   [{{ .Status | toUpper -}}
                   {{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{- end -}}
-                  ] {{ template "__alert_severity_prefix_title" . }} {{ .CommonLabels.alertname }}
+                  ] {{ template "__alert_severity_prefix_title" . }} {{ .CommonLabels.alertname }} ${var.location}
               {{- end }}
 
 
