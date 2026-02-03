@@ -38,7 +38,7 @@ resource "helm_release" "snapshot_controller" {
 
   count = var.enable_backup ? 1 : 0
 
-  depends_on = [helm_release.longhorn[0]]
+  depends_on = [helm_release.prometheus_operator_crds]
 }
 
 
