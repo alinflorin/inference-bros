@@ -77,6 +77,7 @@ resource "helm_release" "kubeai" {
             nvidia.com/gpu: "1"
           runtimeClassName: nvidia
         amd-unlimited:
+          imageName: "amd-gpu"
           limits:
             amd.com/gpu: "1"
           requests:
