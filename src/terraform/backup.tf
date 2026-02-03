@@ -86,6 +86,10 @@ resource "helm_release" "velero" {
 
   values = [
     <<-EOT
+      kubectl:
+        image:
+          repository: docker.io/bitnamilegacy/kubectl
+          tag: 1.33.4
       metrics:
         serviceMonitor:
           enabled: true
@@ -111,7 +115,7 @@ resource "helm_release" "velero" {
           volumeMounts:
             - mountPath: /target
               name: plugins
-      snapshotsEnabled: true
+      snapshotsEnabled: ${var.longhorn_enabled ? "true" : "false"}
       deployNodeAgent: ${var.longhorn_enabled ? "false" : "true"}
       credentials:
         secretContents:
