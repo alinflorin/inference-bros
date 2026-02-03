@@ -62,6 +62,10 @@ resource "helm_release" "kube_prometheus_stack" {
               gnetId: 15038
               datasource: Prometheus
               revision: 3
+            velero:
+              gnetId: 23838
+              datasource: Prometheus
+              revision: 1
         additionalDataSources:
           - name: Tempo
             type: tempo

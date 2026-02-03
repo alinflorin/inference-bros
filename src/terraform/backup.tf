@@ -86,6 +86,9 @@ resource "helm_release" "velero" {
 
   values = [
     <<-EOT
+      metrics:
+        serviceMonitor:
+          enabled: true
       resources: 
         requests:
           cpu: 100m
