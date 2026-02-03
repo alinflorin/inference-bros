@@ -12,7 +12,7 @@ NUM_WORDS="${NUM_WORDS:-513}"                        # default num words
 
 BIN_NAME="llmapibenchmark_linux_amd64"
 ARCHIVE_NAME="${BIN_NAME}.tar.gz"
-BIN_VERSION="${BIN_VERSION:-1.0.7}"  
+BIN_VERSION="${BIN_VERSION:-v1.0.7}"  
 DOWNLOAD_URL="https://github.com/Yoosu-L/llmapibenchmark/releases/download/${BIN_VERSION}/${ARCHIVE_NAME}"
 BIN="./${BIN_NAME}"
 
