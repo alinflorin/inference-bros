@@ -244,7 +244,7 @@ spec:
 3. Disable all existing providers
 4. Click **Add New Provider**:
    - Type: `openai`
-   - URL: `https://bifrost.{location}.inferencebros.com`
+   - URL: `https://bifrost.{location}.inferencebros.com`. For local it should be `http://bifrost-insecure.local.inferencebros.com`.
    - API Key: Paste the key from Bifrost
 5. Click **Manage Models** and select available models
 6. Start chatting to test the deployment!
