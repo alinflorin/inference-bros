@@ -107,7 +107,7 @@ Use Headlamp dashboard to create Model resources. All models need the `openroute
 
 ### Example Models
 
-**1. VLLM on NVIDIA GPU (older cards like 1050Ti):**
+**1. QWEN 2.5-0.5B-Instruct:**
 ```yaml
 apiVersion: kubeai.org/v1
 kind: Model
@@ -115,110 +115,56 @@ metadata:
   annotations:
     openrouter.ai/json: |
       {
-        "id": "qwen-gpu-vllm",
-        "name": "qwen-gpu-vllm",
+        "id": "Qwen2.5-0.5B-Instruct",
+        "hugging_face_id": "Qwen/Qwen2.5-0.5B-Instruct",
+        "name": "Qwen2.5-0.5B-Instruct",
+        "created": 1690502400,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "quantization": "bf16",
+        "context_length": 4096,
+        "max_output_length": 1024,
         "pricing": {
           "prompt": "0.000008",
-          "completion": "0.000024"
-        }
+          "completion": "0.000024",
+          "image": "0",
+          "request": "0",
+          "input_cache_read": "0",
+          "input_cache_write": "0"
+        },
+        "supported_sampling_parameters": ["temperature", "stop"],
+        "supported_features": [
+          "tools",
+          "json_mode",
+          "structured_outputs"
+        ],
+        "description": "Qwen's most used model",
+        "openrouter": {
+          "slug": "InferenceBros-Local/Qwen2.5-0.5B-Instruct"
+        },
+        "datacenters": [
+          {
+            "country_code": "RO"
+          }
+        ]
       }
-  name: qwen-gpu-vllm
+  name: Qwen2.5-0.5B-Instruct
   namespace: kubeai
 spec:
-  engine: VLLM
+  engine: VLLM # or OLlama
+  # For VLLM, use args:
   args:
     - --gpu-memory-utilization=0.9
     - --dtype=half
     - --max-model-len=1024
+  ##################################
   features:
     - TextGeneration
   minReplicas: 1
   replicas: 1
-  resourceProfile: nvidia-older-unlimited:1
-  url: hf://Qwen/Qwen2.5-0.5B-Instruct
-  cacheProfile: storage
-```
-
-**2. VLLM on CPU (AVX2 support):**
-```yaml
-apiVersion: kubeai.org/v1
-kind: Model
-metadata:
-  annotations:
-    openrouter.ai/json: |
-      {
-        "id": "qwen-cpu-vllm",
-        "name": "qwen-cpu-vllm",
-        "pricing": {
-          "prompt": "0.000008",
-          "completion": "0.000024"
-        }
-      }
-  name: qwen-cpu-vllm
-  namespace: kubeai
-spec:
-  engine: VLLM
-  features:
-    - TextGeneration
-  minReplicas: 1
-  replicas: 1
-  resourceProfile: cpu-avx2-unlimited:1
-  url: hf://Qwen/Qwen2.5-0.5B-Instruct
-  cacheProfile: storage
-```
-
-**3. Ollama on NVIDIA GPU:**
-```yaml
-apiVersion: kubeai.org/v1
-kind: Model
-metadata:
-  annotations:
-    openrouter.ai/json: |
-      {
-        "id": "qwen-gpu-ollama",
-        "name": "qwen-gpu-ollama",
-        "pricing": {
-          "prompt": "0.000008",
-          "completion": "0.000024"
-        }
-      }
-  name: qwen-gpu-ollama
-  namespace: kubeai
-spec:
-  engine: OLlama
-  features:
-    - TextGeneration
-  minReplicas: 1
-  replicas: 1
-  resourceProfile: nvidia-unlimited:1
-  url: ollama://hf.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF:qwen2.5-0.5b-instruct-q4_k_m.gguf
-```
-
-**4. Ollama on CPU:**
-```yaml
-apiVersion: kubeai.org/v1
-kind: Model
-metadata:
-  annotations:
-    openrouter.ai/json: |
-      {
-        "id": "qwen-cpu-ollama",
-        "name": "qwen-cpu-ollama",
-        "pricing": {
-          "prompt": "0.000008",
-          "completion": "0.000024"
-        }
-      }
-  name: qwen-cpu-ollama
-  namespace: kubeai
-spec:
-  engine: OLlama
-  features:
-    - TextGeneration
-  minReplicas: 1
-  replicas: 1
-  resourceProfile: cpu-unlimited:1
-  url: ollama://hf.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF:qwen2.5-0.5b-instruct-q4_k_m.gguf
+  resourceProfile: nvidia-older-unlimited:1 # or nvidia-unlimited:1 for newer NVidia cards. or amd-unlimited:1 for AMD cards. or cpu-unlimited:1 for CPU
+  url: hf://Qwen/Qwen2.5-0.5B-Instruct # for OLlama use GGUF: ollama://hf.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF:qwen2.5-0.5b-instruct-q4_k_m.gguf
+  cacheProfile: storage # for VLLM only and only if you use Longhorn, so ReadWriteMany works!
 ```
 
 **Notes:**
