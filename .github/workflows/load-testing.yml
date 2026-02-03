@@ -1,0 +1,78 @@
+name: Load testing LLM
+run-name: Load-testing - ${{ github.event.inputs.LOCATION }} - ${{ github.event.inputs.MODEL_NAME }} - ${{ github.run_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      LOCATION:
+        description: "Location for Bifrost"
+        required: true
+        type: choice
+        options:
+          - stalpeni
+      API_KEY:
+        description: "API key for Bifrost"
+        required: false
+        default: ""
+      MODEL_NAME:
+        description: "LLM model name"
+        required: false
+        default: "qwen25-05b-instruct"
+      MAX_CONCURRENCY:
+        description: "Max concurrency"
+        required: false
+        default: "16"
+      PROMPT:
+        description: "Prompt text"
+        required: false
+        default: "Explain quantum tunneling in one sentence"
+      MAX_TOKENS:
+        description: "Maximum tokens per request"
+        required: false
+        default: "512"
+      NUM_WORDS:
+        description: "Number of words in prompt"
+        required: false
+        default: "513"
+
+env:
+  BIN_VERSION: '1.0.7'
+
+jobs:
+  load-test:
+    runs-on: ubuntu-latest
+    name: Load testing
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up cache for llmapibenchmark
+        id: cache-binary
+        uses: actions/cache@v5
+        with:
+          path: src/perf/llmapibenchmark_linux_amd64
+          key: llmapibenchmark-${{ runner.os }}-${{ env.BIN_VERSION }}
+          restore-keys: |
+            llmapibenchmark-${{ runner.os }}-
+
+      - name: Run load test
+        working-directory: src/perf
+        env:
+          BIN_VERSION: ${{ env.BIN_VERSION }}
+          LOCATION: ${{ github.event.inputs.LOCATION }}
+          API_KEY: ${{ github.event.inputs.API_KEY }}
+          MODEL_NAME: ${{ github.event.inputs.MODEL_NAME }}
+          MAX_CONCURRENCY: ${{ github.event.inputs.MAX_CONCURRENCY }}
+          PROMPT: ${{ github.event.inputs.PROMPT }}
+          MAX_TOKENS: ${{ github.event.inputs.MAX_TOKENS }}
+          NUM_WORDS: ${{ github.event.inputs.NUM_WORDS }}
+        run: |
+          chmod +x ../perf/test.sh
+          ../perf/test.sh
+
+      - name: Upload results artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: llm-load-test-results
+          path: src/perf/results.json

@@ -386,6 +386,11 @@ Save this kubeconfig to `~/.kube/config` or use with `KUBECONFIG` environment va
 
 ---
 
+## Load Testing
+Tool to be used locally and in GitHub Actions https://github.com/Yoosu-L/llmapibenchmark
+See src/perf.
+---
+
 ## Quick Reference
 
 **Model Deployment:** Headlamp UI → Create Model resource with openrouter.ai/json annotation  
