@@ -124,6 +124,7 @@ resource "helm_release" "velero" {
         ${var.longhorn_enabled ? "features: EnableCSI" : ""}
         backupStorageLocation:
           - name: default
+            provider: aws
             bucket: velero${var.location}
             config:
               region: global
@@ -132,6 +133,7 @@ resource "helm_release" "velero" {
               publicUrl: ${var.s3_url}
         volumeSnapshotLocation:
           - name: default
+            provider: aws
             config:
               region: global
     EOT
