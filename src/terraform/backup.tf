@@ -38,17 +38,18 @@ resource "helm_release" "longhorn_volume_snapshot_class" {
 
   values = [
     <<-EOT
-      resources: |
-        kind: VolumeSnapshotClass
-        apiVersion: snapshot.storage.k8s.io/v1
-        metadata:
-          name: longhorn-snapshot-vsc
-          labels:
-            velero.io/csi-volumesnapshot-class: "true"
-        driver: driver.longhorn.io
-        deletionPolicy: Delete
-        parameters:
-          type: bak
+      resources: 
+        - |
+          kind: VolumeSnapshotClass
+          apiVersion: snapshot.storage.k8s.io/v1
+          metadata:
+            name: longhorn-snapshot-vsc
+            labels:
+              velero.io/csi-volumesnapshot-class: "true"
+          driver: driver.longhorn.io
+          deletionPolicy: Delete
+          parameters:
+            type: bak
     EOT
 
   ]
