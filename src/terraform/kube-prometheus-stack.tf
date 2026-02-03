@@ -46,10 +46,6 @@ resource "helm_release" "kube_prometheus_stack" {
               gnetId: 22184
               datasource: Prometheus
               revision: 3
-            logs-app:
-              gnetId: 13639
-              datasource: Loki
-              revision: 2
             ingress-nginx:
               gnetId: 14314
               datasource: Prometheus
