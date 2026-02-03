@@ -113,3 +113,7 @@ public_hostname                = "inferencebros-stalpeni.go.ro"
 dns_type                       = "wildcard"
 nvidia_timeslicing_replicas    = 4
 kubeai_models_cache_storage_gb = 10
+enable_backup                  = true
+s3_key_id                      = "#{S3_KEY_ID}"
+s3_key_secret                  = "#{S3_KEY_SECRET}"
+s3_url                         = "#{S3_URL}"

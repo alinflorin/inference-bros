@@ -242,3 +242,22 @@ variable "dns_type" {
 variable "kubeai_models_cache_storage_gb" {
   type = number
 }
+
+variable "enable_backup" {
+  type = bool
+}
+
+variable "s3_key_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "s3_key_secret" {
+  type      = string
+  sensitive = true
+}
+
+variable "s3_url" {
+  type      = string
+  sensitive = true
+}

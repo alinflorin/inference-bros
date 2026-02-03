@@ -32,6 +32,8 @@ resource "helm_release" "longhorn" {
         serviceMonitor:
           enabled: true
       defaultSettings:
+        backupTarget: ${var.enable_backup ? "s3://pvc${var.location}@global/" : "''"}
+        backupTargetCredentialSecret: ${var.enable_backup ? "s3-secret" : "''"}
         nodeDrainPolicy: always-allow
         storageReservedPercentageForDefaultDisk: 1
         guaranteedInstanceManagerCPU: 0
