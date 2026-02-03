@@ -19,26 +19,41 @@ resource "helm_release" "snapshot_controller" {
             cpu: 100m
             memory: 128Mi
     EOT
-    ,
-    var.longhorn_enabled ?
-    <<-EOT
-      volumeSnapshotClasses:
-        - name: longhorn-snapshot-vsc
-          annotations:
-            snapshot.storage.kubernetes.io/is-default-class: "true"
-          labels:
-            velero.io/csi-volumesnapshot-class: "true"
-          driver: driver.longhorn.io
-          deletionPolicy: Delete
-          parameters:
-            type: bak
-    EOT
-    : ""
   ]
 
   count = var.enable_backup ? 1 : 0
 
   depends_on = [helm_release.prometheus_operator_crds]
+}
+
+resource "helm_release" "volume_snapshot_class" {
+  name             = "volume-snapshot-class"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "longhorn-system"
+  create_namespace = true
+  version          = "0.1.1"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        kind: VolumeSnapshotClass
+        apiVersion: snapshot.storage.k8s.io/v1
+        metadata:
+          name: longhorn-snapshot-vsc
+          labels:
+            velero.io/csi-volumesnapshot-class: "true"
+        driver: driver.longhorn.io
+        deletionPolicy: Delete
+        parameters:
+          type: bak
+    EOT
+
+  ]
+  count      = var.enable_backup && var.longhorn_enabled ? 1 : 0
+  depends_on = [helm_release.snapshot_controller[0]]
 }
 
 
@@ -144,7 +159,7 @@ resource "helm_release" "velero" {
 
   count = var.enable_backup ? 1 : 0
 
-  depends_on = [helm_release.snapshot_controller[0]]
+  depends_on = [helm_release.volume_snapshot_class[0]]
 }
 
 
