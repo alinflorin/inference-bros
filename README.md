@@ -60,10 +60,10 @@ Example for Stalpeni location:
 Download `terraform.tfvars` from Google Drive and add it to the repo root.
 
 ### 2. Configure Local Development
-- You need a Debian 13 machine on your LAN with your SSH key added as trusted
+- You need a Debian 13 machine on your LAN with the Google Drive SSH key added as trusted
 - Note the machine's IP address
-- Update `terraform.tfvars` with the machine IP and network settings
-- Edit `/etc/hosts` on both dev machine AND the Debian machine:
+- Update `terraform.tfvars` with the machine IP and other IPs and network settings
+- Edit `/etc/hosts` on dev machine
 
 ```
 192.168.1.252 k3s.local.inferencebros.com
