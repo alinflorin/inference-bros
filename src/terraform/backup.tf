@@ -120,7 +120,6 @@ resource "helm_release" "velero" {
             aws_access_key_id=${var.s3_key_id}
             aws_secret_access_key=${var.s3_key_secret}
       configuration:
-        provider: aws
         ${var.longhorn_enabled ? "features: EnableCSI" : ""}
         backupStorageLocation:
           - name: default
