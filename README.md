@@ -117,7 +117,7 @@ metadata:
   annotations:
     openrouter.ai/json: |
       {
-        "id": "qwen2_5-0_5b-instruct",
+        "id": "qwen25-05b-instruct",
         "hugging_face_id": "Qwen/Qwen2.5-0.5B-Instruct",
         "name": "Qwen2.5-0.5B-Instruct",
         "created": 1690502400,
@@ -142,7 +142,7 @@ metadata:
         ],
         "description": "Qwen's most used model",
         "openrouter": {
-          "slug": "inferencebros-local/qwen2_5-0_5b-instruct"
+          "slug": "inferencebros-local/qwen25-05b-instruct"
         },
         "datacenters": [
           {
@@ -150,7 +150,7 @@ metadata:
           }
         ]
       }
-  name: qwen2_5-0_5b-instruct
+  name: qwen25-05b-instruct
   namespace: kubeai
 spec:
   engine: VLLM # or OLlama
