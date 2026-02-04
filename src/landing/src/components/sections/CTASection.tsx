@@ -5,6 +5,10 @@ import ContactForm from "../cta/ContactForm";
 import { ctaSection } from "../../data/content";
 
 const useStyles = makeStyles({
+  section: {
+    position: "relative",
+    background: "radial-gradient(circle at top right, rgba(255,107,0,0.14), transparent 60%)",
+  },
   content: {
     display: "flex",
     flexDirection: "column",
@@ -45,6 +49,12 @@ const useStyles = makeStyles({
   formContainer: {
     width: "100%",
     maxWidth: "700px",
+    backgroundColor: tokens.colorNeutralBackground1,
+    ...shorthands.padding("2rem"),
+    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    ...shorthands.border("1px", "solid", "rgba(255, 107, 0, 0.25)"),
+    boxShadow: tokens.shadow8,
+    backgroundImage: "linear-gradient(160deg, rgba(255,107,0,0.12), transparent 65%)",
   },
 });
 
@@ -52,7 +62,7 @@ export default function CTASection() {
   const styles = useStyles();
 
   return (
-    <Section id="contact" backgroundColor="subtle" paddingSize="large">
+    <Section id="contact" backgroundColor="subtle" paddingSize="large" className={styles.section}>
       <Container maxWidth="medium">
         <div className={styles.content}>
           <div className={styles.header}>

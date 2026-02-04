@@ -6,6 +6,10 @@ import PricingCard from "../content/PricingCard";
 import { pricingTiers } from "../../data/content";
 
 const useStyles = makeStyles({
+  section: {
+    position: "relative",
+    background: "radial-gradient(circle at top right, rgba(255,107,0,0.12), transparent 55%)",
+  },
   header: {
     textAlign: "center",
     marginBottom: "3rem",
@@ -60,7 +64,7 @@ export default function PricingSection() {
   };
 
   return (
-    <Section id="pricing" paddingSize="large">
+    <Section id="pricing" paddingSize="large" className={styles.section}>
       <Container maxWidth="large">
         <div className={styles.header}>
           <Text className={styles.title}>Flexible Pricing for Every Scale</Text>

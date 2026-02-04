@@ -6,6 +6,10 @@ import { useCases } from "../../data/content";
 import * as FluentIcons from "@fluentui/react-icons";
 
 const useStyles = makeStyles({
+  section: {
+    position: "relative",
+    background: "radial-gradient(circle at bottom left, rgba(255,107,0,0.12), transparent 60%)",
+  },
   header: {
     textAlign: "center",
     marginBottom: "3rem",
@@ -45,6 +49,8 @@ const useStyles = makeStyles({
     ...shorthands.gap("1.25rem"),
     height: "100%",
     backgroundColor: tokens.colorNeutralBackground1,
+    backgroundImage: "linear-gradient(135deg, rgba(255,107,0,0.14), transparent 60%)",
+    ...shorthands.border("1px", "solid", "rgba(255, 107, 0, 0.25)"),
     boxShadow: tokens.shadow4,
     ...shorthands.borderRadius(tokens.borderRadiusLarge),
     ...shorthands.transition("all", "0.2s", "ease-in-out"),
@@ -75,7 +81,7 @@ export default function UseCasesSection() {
   const styles = useStyles();
 
   return (
-    <Section id="use-cases" backgroundColor="subtle" paddingSize="large">
+    <Section id="use-cases" backgroundColor="subtle" paddingSize="large" className={styles.section}>
       <Container>
         <div className={styles.header}>
           <Text className={styles.title}>Built for Intermediaries</Text>
