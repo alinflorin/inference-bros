@@ -109,7 +109,7 @@ jobs:
         run: terraform validate
 
       - name: Substitute Secrets
-        uses: faradaytrs/substitute-secrets-action@2.6
+        uses: faradaytrs/substitute-secrets-action@2.7
         with:
           input: "src/terraform/${{ env.ENV }}.tfvars"
           substitutionRegex: \#\{([A-Z0-9_]+)\}
