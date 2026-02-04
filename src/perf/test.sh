@@ -66,3 +66,4 @@ echo "RESULTS FILE = $RESULTS_FILE"
   --format json > "$RESULTS_FILE"
 
 echo "[OK] Benchmark finished. Results saved to $RESULTS_FILE"
+cat $RESULTS_FILE
