@@ -25,11 +25,11 @@ on:
       MAX_TOKENS:
         description: "Maximum tokens per request"
         required: false
-        default: "512"
+        default: "1024"
       NUM_WORDS:
         description: "Number of words in prompt"
         required: false
-        default: "513"
+        default: "50"
 
 env:
   BIN_VERSION: 'v1.0.7'
