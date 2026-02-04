@@ -19,5 +19,8 @@ terraform {
     cloudflare = {
       source = "cloudflare/cloudflare"
     }
+    minio = {
+      source = "aminueza/minio"
+    }
   }
 }

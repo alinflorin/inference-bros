@@ -261,3 +261,7 @@ variable "s3_url" {
   type      = string
   sensitive = true
 }
+
+variable "create_s3_buckets" {
+  type = bool
+}

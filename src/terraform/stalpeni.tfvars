@@ -117,3 +117,4 @@ enable_backup                  = true
 s3_key_id                      = "#{S3_KEY_ID}"
 s3_key_secret                  = "#{S3_KEY_SECRET}"
 s3_url                         = "#{S3_URL}"
+create_s3_buckets              = true

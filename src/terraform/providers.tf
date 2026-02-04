@@ -22,3 +22,10 @@ provider "helm" {
 provider "cloudflare" {
   api_token = var.cloudflare_api_token
 }
+
+provider "minio" {
+  minio_server   = replace(var.s3_url, "/^https?:\\/\\//", "")
+  minio_user     = var.s3_key_id
+  minio_password = var.s3_key_secret
+  minio_region   = "global"
+}
