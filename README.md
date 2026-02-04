@@ -389,6 +389,10 @@ Save this kubeconfig to `~/.kube/config` or use with `KUBECONFIG` environment va
 - Automated invoice generation and customer billing
 - Syncs with Control module for usage-based billing
 
+**Minio (S3 NAS):**
+- http://inferencebros-stalpeni.go.ro:9000
+- Central backup location
+
 ---
 
 ## Load Testing
