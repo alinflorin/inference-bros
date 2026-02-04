@@ -35,7 +35,7 @@ For production deployments, you need a public IP with port forwarding:
 - SSH (2201, 2202, etc. → server port 22)
 - HTTPS (443 → MetalLB NGINX IP)
 - K3s API (6443 → kube_vip IP)
-- Minio (9000 -> NAS port 9000) for backups
+- Minio (9000-9001 -> NAS port 9000-9001) for backups
 
 ### GPU Installation Notes
 **NVIDIA on Debian:**
