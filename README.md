@@ -18,6 +18,7 @@ This platform allows you to:
 - **GPU Drivers:** Pre-installed (if using GPUs for model inference)
 - **Networking:** Static IPs configured on same LAN
 - **Minimum Servers:** 1 or more (3+ recommended for HA)
+- **Software:** NAS S3 server or another PC with Minio installed - for backup
 
 ### Network IP Requirements
 You'll need at least 2 free IPs on your LAN subnet:
@@ -34,6 +35,7 @@ For production deployments, you need a public IP with port forwarding:
 - SSH (2201, 2202, etc. → server port 22)
 - HTTPS (443 → MetalLB NGINX IP)
 - K3s API (6443 → kube_vip IP)
+- Minio (9000 -> NAS port 9000) for backups
 
 ### GPU Installation Notes
 **NVIDIA on Debian:**
