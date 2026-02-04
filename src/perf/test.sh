@@ -6,7 +6,7 @@ LOCATION="${LOCATION:-local}"                         # default location
 API_KEY="${API_KEY:-}"                                # default empty string
 MODEL_NAME="${MODEL_NAME:-qwen25-05b-instruct}"       # default model
 MAX_CONCURRENCY="${MAX_CONCURRENCY:-16}"             # default max concurrency
-MAX_TOKENS="${MAX_TOKENS:-1024}"                      # default max tokens
+MAX_TOKENS="${MAX_TOKENS:-512}"                      # default max tokens
 NUM_WORDS="${NUM_WORDS:-50}"                        # default num words
 
 BIN_NAME="llmapibenchmark_linux_amd64"

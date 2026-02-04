@@ -25,7 +25,7 @@ on:
       MAX_TOKENS:
         description: "Maximum tokens per request"
         required: false
-        default: "1024"
+        default: "512"
       NUM_WORDS:
         description: "Number of words in prompt"
         required: false
