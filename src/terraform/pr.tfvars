@@ -103,5 +103,5 @@ kubeai_models_cache_storage_gb = 20
 enable_backup                  = true
 s3_key_id                      = "..."
 s3_key_secret                  = "..."
-s3_url                         = "..."
+s3_url                         = "http://localhost:9000"
 create_s3_buckets              = false
