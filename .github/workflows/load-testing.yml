@@ -22,10 +22,6 @@ on:
         description: "Max concurrency"
         required: false
         default: "16"
-      PROMPT:
-        description: "Prompt text"
-        required: false
-        default: "Explain quantum tunneling in one sentence"
       MAX_TOKENS:
         description: "Maximum tokens per request"
         required: false
@@ -64,7 +60,6 @@ jobs:
           API_KEY: ${{ github.event.inputs.API_KEY }}
           MODEL_NAME: ${{ github.event.inputs.MODEL_NAME }}
           MAX_CONCURRENCY: ${{ github.event.inputs.MAX_CONCURRENCY }}
-          PROMPT: ${{ github.event.inputs.PROMPT }}
           MAX_TOKENS: ${{ github.event.inputs.MAX_TOKENS }}
           NUM_WORDS: ${{ github.event.inputs.NUM_WORDS }}
         run: |

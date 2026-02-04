@@ -6,7 +6,6 @@ LOCATION="${LOCATION:-local}"                         # default location
 API_KEY="${API_KEY:-}"                                # default empty string
 MODEL_NAME="${MODEL_NAME:-qwen25-05b-instruct}"       # default model
 MAX_CONCURRENCY="${MAX_CONCURRENCY:-16}"             # default max concurrency
-PROMPT="${PROMPT:-Explain quantum tunneling in one sentence}"  # default prompt
 MAX_TOKENS="${MAX_TOKENS:-512}"                      # default max tokens
 NUM_WORDS="${NUM_WORDS:-513}"                        # default num words
 
@@ -51,7 +50,6 @@ echo "MODEL        = kubeai/$MODEL_NAME"
 echo "CONCURRENCY  = $CONCURRENCY"
 echo "MAX_TOKENS   = $MAX_TOKENS"
 echo "NUM_WORDS    = $NUM_WORDS"
-echo "PROMPT       = $PROMPT"
 echo "RESULTS FILE = $RESULTS_FILE"
 
 # --- Run benchmark and save JSON ---
@@ -62,7 +60,6 @@ echo "RESULTS FILE = $RESULTS_FILE"
   --concurrency "$CONCURRENCY" \
   --max-tokens "$MAX_TOKENS" \
   --num-words "$NUM_WORDS" \
-  --prompt "$PROMPT" \
   --format json > "$RESULTS_FILE"
 
 echo "[OK] Benchmark finished. Results saved to $RESULTS_FILE"
