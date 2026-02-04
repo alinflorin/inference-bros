@@ -18,7 +18,7 @@ This platform allows you to:
 - **GPU Drivers:** Pre-installed (if using GPUs for model inference)
 - **Networking:** Static IPs configured on same LAN
 - **Minimum Servers:** 1 or more (3+ recommended for HA)
-- **Software:** NAS S3 server or another PC with Minio installed - for backup
+- **Software:** NAS S3 server or another PC with Minio installed - for offsite backup. Central server, all locations will back up here.
 
 ### Network IP Requirements
 You'll need at least 2 free IPs on your LAN subnet:
