@@ -15,6 +15,8 @@ const useStyles = makeStyles({
     flexDirection: "column",
     ...shorthands.gap("1.25rem"),
     backgroundColor: tokens.colorNeutralBackground1,
+    backgroundImage: "linear-gradient(135deg, rgba(255,107,0,0.12), transparent 60%)",
+    ...shorthands.border("1px", "solid", "rgba(255, 107, 0, 0.2)"),
     boxShadow: tokens.shadow4,
     ...shorthands.borderRadius(tokens.borderRadiusLarge),
     ...shorthands.transition("all", "0.2s", "ease-in-out"),

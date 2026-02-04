@@ -30,6 +30,7 @@ const useStyles = makeStyles({
   submitButton: {
     marginTop: "0.5rem",
     width: "100%",
+    boxShadow: "0 10px 30px rgba(255, 107, 0, 0.25)",
     "@media (min-width: 768px)": {
       width: "auto",
       minWidth: "200px",

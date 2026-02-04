@@ -1,4 +1,4 @@
-import { makeStyles, Text, tokens } from "@fluentui/react-components";
+import { makeStyles, shorthands, Text, tokens } from "@fluentui/react-components";
 import * as FluentIcons from "@fluentui/react-icons";
 
 interface StatCardProps {
@@ -14,7 +14,16 @@ const useStyles = makeStyles({
     alignItems: "center",
     textAlign: "center",
     gap: "0.875rem",
-    padding: "1rem",
+    padding: "1.5rem",
+    backgroundColor: tokens.colorNeutralBackground1,
+    ...shorthands.border("1px", "solid", "rgba(255, 107, 0, 0.25)"),
+    ...shorthands.borderRadius(tokens.borderRadiusLarge),
+    boxShadow: tokens.shadow4,
+    ...shorthands.transition("all", "0.2s", "ease-in-out"),
+    ":hover": {
+      boxShadow: tokens.shadow16,
+      transform: "translateY(-4px)",
+    },
   },
   iconWrapper: {
     fontSize: "32px",

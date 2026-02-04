@@ -7,6 +7,10 @@ import { features } from "../../data/content";
 import * as FluentIcons from "@fluentui/react-icons";
 
 const useStyles = makeStyles({
+  section: {
+    position: "relative",
+    background: "radial-gradient(circle at top left, rgba(255,107,0,0.1), transparent 55%)",
+  },
   header: {
     textAlign: "center",
     marginBottom: "3rem",
@@ -45,7 +49,7 @@ export default function FeaturesSection() {
   const styles = useStyles();
 
   return (
-    <Section id="features" paddingSize="large">
+    <Section id="features" paddingSize="large" className={styles.section}>
       <Container>
         <div className={styles.header}>
           <Text className={styles.title}>Production-Ready Infrastructure</Text>

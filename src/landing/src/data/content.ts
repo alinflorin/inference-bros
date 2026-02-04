@@ -6,6 +6,11 @@ export const heroContent = {
     "Power your platform with production-ready AI infrastructure.",
     "Built on Kubernetes, optimized for performance, designed for intermediaries."
   ],
+  highlights: [
+    "Dedicated GPU pools with intelligent routing",
+    "OpenAI-compatible endpoints with enterprise controls",
+    "SLA-backed latency with real-time observability",
+  ],
   primaryCTA: "Request Demo",
   secondaryCTA: "View Documentation",
 };

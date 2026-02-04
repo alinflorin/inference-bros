@@ -17,14 +17,21 @@ const useStyles = makeStyles({
     flexDirection: "column",
     ...shorthands.gap("1.5rem"),
     backgroundColor: tokens.colorNeutralBackground1,
+    backgroundImage: "linear-gradient(160deg, rgba(255,107,0,0.18), transparent 65%)",
+    ...shorthands.border("1px", "solid", "rgba(255, 107, 0, 0.25)"),
     position: "relative",
     boxShadow: tokens.shadow4,
     ...shorthands.borderRadius(tokens.borderRadiusLarge),
     ...shorthands.transition("all", "0.2s", "ease-in-out"),
     ...shorthands.overflow("visible"),
+    ":hover": {
+      boxShadow: tokens.shadow16,
+      transform: "translateY(-4px)",
+    },
   },
   cardHighlighted: {
     ...shorthands.border("2px", "solid", tokens.colorBrandForeground1),
+    backgroundImage: "linear-gradient(160deg, rgba(255,107,0,0.3), rgba(8,8,8,0.95) 70%)",
     boxShadow: tokens.shadow16,
     transform: "scale(1.03)",
     "@media (max-width: 768px)": {
@@ -69,7 +76,7 @@ const useStyles = makeStyles({
     alignItems: "flex-start",
   },
   featureIcon: {
-    color: tokens.colorPaletteGreenForeground1,
+    color: tokens.colorBrandForeground2,
     flexShrink: 0,
     marginTop: "2px",
   },

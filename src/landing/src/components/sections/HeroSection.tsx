@@ -10,6 +10,32 @@ const useStyles = makeStyles({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
+    ...shorthands.overflow("hidden"),
+    "::before": {
+      content: '""',
+      position: "absolute",
+      top: "-30%",
+      left: "-10%",
+      width: "55%",
+      height: "70%",
+      background: "radial-gradient(circle, rgba(255,107,0,0.35), transparent 70%)",
+      filter: "blur(10px)",
+      opacity: 0.9,
+      pointerEvents: "none",
+    },
+    "::after": {
+      content: '""',
+      position: "absolute",
+      bottom: "-35%",
+      right: "-10%",
+      width: "60%",
+      height: "80%",
+      background: "radial-gradient(circle, rgba(255,179,80,0.25), transparent 70%)",
+      filter: "blur(20px)",
+      opacity: 0.8,
+      pointerEvents: "none",
+    },
   },
   heroContent: {
     maxWidth: "1100px",
@@ -20,6 +46,18 @@ const useStyles = makeStyles({
     flexDirection: "column",
     ...shorthands.gap("2rem"),
     alignItems: "center",
+    position: "relative",
+    zIndex: 1,
+  },
+  eyebrow: {
+    fontSize: tokens.fontSizeBase300,
+    letterSpacing: "0.2em",
+    textTransform: "uppercase",
+    color: tokens.colorBrandForeground2,
+    backgroundColor: "rgba(255, 107, 0, 0.12)",
+    ...shorthands.padding("0.4rem", "1.1rem"),
+    ...shorthands.borderRadius("999px"),
+    border: `1px solid ${tokens.colorBrandForeground2}`,
   },
   headline: {
     fontSize: "2.5rem",
@@ -50,6 +88,25 @@ const useStyles = makeStyles({
       fontSize: tokens.fontSizeBase500,
     },
   },
+  highlights: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    ...shorthands.gap("0.75rem"),
+    marginTop: "0.5rem",
+  },
+  highlightPill: {
+    fontSize: tokens.fontSizeBase300,
+    color: tokens.colorNeutralForeground1,
+    backgroundColor: "rgba(16, 16, 16, 0.85)",
+    ...shorthands.padding("0.5rem", "0.9rem"),
+    ...shorthands.borderRadius("999px"),
+    border: `1px solid ${tokens.colorNeutralStroke1}`,
+    boxShadow: tokens.shadow4,
+    "@media (min-width: 768px)": {
+      fontSize: tokens.fontSizeBase400,
+    },
+  },
   ctaGroup: {
     display: "flex",
     flexDirection: "column",
@@ -69,6 +126,7 @@ export default function HeroSection() {
     <Section paddingSize="large" className={styles.hero}>
       <Container maxWidth="large">
         <div className={styles.heroContent}>
+          <Text className={styles.eyebrow}>Inference Bros</Text>
           <Text className={styles.headline}>{heroContent.headline}</Text>
           <div className={styles.subheadline}>
             {Array.isArray(heroContent.subheadline)
@@ -80,6 +138,15 @@ export default function HeroSection() {
               : <Text>{heroContent.subheadline}</Text>
             }
           </div>
+          {heroContent.highlights && (
+            <div className={styles.highlights}>
+              {heroContent.highlights.map((highlight) => (
+                <Text key={highlight} className={styles.highlightPill}>
+                  {highlight}
+                </Text>
+              ))}
+            </div>
+          )}
           <div className={styles.ctaGroup}>
             <CTAButton variant="primary" href="#contact">
               {heroContent.primaryCTA}
