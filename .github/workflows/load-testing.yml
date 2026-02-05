@@ -1,38 +1,40 @@
 name: Load testing LLM
-run-name: Load-testing - ${{ github.event.inputs.LOCATION }} - ${{ github.event.inputs.MODEL_NAME }} - ${{ github.run_id }}
+run-name: Load-testing - ${{ github.event.inputs.LLMPERF_ENV }} - ${{ github.event.inputs.LLMPERF_MODEL }} - ${{ github.run_id }}
 
 on:
   workflow_dispatch:
     inputs:
-      LOCATION:
-        description: "Location for Bifrost"
+      LLMPERF_ENV:
+        description: "Environment for Bifrost"
         required: true
         type: choice
         options:
+          - local
           - stalpeni
-      API_KEY:
+          - prod
+      OPENAI_API_KEY:
         description: "API key for Bifrost"
         required: false
         default: ""
-      MODEL_NAME:
-        description: "LLM model name"
+      LLMPERF_MODEL:
+        description: "LLM model name (without kubeai/ prefix)"
         required: false
         default: "qwen25-05b-instruct"
-      MAX_CONCURRENCY:
-        description: "Max concurrency"
+      LLMPERF_CONCURRENT:
+        description: "Number of concurrent requests"
         required: false
-        default: "16"
-      MAX_TOKENS:
-        description: "Maximum tokens per request"
-        required: false
-        default: "512"
-      NUM_WORDS:
-        description: "Number of words in prompt"
+        default: "5"
+      LLMPERF_MAX_REQUESTS:
+        description: "Maximum number of completed requests"
         required: false
         default: "50"
+      LLMPERF_MEAN_TOKENS:
+        description: "Mean input tokens"
+        required: false
+        default: "512"
 
 env:
-  BIN_VERSION: 'v1.0.7'
+  LLMPERF_VERSION: 'v0.3.1'
 
 jobs:
   load-test:
@@ -43,32 +45,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Set up cache for llmapibenchmark
+      - name: Set up cache for llmperf
         id: cache-binary
         uses: actions/cache@v5
         with:
-          path: src/perf/llmapibenchmark_linux_amd64
-          key: llmapibenchmark-${{ runner.os }}-${{ env.BIN_VERSION }}
+          path: llmperf
+          key: llmperf-${{ runner.os }}-${{ env.LLMPERF_VERSION }}
           restore-keys: |
-            llmapibenchmark-${{ runner.os }}-
+            llmperf-${{ runner.os }}-
 
       - name: Run load test
-        working-directory: src/perf
         env:
-          BIN_VERSION: ${{ env.BIN_VERSION }}
-          LOCATION: ${{ github.event.inputs.LOCATION }}
-          API_KEY: ${{ github.event.inputs.API_KEY }}
-          MODEL_NAME: ${{ github.event.inputs.MODEL_NAME }}
-          MAX_CONCURRENCY: ${{ github.event.inputs.MAX_CONCURRENCY }}
-          MAX_TOKENS: ${{ github.event.inputs.MAX_TOKENS }}
-          NUM_WORDS: ${{ github.event.inputs.NUM_WORDS }}
+          LLMPERF_ENV: ${{ github.event.inputs.LLMPERF_ENV }}
+          OPENAI_API_KEY: ${{ github.event.inputs.OPENAI_API_KEY }}
+          LLMPERF_MODEL: ${{ github.event.inputs.LLMPERF_MODEL }}
+          LLMPERF_CONCURRENT: ${{ github.event.inputs.LLMPERF_CONCURRENT }}
+          LLMPERF_MAX_REQUESTS: ${{ github.event.inputs.LLMPERF_MAX_REQUESTS }}
+          LLMPERF_MEAN_TOKENS: ${{ github.event.inputs.LLMPERF_MEAN_TOKENS }}
         run: |
-          chmod +x ../perf/test.sh
-          ../perf/test.sh
+          chmod +x test.sh
+          ./test.sh
 
       - name: Generate summary
         if: always()
-        working-directory: src/perf
         run: |
           echo "# 🚀 LLM Load Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -76,55 +75,98 @@ jobs:
           echo "## 📋 Test Configuration" >> $GITHUB_STEP_SUMMARY
           echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Location | \`${{ github.event.inputs.LOCATION }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Model | \`${{ github.event.inputs.MODEL_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| Max Concurrency | ${{ github.event.inputs.MAX_CONCURRENCY }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Max Tokens | ${{ github.event.inputs.MAX_TOKENS }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Prompt Words | ${{ github.event.inputs.NUM_WORDS }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment | \`${{ github.event.inputs.LLMPERF_ENV }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Model | \`kubeai/${{ github.event.inputs.LLMPERF_MODEL }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Concurrent Requests | ${{ github.event.inputs.LLMPERF_CONCURRENT }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Max Requests | ${{ github.event.inputs.LLMPERF_MAX_REQUESTS }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Mean Input Tokens | ${{ github.event.inputs.LLMPERF_MEAN_TOKENS }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
-          if [ -f results.json ]; then
-            # Extract overall metrics
-            MODEL=$(jq -r '.model_name' results.json)
-            INPUT_TOKENS=$(jq -r '.input_tokens' results.json)
-            OUTPUT_TOKENS=$(jq -r '.output_tokens' results.json)
-            LATENCY=$(jq -r '.latency' results.json)
+          if [ -d results ]; then
+            # Find the most recent summary.json file
+            LATEST_RESULT=$(ls -t results/*summary.json 2>/dev/null | head -n1)
             
-            echo "## 📊 Overall Metrics" >> $GITHUB_STEP_SUMMARY
-            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
-            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-            echo "| Model | \`$MODEL\` |" >> $GITHUB_STEP_SUMMARY
-            echo "| Input Tokens | $INPUT_TOKENS |" >> $GITHUB_STEP_SUMMARY
-            echo "| Output Tokens | $OUTPUT_TOKENS |" >> $GITHUB_STEP_SUMMARY
-            echo "| Latency (ms) | $LATENCY |" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            # Create performance table
-            echo "## ⚡ Performance by Concurrency" >> $GITHUB_STEP_SUMMARY
-            echo "| Concurrency | Generation Speed (tok/s) | Prompt Throughput (tok/s) | Min TTFT (s) | Max TTFT (s) | Success Rate |" >> $GITHUB_STEP_SUMMARY
-            echo "|-------------|---------------------------|---------------------------|--------------|--------------|--------------|" >> $GITHUB_STEP_SUMMARY
-            
-            jq -r '.results[] | 
-              "| \(.concurrency) | \(.generation_speed) | \(.prompt_throughput) | \(.min_ttft) | \(.max_ttft) | \(.success_rate * 100)% |"' \
-              results.json >> $GITHUB_STEP_SUMMARY
-            
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            # Add raw JSON in a collapsible section
-            echo "<details>" >> $GITHUB_STEP_SUMMARY
-            echo "<summary>📄 Raw JSON Results</summary>" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo '```json' >> $GITHUB_STEP_SUMMARY
-            jq '.' results.json >> $GITHUB_STEP_SUMMARY
-            echo '```' >> $GITHUB_STEP_SUMMARY
-            echo "</details>" >> $GITHUB_STEP_SUMMARY
+            if [ -n "$LATEST_RESULT" ] && [ -f "$LATEST_RESULT" ]; then
+              echo "## 📊 Performance Results" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "**Result File:** \`$(basename $LATEST_RESULT)\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              
+              # Extract key metrics using jq
+              if command -v jq &> /dev/null; then
+                # Overall statistics
+                echo "### 🎯 Request Statistics" >> $GITHUB_STEP_SUMMARY
+                echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+                echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+                echo "| Requests Started | $(jq -r '.num_requests_started' "$LATEST_RESULT") |" >> $GITHUB_STEP_SUMMARY
+                echo "| Requests Completed | $(jq -r '.num_completed_requests' "$LATEST_RESULT") |" >> $GITHUB_STEP_SUMMARY
+                echo "| Requests/Min | $(jq -r '.num_completed_requests_per_min' "$LATEST_RESULT" | xargs printf "%.2f") |" >> $GITHUB_STEP_SUMMARY
+                echo "| Error Rate | $(jq -r '.error_rate * 100' "$LATEST_RESULT" | xargs printf "%.2f")% |" >> $GITHUB_STEP_SUMMARY
+                echo "| Errors | $(jq -r '.number_errors' "$LATEST_RESULT") |" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                
+                # Latency metrics
+                echo "### ⚡ Latency Metrics" >> $GITHUB_STEP_SUMMARY
+                echo "| Metric | Mean | Median | P95 | P99 | Min | Max |" >> $GITHUB_STEP_SUMMARY
+                echo "|--------|------|--------|-----|-----|-----|-----|" >> $GITHUB_STEP_SUMMARY
+                echo "| **TTFT (s)** | $(jq -r '.ttft_s_mean' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.ttft_s_median' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.ttft_s_quantiles_p95' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.ttft_s_quantiles_p99' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.ttft_s_min' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.ttft_s_max' "$LATEST_RESULT" | xargs printf "%.3f") |" >> $GITHUB_STEP_SUMMARY
+                echo "| **E2E Latency (s)** | $(jq -r '.end_to_end_latency_s_mean' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.end_to_end_latency_s_median' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.end_to_end_latency_s_quantiles_p95' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.end_to_end_latency_s_quantiles_p99' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.end_to_end_latency_s_min' "$LATEST_RESULT" | xargs printf "%.3f") | $(jq -r '.end_to_end_latency_s_max' "$LATEST_RESULT" | xargs printf "%.3f") |" >> $GITHUB_STEP_SUMMARY
+                echo "| **ITL (ms)** | $(jq -r '.itl_ms_mean' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.itl_ms_median' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.itl_ms_quantiles_p95' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.itl_ms_quantiles_p99' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.itl_ms_min' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.itl_ms_max' "$LATEST_RESULT" | xargs printf "%.2f") |" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                
+                # Throughput metrics
+                echo "### 🚀 Throughput Metrics" >> $GITHUB_STEP_SUMMARY
+                echo "| Metric | Mean | Median | P95 | P99 |" >> $GITHUB_STEP_SUMMARY
+                echo "|--------|------|--------|-----|-----|" >> $GITHUB_STEP_SUMMARY
+                echo "| **Prefill (tok/s)** | $(jq -r '.prefill_throughput_tps_mean' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.prefill_throughput_tps_median' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.prefill_throughput_tps_quantiles_p95' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.prefill_throughput_tps_quantiles_p99' "$LATEST_RESULT" | xargs printf "%.2f") |" >> $GITHUB_STEP_SUMMARY
+                echo "| **Decode (tok/s)** | $(jq -r '.decode_throughput_tps_mean' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.decode_throughput_tps_median' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.decode_throughput_tps_quantiles_p95' "$LATEST_RESULT" | xargs printf "%.2f") | $(jq -r '.decode_throughput_tps_quantiles_p99' "$LATEST_RESULT" | xargs printf "%.2f") |" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                
+                # Token statistics
+                echo "### 📝 Token Statistics" >> $GITHUB_STEP_SUMMARY
+                echo "| Metric | Mean | Median | Min | Max |" >> $GITHUB_STEP_SUMMARY
+                echo "|--------|------|--------|-----|-----|" >> $GITHUB_STEP_SUMMARY
+                echo "| **Input Tokens** | $(jq -r '.input_tokens_mean' "$LATEST_RESULT" | xargs printf "%.0f") | $(jq -r '.input_tokens_median' "$LATEST_RESULT" | xargs printf "%.0f") | $(jq -r '.input_tokens_min' "$LATEST_RESULT") | $(jq -r '.input_tokens_max' "$LATEST_RESULT") |" >> $GITHUB_STEP_SUMMARY
+                echo "| **Output Tokens** | $(jq -r '.output_tokens_mean' "$LATEST_RESULT" | xargs printf "%.0f") | $(jq -r '.output_tokens_median' "$LATEST_RESULT" | xargs printf "%.0f") | $(jq -r '.output_tokens_min' "$LATEST_RESULT") | $(jq -r '.output_tokens_max' "$LATEST_RESULT") |" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                
+                # Finish reasons
+                echo "### 🏁 Finish Reasons" >> $GITHUB_STEP_SUMMARY
+                echo '```json' >> $GITHUB_STEP_SUMMARY
+                jq -r '.finish_reasons' "$LATEST_RESULT" >> $GITHUB_STEP_SUMMARY
+                echo '```' >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                
+                # Error details if any
+                NUM_ERRORS=$(jq -r '.number_errors' "$LATEST_RESULT")
+                if [ "$NUM_ERRORS" != "0" ]; then
+                  echo "### ⚠️ Error Details" >> $GITHUB_STEP_SUMMARY
+                  echo '```json' >> $GITHUB_STEP_SUMMARY
+                  jq -r '.error_code_frequency' "$LATEST_RESULT" >> $GITHUB_STEP_SUMMARY
+                  echo '```' >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                fi
+              fi
+              
+              # Add raw JSON in a collapsible section
+              echo "<details>" >> $GITHUB_STEP_SUMMARY
+              echo "<summary>📄 Raw JSON Results</summary>" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo '```json' >> $GITHUB_STEP_SUMMARY
+              cat "$LATEST_RESULT" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              echo "</details>" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ **No summary.json file found in results/ directory**" >> $GITHUB_STEP_SUMMARY
+            fi
           else
-            echo "⚠️ **No results file found**" >> $GITHUB_STEP_SUMMARY
+            echo "⚠️ **No results directory found**" >> $GITHUB_STEP_SUMMARY
           fi
 
       - name: Upload results artifact
         uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: llm-load-test-results
-          path: src/perf/results.json
+          name: llm-load-test-results-${{ github.run_id }}
+          path: results/
+          if-no-files-found: warn
