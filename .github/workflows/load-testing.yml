@@ -66,8 +66,65 @@ jobs:
           chmod +x ../perf/test.sh
           ../perf/test.sh
 
+      - name: Generate summary
+        if: always()
+        working-directory: src/perf
+        run: |
+          echo "# 🚀 LLM Load Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          echo "## 📋 Test Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "| Parameter | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Location | \`${{ github.event.inputs.LOCATION }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Model | \`${{ github.event.inputs.MODEL_NAME }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Max Concurrency | ${{ github.event.inputs.MAX_CONCURRENCY }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Max Tokens | ${{ github.event.inputs.MAX_TOKENS }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Prompt Words | ${{ github.event.inputs.NUM_WORDS }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -f results.json ]; then
+            # Extract overall metrics
+            MODEL=$(jq -r '.model_name' results.json)
+            INPUT_TOKENS=$(jq -r '.input_tokens' results.json)
+            OUTPUT_TOKENS=$(jq -r '.output_tokens' results.json)
+            LATENCY=$(jq -r '.latency' results.json)
+            
+            echo "## 📊 Overall Metrics" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| Model | \`$MODEL\` |" >> $GITHUB_STEP_SUMMARY
+            echo "| Input Tokens | $INPUT_TOKENS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Output Tokens | $OUTPUT_TOKENS |" >> $GITHUB_STEP_SUMMARY
+            echo "| Latency (ms) | $LATENCY |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Create performance table
+            echo "## ⚡ Performance by Concurrency" >> $GITHUB_STEP_SUMMARY
+            echo "| Concurrency | Generation Speed (tok/s) | Prompt Throughput (tok/s) | Min TTFT (s) | Max TTFT (s) | Success Rate |" >> $GITHUB_STEP_SUMMARY
+            echo "|-------------|---------------------------|---------------------------|--------------|--------------|--------------|" >> $GITHUB_STEP_SUMMARY
+            
+            jq -r '.results[] | 
+              "| \(.concurrency) | \(.generation_speed) | \(.prompt_throughput) | \(.min_ttft) | \(.max_ttft) | \(.success_rate * 100)% |"' \
+              results.json >> $GITHUB_STEP_SUMMARY
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Add raw JSON in a collapsible section
+            echo "<details>" >> $GITHUB_STEP_SUMMARY
+            echo "<summary>📄 Raw JSON Results</summary>" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            jq '.' results.json >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "</details>" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **No results file found**" >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Upload results artifact
         uses: actions/upload-artifact@v6
+        if: always()
         with:
           name: llm-load-test-results
           path: src/perf/results.json
