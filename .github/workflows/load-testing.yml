@@ -9,9 +9,7 @@ on:
         required: true
         type: choice
         options:
-          - local
           - stalpeni
-          - prod
       OPENAI_API_KEY:
         description: "API key for Bifrost"
         required: false
