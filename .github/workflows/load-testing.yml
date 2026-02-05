@@ -47,12 +47,13 @@ jobs:
         id: cache-binary
         uses: actions/cache@v5
         with:
-          path: llmperf
+          path: src/perf/llmperf
           key: llmperf-${{ runner.os }}-${{ env.LLMPERF_VERSION }}
           restore-keys: |
             llmperf-${{ runner.os }}-
 
       - name: Run load test
+        working-directory: src/perf
         env:
           LLMPERF_ENV: ${{ github.event.inputs.LLMPERF_ENV }}
           OPENAI_API_KEY: ${{ github.event.inputs.OPENAI_API_KEY }}
@@ -66,6 +67,7 @@ jobs:
 
       - name: Generate summary
         if: always()
+        working-directory: src/perf
         run: |
           echo "# 🚀 LLM Load Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -166,5 +168,5 @@ jobs:
         if: always()
         with:
           name: llm-load-test-results-${{ github.run_id }}
-          path: results/
+          path: src/perf/results/
           if-no-files-found: warn
