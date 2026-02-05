@@ -30,6 +30,18 @@ on:
         description: "Mean input tokens"
         required: false
         default: "512"
+      LLMPERF_STDDEV_INPUT_TOKENS:
+        description: "Standard deviation of input tokens"
+        required: false
+        default: "150"
+      LLMPERF_MEAN_OUTPUT_TOKENS:
+        description: "Mean output tokens"
+        required: false
+        default: "150"
+      LLMPERF_STDDEV_OUTPUT_TOKENS:
+        description: "Standard deviation of output tokens"
+        required: false
+        default: "50"
 
 env:
   LLMPERF_VERSION: 'v0.3.1'
@@ -61,6 +73,9 @@ jobs:
           LLMPERF_CONCURRENT: ${{ github.event.inputs.LLMPERF_CONCURRENT }}
           LLMPERF_MAX_REQUESTS: ${{ github.event.inputs.LLMPERF_MAX_REQUESTS }}
           LLMPERF_MEAN_TOKENS: ${{ github.event.inputs.LLMPERF_MEAN_TOKENS }}
+          LLMPERF_STDDEV_INPUT_TOKENS: ${{ github.event.inputs.LLMPERF_STDDEV_INPUT_TOKENS }}
+          LLMPERF_MEAN_OUTPUT_TOKENS: ${{ github.event.inputs.LLMPERF_MEAN_OUTPUT_TOKENS }}
+          LLMPERF_STDDEV_OUTPUT_TOKENS: ${{ github.event.inputs.LLMPERF_STDDEV_OUTPUT_TOKENS }}
         run: |
           chmod +x test.sh
           ./test.sh
@@ -79,7 +94,8 @@ jobs:
           echo "| Model | \`kubeai/${{ github.event.inputs.LLMPERF_MODEL }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| Concurrent Requests | ${{ github.event.inputs.LLMPERF_CONCURRENT }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Max Requests | ${{ github.event.inputs.LLMPERF_MAX_REQUESTS }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Mean Input Tokens | ${{ github.event.inputs.LLMPERF_MEAN_TOKENS }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Mean Input Tokens | ${{ github.event.inputs.LLMPERF_MEAN_TOKENS }} ±${{ github.event.inputs.LLMPERF_STDDEV_INPUT_TOKENS }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Mean Output Tokens | ${{ github.event.inputs.LLMPERF_MEAN_OUTPUT_TOKENS }} ±${{ github.event.inputs.LLMPERF_STDDEV_OUTPUT_TOKENS }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           
           if [ -d results ]; then
