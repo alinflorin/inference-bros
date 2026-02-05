@@ -10,6 +10,43 @@ resource "helm_release" "kube_prometheus_stack" {
 
   values = [
     <<-EOT
+      defaultRules:
+        create: true
+        rules:
+          alertmanager: true
+          etcd: true
+          configReloaders: true
+          general: true
+          k8sContainerCpuUsageSecondsTotal: true
+          k8sContainerMemoryCache: true
+          k8sContainerMemoryRss: true
+          k8sContainerMemorySwap: true
+          k8sContainerResource: true
+          k8sContainerMemoryWorkingSetBytes: true
+          k8sPodOwner: true
+          kubeApiserverAvailability: true
+          kubeApiserverBurnrate: true
+          kubeApiserverHistogram: true
+          kubeApiserverSlos: true
+          kubeControllerManager: false
+          kubelet: true
+          kubeProxy: false
+          kubePrometheusGeneral: true
+          kubePrometheusNodeRecording: true
+          kubernetesApps: true
+          kubernetesResources: true
+          kubernetesStorage: true
+          kubernetesSystem: true
+          kubeSchedulerAlerting: false
+          kubeSchedulerRecording: false
+          kubeStateMetrics: true
+          network: true
+          node: true
+          nodeExporterAlerting: true
+          nodeExporterRecording: true
+          prometheus: true
+          prometheusOperator: true
+          windows: true
       grafana:
         enabled: true
         useStatefulSet: true
@@ -78,7 +115,7 @@ resource "helm_release" "kube_prometheus_stack" {
             access: proxy
             url: http://loki.monitoring.svc.cluster.local:3100
             editable: false
-        
+
         assertNoLeakedSecrets: false
         grafana.ini:
           smtp:
@@ -123,7 +160,7 @@ resource "helm_release" "kube_prometheus_stack" {
         persistence:
           enabled: true
           size: ${var.grafana_storage_gb}Gi
-        
+
         # Added resource requests and limits for Grafana
         resources:
           requests:
@@ -151,7 +188,7 @@ resource "helm_release" "kube_prometheus_stack" {
             - /
           pathType: Prefix
 
-          tls: 
+          tls:
             - secretName: alertmanager-tls
               hosts:
                 - alertmanager.${var.domain}
@@ -240,7 +277,7 @@ resource "helm_release" "kube_prometheus_stack" {
 
 
 
-              {{- /* If none of the below matches, send to #monitoring-no-owner, and we 
+              {{- /* If none of the below matches, send to #monitoring-no-owner, and we
               can then assign the expected code_owner to the alert or map the code_owner
               to the correct channel */ -}}
               {{ define "__get_channel_for_code_owner" -}}
@@ -322,13 +359,13 @@ resource "helm_release" "kube_prometheus_stack" {
 
 
         alertmanagerSpec:
-          storage: 
+          storage:
             volumeClaimTemplate:
               spec:
                 accessModes:
                 - ReadWriteOnce
                 resources:
-                  requests: 
+                  requests:
                     storage: ${var.alertmanager_storage_gb}Gi
           externalUrl: https://alertmanager.${var.domain}
           retention: "72h"
@@ -368,7 +405,7 @@ resource "helm_release" "kube_prometheus_stack" {
             - /
           pathType: Prefix
 
-          tls: 
+          tls:
             - secretName: prometheus-tls
               hosts:
                 - prometheus.${var.domain}
