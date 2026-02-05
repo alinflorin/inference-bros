@@ -29,7 +29,7 @@ on:
       LLMPERF_MEAN_TOKENS:
         description: "Mean input tokens"
         required: false
-        default: "512"
+        default: "300"
       LLMPERF_STDDEV_INPUT_TOKENS:
         description: "Standard deviation of input tokens"
         required: false
