@@ -11,7 +11,11 @@ console.log(`Is production: ${IS_PRODUCTION}`);
 
 let GUI_HTML = 'UI 404';
 try {
-  GUI_HTML = atob(fs.readFileSync('./index.html'));
+  if (IS_PRODUCTION) {
+    GUI_HTML = atob(fs.readFileSync(process.cwd() + '/index.html'));
+  } else {
+    GUI_HTML = fs.readFileSync(process.cwd() + '/index.html');
+  }
 } catch (err) {
   // ignored
   console.warn('No UI file!');
