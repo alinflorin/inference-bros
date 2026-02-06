@@ -22,7 +22,7 @@ resource "helm_release" "generic" {
       LOCATION = { value = var.location }
     },
     { for k, v in var.env : k => { value = v } }
-    )))}
+)))}
         terminationGracePeriodSeconds: ${var.termination_grace_period_seconds}
         resources:
           limits:
@@ -91,10 +91,10 @@ resource "helm_release" "generic" {
         enabled: true
         files:
          app:
-${indent(12, yamlencode({
-    "index.mjs"  = file("${path.root}/apps/${var.name}/index.mjs")
-    "index.html" = file("${path.root}/apps/${var.name}/index.html")
-}))}
+            index.mjs: |
+              ${indent(8, replace(file("${path.root}/apps/${var.name}/index.mjs"), "$${", "$$$${"))}
+            index.html: |
+              ${indent(8, replace(file("${path.root}/apps/${var.name}/index.html"), "$${", "$$$${"))}
     EOT
 ]
 
