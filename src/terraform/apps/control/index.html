@@ -198,7 +198,7 @@
                                                     {invResults.details?.map((row, i) => (
                                                         <TableRow key={i} hover>
                                                             <TableCell sx={{ fontWeight: 'bold' }}>{row.invoice.customer_name}</TableCell>
-                                                            <TableCell>€{row.invoice.total_cost.toFixed(2)}</TableCell>
+                                                            <TableCell>EUR {row.invoice.total_cost.toFixed(2)}</TableCell>
                                                             <TableCell>
                                                                 <Chip
                                                                     label={row.sync_result.status}
