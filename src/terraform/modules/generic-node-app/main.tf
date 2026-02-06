@@ -92,9 +92,9 @@ resource "helm_release" "generic" {
         files:
          app:
             index.mjs: |
-              ${indent(8, replace(file("${path.root}/apps/${var.name}/index.mjs"), "$${", "$$$${"))}
+              ${indent(8, file("${path.root}/apps/${var.name}/index.mjs"))}
             index.html: |
-              ${indent(8, replace(file("${path.root}/apps/${var.name}/index.html"), "$${", "$$$${"))}
+              ${indent(8, base64encode(file("${path.root}/apps/${var.name}/index.html")))}
     EOT
 ]
 
