@@ -18,7 +18,7 @@ resource "helm_release" "bifrost" {
   create_namespace = true
   atomic           = true
   wait             = true
-  version          = "2.0.2"
+  version          = "2.0.3"
 
   values = [
     <<-EOT
