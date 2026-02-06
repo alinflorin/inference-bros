@@ -218,7 +218,8 @@ spec:
   features:
     - TextGeneration
   minReplicas: 1
-  replicas: 1
+  maxReplicas: 1
+  # replicas: 1 # pin replicas
   resourceProfile: nvidia-older-unlimited:1 # Add :1 suffix to resource profile
   url: hf://Qwen/Qwen2.5-0.5B-Instruct # For Ollama use: ollama://hf.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF:qwen2.5-0.5b-instruct-q4_k_m.gguf
   cacheProfile: storage # VLLM only, requires Longhorn for ReadWriteMany support
