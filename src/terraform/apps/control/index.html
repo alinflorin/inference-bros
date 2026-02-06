@@ -75,7 +75,7 @@
                 <React.Fragment>
                     <TableRow hover>
                         <TableCell width="40">
-                            <IconButton size="small" onClick={() => setOpen(!open)}>{open ? "▲" : "▼"}</IconButton>
+                            <IconButton size="small" onClick={() => setOpen(!open)}>{open ? <>&#9650;</> : <>&#9660;</>}</IconButton>
                         </TableCell>
                         <TableCell sx={{ fontWeight: 'bold' }}>{invoice.customer_name}</TableCell>
                         <TableCell>EUR {invoice.total_cost.toFixed(2)}</TableCell>
