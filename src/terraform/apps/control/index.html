@@ -122,9 +122,13 @@
                     return;
                 }
 
+                // Convert YYYY-MM-DD to ISO format
+                const startISO = new Date(startDate + 'T00:00:00Z').toISOString();
+                const endISO = new Date(endDate + 'T23:59:59Z').toISOString();
+
                 const params = new URLSearchParams({
-                    start_date: startDate,
-                    end_date: endDate
+                    start_date: startISO,
+                    end_date: endISO
                 });
 
                 apiCall(`/usage?${params}`, setUsageRes, {
