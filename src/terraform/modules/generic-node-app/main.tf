@@ -14,7 +14,7 @@ resource "helm_release" "generic" {
       deployment:
         enabled: true
         additionalPodAnnotations:
-          terraform.io/app-checksum: "${md5(file("${path.root}/apps/${var.name}/index.mjs"))}"
+          terraform.io/app-checksum: "${md5(file("${path.root}/apps/${var.name}/index.mjs"))}-${md5(file("${path.root}/apps/${var.name}/index.html"))}"
         env:
           ${indent(4, yamlencode(merge(
     {
