@@ -63,7 +63,7 @@ resource "helm_release" "dex" {
         - id: oauth2-proxy
           name: oauth2-proxy
           public: false
-          secret: "${random_string.oauth2_proxy_client_secret.result}"
+          secret: "${sensitive(random_string.oauth2_proxy_client_secret.result)}"
           redirectURIs:
           - https://oauth2-proxy.${var.domain}/oauth2/callback
         - id: grafana

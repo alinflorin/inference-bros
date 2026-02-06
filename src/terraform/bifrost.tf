@@ -33,7 +33,7 @@ resource "helm_release" "bifrost" {
           pricing:
             pricingUrl: 'http://control.control/bifrost/pricingSheet'
             pricingSyncInterval: 3600
-        encryptionKey: ${random_string.bifrost_enc_key.result}
+        encryptionKey: ${sensitive(random_string.bifrost_enc_key.result)}
         logLevel: info
 
         client:
@@ -111,7 +111,7 @@ resource "helm_release" "bifrost" {
       postgresql:
         enabled: true
         auth:
-          password: ${random_string.bifrost_pg_password.result}
+          password: ${sensitive(random_string.bifrost_pg_password.result)}
         primary:
           persistence:
             size: ${var.bifrost_storage_gb}Gi

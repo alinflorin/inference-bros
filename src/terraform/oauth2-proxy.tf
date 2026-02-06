@@ -47,7 +47,7 @@ resource "helm_release" "oauth2_proxy" {
           secretName: oauth2-proxy-tls
       config:
         clientID: oauth2-proxy
-        clientSecret: "${random_string.oauth2_proxy_client_secret.result}"
+        clientSecret: "${sensitive(random_string.oauth2_proxy_client_secret.result)}"
         configFile: |-
           email_domains = [ "*" ]
           upstreams = [ "static://200" ]
@@ -62,13 +62,13 @@ resource "helm_release" "oauth2_proxy" {
           whitelist_domains = [".${var.domain}"]
           set_xauthrequest = true
           client_id = "oauth2-proxy"
-          client_secret = "${random_string.oauth2_proxy_client_secret.result}"
+          client_secret = "${sensitive(random_string.oauth2_proxy_client_secret.result)}"
           oidc_issuer_url = "https://dex.${var.domain}"
           ssl_insecure_skip_verify = ${var.location == "local" ? "true" : "false"}
           code_challenge_method = "S256"
           approval_prompt = "none"
         cookieName: ""
-        cookieSecret: ${random_string.oauth2_proxy_cookie_secret.result}
+        cookieSecret: ${sensitive(random_string.oauth2_proxy_cookie_secret.result)}
       resources:
         limits:
           cpu: 100m
