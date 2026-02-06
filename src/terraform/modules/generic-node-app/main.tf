@@ -94,7 +94,7 @@ resource "helm_release" "generic" {
             index.mjs: |
               ${indent(8, file("${path.root}/apps/${var.name}/index.mjs"))}
             index.html: |
-              ${indent(8, base64encode(file("${path.root}/apps/${var.name}/index.html")))}
+              ${indent(8, file("${path.root}/apps/${var.name}/index.html"))}
     EOT
 ]
 
