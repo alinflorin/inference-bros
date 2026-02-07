@@ -212,8 +212,8 @@ spec:
   # For VLLM, use args:
   args:
     - --gpu-memory-utilization=0.9
-    - --dtype=half
-    - --max-model-len=1024
+    - --dtype=float16
+    - --max-model-len=8192
   ##################################
   features:
     - TextGeneration
