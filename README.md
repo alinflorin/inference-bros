@@ -211,9 +211,10 @@ spec:
   engine: VLLM # or OLlama
   # For VLLM, use args:
   args:
-    - --gpu-memory-utilization=0.9
-    - --dtype=float16
-    - --max-model-len=8192
+    - "--gpu-memory-utilization=0.85"
+    - "--dtype=half"
+    - "--enforce-eager"
+    - "--max-model-len=2048"
   ##################################
   features:
     - TextGeneration
