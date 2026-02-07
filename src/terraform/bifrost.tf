@@ -110,6 +110,8 @@ resource "helm_release" "bifrost" {
           memory: 512Mi
       postgresql:
         enabled: true
+        metrics:
+          enabled: true
         auth:
           password: ${sensitive(random_string.bifrost_pg_password.result)}
         primary:
