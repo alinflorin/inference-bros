@@ -265,3 +265,19 @@ variable "s3_url" {
 variable "create_s3_buckets" {
   type = bool
 }
+
+variable "sun2000_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "sun2000_kiosk_url" {
+  type    = string
+  default = "https://uni004eu5.fusionsolar.huawei.com/rest/pvms/web/kiosk/v1/station-kiosk-file"
+}
+
+variable "sun2000_kiosk_kk" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
