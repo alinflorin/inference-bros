@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 type MenuItem = 'INFRASTRUCTURE' | 'MODELS' | 'PRICING' | 'GET STARTED';
 
@@ -32,51 +32,51 @@ const InferenceBrosLanding: React.FC = () => {
   const [hoveredMenu, setHoveredMenu] = useState<MenuItem | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([
     {
-      timestamp: new Date(Date.now() - 12000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 12000).toISOString(),
       message: '$ init --boot-sequence'
     },
     {
-      timestamp: new Date(Date.now() - 11000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 11000).toISOString(),
       message: '→ System initialization started'
     },
     {
-      timestamp: new Date(Date.now() - 10000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 10000).toISOString(),
       message: '$ verify --core-modules'
     },
     {
-      timestamp: new Date(Date.now() - 9000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 9000).toISOString(),
       message: '→ All modules verified'
     },
     {
-      timestamp: new Date(Date.now() - 8000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 8000).toISOString(),
       message: '$ connect --network-layer'
     },
     {
-      timestamp: new Date(Date.now() - 7000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 7000).toISOString(),
       message: '→ Network connection established'
     },
     {
-      timestamp: new Date(Date.now() - 6000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 6000).toISOString(),
       message: '$ load --resource-pool'
     },
     {
-      timestamp: new Date(Date.now() - 5000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 5000).toISOString(),
       message: '→ Resources allocated'
     },
     {
-      timestamp: new Date(Date.now() - 4000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 4000).toISOString(),
       message: '$ sync --global-state'
     },
     {
-      timestamp: new Date(Date.now() - 3000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 3000).toISOString(),
       message: '→ Synchronization complete'
     },
     {
-      timestamp: new Date(Date.now() - 2000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 2000).toISOString(),
       message: '$ status --system'
     },
     {
-      timestamp: new Date(Date.now() - 1000).toISOString(),
+      timestamp: new Date(new Date().getTime() - 1000).toISOString(),
       message: '→ System ready'
     }
   ]);
@@ -396,7 +396,7 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
   const handleMenuClick = (item: MenuItem) => {
     const path = item.toLowerCase();
     addLog(`$ cd /menu/${path}`);
-    
+
     setTimeout(() => {
       setActiveMenu(item);
       setIsMobileMenuOpen(false);
@@ -410,10 +410,10 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
     addLog(`$ open --modal=${title.toLowerCase().replace(/\s+/g, '-')}`);
   };
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     addLog(`→ Modal closed`);
-  };
+  }, []);
 
   // ESC key to close modal
   React.useEffect(() => {
@@ -424,7 +424,7 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [isModalOpen]);
+  }, [isModalOpen, closeModal]);
 
   const currentButtons = buttonContent[activeMenu];
 
@@ -444,7 +444,7 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
       {/* Desktop Layout */}
       <div className="hidden lg:block h-full overflow-hidden">
         <div className="grid grid-cols-[400px_1fr] grid-rows-[100px_1fr_80px_10px_100px_10px] h-full bg-black text-white font-mono">
-          
+
           {/* Header */}
           <div className="bg-black flex items-center px-10">
             <img src="/IB_icon.svg" alt="Inference Bros Logo" className="h-7 mr-4" />
@@ -503,11 +503,11 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
             <div className="flex flex-col-reverse gap-0.5 max-h-16 overflow-hidden">
               {logs.slice(-7).reverse().map((log, index) => (
                 <div key={index} className="text-xs opacity-80 font-mono leading-tight">
-                  [{new Date(log.timestamp).toLocaleTimeString('en-US', { 
-                    hour12: false, 
-                    hour: '2-digit', 
-                    minute: '2-digit', 
-                    second: '2-digit' 
+                  [{new Date(log.timestamp).toLocaleTimeString('en-US', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
                   })}] {log.message}
                 </div>
               ))}
@@ -517,11 +517,11 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
           {/* Action Buttons */}
           <div className="grid grid-cols-3 bg-black col-start-2 row-start-3">
             {currentButtons.map((button, index) => (
-              <button 
+              <button
                 key={index}
                 className={`${
-                  index === 1 && activeMenu === 'GET STARTED' 
-                    ? 'bg-white text-black' 
+                  index === 1 && activeMenu === 'GET STARTED'
+                    ? 'bg-white text-black'
                     : 'bg-black text-white'
                 } flex items-center justify-center font-bold text-lg tracking-wide ${
                   index === 1 && activeMenu === 'GET STARTED'
@@ -569,7 +569,7 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
             <img src="/IB_icon.svg" alt="Inference Bros Logo" className="h-6 mr-3" />
             <div className="text-xl font-bold tracking-[2px]">INFERENCE BROS.</div>
           </div>
-          <button 
+          <button
             className="text-3xl font-bold leading-none"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -614,11 +614,11 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
             {/* Action Buttons */}
             <div className="grid grid-cols-1 bg-black">
               {currentButtons.map((button, index) => (
-                <button 
+                <button
                   key={index}
                   className={`${
-                    index === 1 && activeMenu === 'GET STARTED' 
-                      ? 'bg-white text-black' 
+                    index === 1 && activeMenu === 'GET STARTED'
+                      ? 'bg-white text-black'
                       : 'bg-black text-white'
                   } flex items-center justify-center font-bold text-base tracking-wide py-6`}
                   onClick={() => openModal(button.title, button.content)}
@@ -634,11 +634,11 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
               <div className="flex flex-col-reverse gap-1">
                 {logs.slice(-5).reverse().map((log, index) => (
                   <div key={index} className="text-[10px] opacity-80 font-mono leading-tight">
-                    [{new Date(log.timestamp).toLocaleTimeString('en-US', { 
-                      hour12: false, 
-                      hour: '2-digit', 
-                      minute: '2-digit', 
-                      second: '2-digit' 
+                    [{new Date(log.timestamp).toLocaleTimeString('en-US', {
+                      hour12: false,
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      second: '2-digit'
                     })}] {log.message}
                   </div>
                 ))}
@@ -665,7 +665,7 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
             {/* Modal Header */}
             <div className="bg-white text-black px-8 py-5 flex justify-between items-center border-b-2 border-black">
               <h2 className="text-2xl font-bold tracking-[3px]">{modalContent.title}</h2>
-              <button 
+              <button
                 className="text-4xl font-bold text-black bg-white leading-none w-10 h-10 flex items-center justify-center border-none outline-none focus:outline-none focus:ring-0 cursor-pointer"
                 onClick={closeModal}
                 style={{ boxShadow: 'none', border: 'none' }}
@@ -673,18 +673,18 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
                 ×
               </button>
             </div>
-            
+
             {/* Modal Content */}
             <div className="p-8 text-white whitespace-pre-line leading-relaxed text-base overflow-y-auto flex-1 scrollbar-thin">
               <div className="border-l-4 border-white pl-6">
                 {modalContent.content}
               </div>
             </div>
-            
+
             {/* Modal Footer */}
             <div className="bg-black px-8 py-5 flex justify-between items-center border-t-2 border-white">
               <div className="text-xs opacity-50 tracking-[2px]">ESC TO CLOSE</div>
-              <button 
+              <button
                 className="bg-white text-black px-8 py-3 font-bold tracking-[2px] hover:bg-gray-200 border-none outline-none focus:outline-none focus:ring-0 cursor-pointer"
                 onClick={closeModal}
                 style={{ boxShadow: 'none', border: 'none' }}
