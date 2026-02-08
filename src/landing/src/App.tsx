@@ -626,7 +626,7 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
                                 >
                                     {item}
                                     <span
-                                        className="inline-block ml-2"
+                                        className="inline-block"
                                         style={{
                                             animation: `blink 1s step-end ${0.3 + (index * 0.1) + 0.6}s infinite`
                                         }}
