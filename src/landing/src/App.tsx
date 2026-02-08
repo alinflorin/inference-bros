@@ -482,9 +482,19 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
             <div className="text-xl tracking-[2px] opacity-90 mb-6">
               {content[activeMenu].subtitle}
             </div>
-            <div className="text-base max-w-2xl text-center opacity-80 leading-relaxed">
+            <div className="text-base max-w-2xl text-center opacity-80 leading-relaxed mb-8">
               {content[activeMenu].description}
             </div>
+            
+            {/* Renewable Energy Badge - Only for Infrastructure */}
+            {activeMenu === 'INFRASTRUCTURE' && (
+              <div className="flex flex-col items-center mt-6 opacity-70">
+                <img src="/leaf.svg" alt="Renewable Energy" className="h-8 w-8 mb-2" />
+                <div className="text-sm tracking-[2px] uppercase">
+                  Powered by 100% Renewable Energy
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Navigation History */}
