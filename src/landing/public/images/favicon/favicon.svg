@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><g clip-path="url(#SvgjsClipPath1161)"><rect width="1000" height="1000" fill="#000000"></rect><g transform="matrix(5.333333333333333,0,0,5.333333333333333,100,100)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="150" height="150"><svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #000;
+      }
+
+      .cls-1, .cls-2 {
+        stroke-width: 0px;
+      }
+
+      .cls-2 {
+        fill: #fff;
+      }
+    </style>
+  <clipPath id="SvgjsClipPath1161"><rect width="1000" height="1000" x="0" y="0" rx="0" ry="0"></rect></clipPath></defs>
+  <g id="Layer_1-2" data-name="Layer 1">
+    <g>
+      <rect class="cls-2" width="150" height="150"></rect>
+      <rect class="cls-1" x="15" y="15" width="120" height="120"></rect>
+      <polygon class="cls-2" points="150 0 0 150 0 0 150 0"></polygon>
+    </g>
+  </g>
+</svg></svg></g></g></svg>
