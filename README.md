@@ -539,47 +539,69 @@ graph TB
     %% HuggingFace
     KubeAI -->|MODEL DOWNLOAD| HuggingFace[HUGGINGFACE HUB]
     
-    subgraph "AI/ML Stack"
-        KubeAI
-        VLLM
-        OLLAMA
-        FasterWhisper
-        Infinity
-        BitFrost
-        ModelsPVC
-        KubeAICache
-    end
+    %% Styling - AI/ML Stack (Purple/Magenta)
+    style KubeAI fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style VLLM fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style OLLAMA fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style FasterWhisper fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style Infinity fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style BitFrost fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style ModelsPVC fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style KubeAICache fill:#9B59B6,stroke:#8E44AD,color:#fff
     
-    subgraph "Monitoring Stack"
-        Prometheus
-        Grafana
-        AlertManager
-        Loki
-        Tempo
-        FluentBit
-        NodeExporter
-        KubeStateMetrics
-    end
+    %% Monitoring Stack (Orange)
+    style Prometheus fill:#E67E22,stroke:#D35400,color:#fff
+    style Grafana fill:#E67E22,stroke:#D35400,color:#fff
+    style AlertManager fill:#E67E22,stroke:#D35400,color:#fff
+    style Loki fill:#E67E22,stroke:#D35400,color:#fff
+    style Tempo fill:#E67E22,stroke:#D35400,color:#fff
+    style FluentBit fill:#E67E22,stroke:#D35400,color:#fff
+    style NodeExporter fill:#E67E22,stroke:#D35400,color:#fff
+    style KubeStateMetrics fill:#E67E22,stroke:#D35400,color:#fff
     
-    subgraph "Storage & Backup"
-        LonghornCSI
-        Velero
-        VUI
-        SnapshotController
-        S3Backend
-    end
+    %% Storage & Backup (Brown/Tan)
+    style LonghornCSI fill:#A0522D,stroke:#8B4513,color:#fff
+    style Longhorn fill:#A0522D,stroke:#8B4513,color:#fff
+    style Velero fill:#A0522D,stroke:#8B4513,color:#fff
+    style VUI fill:#A0522D,stroke:#8B4513,color:#fff
+    style SnapshotController fill:#A0522D,stroke:#8B4513,color:#fff
+    style S3Backend fill:#A0522D,stroke:#8B4513,color:#fff
     
-    subgraph "Authentication & Security"
-        Dex
-        OAuth2Proxy
-        CertManager
-    end
+    %% Authentication & Security (Red)
+    style Dex fill:#E74C3C,stroke:#C0392B,color:#fff
+    style OAuth2Proxy fill:#E74C3C,stroke:#C0392B,color:#fff
+    style CertManager fill:#E74C3C,stroke:#C0392B,color:#fff
+    style LetsEncrypt fill:#E74C3C,stroke:#C0392B,color:#fff
+    style RootCA fill:#E74C3C,stroke:#C0392B,color:#fff
     
-    subgraph "Networking"
-        IngressNGINX
-        MetalLB
-        ExternalDNS
-    end
+    %% Networking (Blue)
+    style IngressNGINX fill:#3498DB,stroke:#2980B9,color:#fff
+    style MetalLB fill:#3498DB,stroke:#2980B9,color:#fff
+    style ExternalDNS fill:#3498DB,stroke:#2980B9,color:#fff
+    style Router fill:#3498DB,stroke:#2980B9,color:#fff
+    style KubeVIP fill:#3498DB,stroke:#2980B9,color:#fff
+    
+    %% Management & Control (Green)
+    style Control fill:#27AE60,stroke:#229954,color:#fff
+    style Headlamp fill:#27AE60,stroke:#229954,color:#fff
+    style ModelsExplorer fill:#27AE60,stroke:#229954,color:#fff
+    style SystemUpgrade fill:#27AE60,stroke:#229954,color:#fff
+    
+    %% GPU & Hardware (Teal/Cyan)
+    style NvidiaGPU fill:#16A085,stroke:#138D75,color:#fff
+    style AMDGPU fill:#16A085,stroke:#138D75,color:#fff
+    
+    %% External Services (Gray)
+    style Slack fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style SMTPRelay fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style Odoo fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style Cloudflare fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style HuggingFace fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style WAN fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    
+    %% Other Services (Yellow/Gold)
+    style Mail fill:#F39C12,stroke:#D68910,color:#fff
+    style Headscale fill:#F39C12,stroke:#D68910,color:#fff
 ```
 
 ---
