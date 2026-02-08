@@ -398,6 +398,214 @@ Save this kubeconfig to `~/.kube/config` or use with `KUBECONFIG` environment va
 ---
 
 
+## Architecture
+```mermaid
+graph TB
+    WAN[WAN] --> Router
+    Router -->|L2| MetalLB
+    Router -->|L2| KubeVIP[KUBE-VIP]
+    
+    MetalLB -->|LB| IngressNGINX[INGRESS-NGINX]
+    
+    %% Ingress Routes
+    IngressNGINX -->|SSL| BitFrost[BIFROST]
+    IngressNGINX -->|SSL| Headlamp[HEADLAMP]
+    IngressNGINX -->|SSL| AlertManager[ALERTMANAGER]
+    IngressNGINX -->|SSL| Prometheus[PROMETHEUS]
+    IngressNGINX -->|SSL| Grafana[GRAFANA]
+    IngressNGINX -->|SSL| Control[CONTROL]
+    IngressNGINX -->|SSL| Longhorn[LONGHORN UI]
+    IngressNGINX -->|SSL| VUI[VUI]
+    IngressNGINX -->|SSL| ModelsExplorer[MODELS EXPLORER]
+    IngressNGINX -->|SSL| Dex[DEX]
+    IngressNGINX -->|SSL| OAuth2Proxy[OAUTH2-PROXY]
+    
+    %% OAuth2 Protection
+    OAuth2Proxy -->|OIDC| Dex
+    OAuth2Proxy -.->|PROTECT| BitFrost
+    OAuth2Proxy -.->|PROTECT| Headlamp
+    OAuth2Proxy -.->|PROTECT| AlertManager
+    OAuth2Proxy -.->|PROTECT| Prometheus
+    OAuth2Proxy -.->|PROTECT| Longhorn
+    OAuth2Proxy -.->|PROTECT| VUI
+    OAuth2Proxy -.->|PROTECT| ModelsExplorer
+    
+    %% Grafana uses Dex directly
+    Grafana -->|OIDC| Dex
+    
+    %% Bifrost Architecture
+    BitFrost -->|PROXY| KubeAI[KUBEAI]
+    BitFrost -->|PRICING| Control
+    BitFrost -->|OTEL| Tempo[TEMPO]
+    
+    %% KubeAI Components
+    KubeAI --> VLLM
+    KubeAI --> OLLAMA
+    KubeAI --> FasterWhisper[FASTER-WHISPER]
+    KubeAI --> Infinity[INFINITY]
+    
+    %% Monitoring Stack - Prometheus Scraping
+    Prometheus -->|SCRAPE| FluentBit[FLUENT-BIT]
+    Prometheus -->|SCRAPE| AlertManager
+    Prometheus -->|SCRAPE| IngressNGINX
+    Prometheus -->|SCRAPE| CertManager[CERT-MANAGER]
+    Prometheus -->|SCRAPE| LonghornCSI[LONGHORN CSI]
+    Prometheus -->|SCRAPE| KubeAI
+    Prometheus -->|SCRAPE| MetalLB
+    Prometheus -->|SCRAPE| Dex
+    Prometheus -->|SCRAPE| OAuth2Proxy
+    Prometheus -->|SCRAPE| NodeExporter[NODE-EXPORTER]
+    Prometheus -->|SCRAPE| KubeStateMetrics[KUBE-STATE-METRICS]
+    Prometheus -->|SCRAPE| BitFrost
+    Prometheus -->|SCRAPE| Mail[MAIL/POSTFIX]
+    Prometheus -->|SCRAPE| Velero[VELERO]
+    Prometheus -->|SCRAPE| VLLM
+    
+    %% Logging Flow
+    FluentBit -->|LOGS| Loki[LOKI]
+    
+    %% Tracing Flow
+    IngressNGINX -->|OTEL| Tempo
+    Tempo -->|METRICS| Prometheus
+    
+    %% Grafana Data Sources
+    Grafana -->|QUERY| Prometheus
+    Grafana -->|QUERY| Loki
+    Grafana -->|QUERY| Tempo
+    
+    %% AlertManager
+    AlertManager -->|ALERTS| Slack[SLACK WEBHOOK]
+    Prometheus -->|ALERTS| AlertManager
+    
+    %% Cert-Manager SSL
+    CertManager -->|SSL CERTS| IngressNGINX
+    CertManager -->|SSL CERTS| Grafana
+    CertManager -->|SSL CERTS| BitFrost
+    CertManager -->|SSL CERTS| Prometheus
+    CertManager -->|SSL CERTS| Headlamp
+    CertManager -->|SSL CERTS| AlertManager
+    CertManager -->|SSL CERTS| Control
+    CertManager -->|SSL CERTS| OAuth2Proxy
+    CertManager -->|SSL CERTS| Longhorn
+    CertManager -->|SSL CERTS| VUI
+    CertManager -->|SSL CERTS| ModelsExplorer
+    CertManager -->|SSL CERTS| Dex
+    CertManager -->|ISSUER| LetsEncrypt[LETSENCRYPT]
+    CertManager -->|ISSUER| RootCA[ROOT-CA SELF-SIGNED]
+    
+    %% Storage - Longhorn PVCs
+    Grafana -->|PVC| LonghornCSI
+    Tempo -->|PVC| LonghornCSI
+    Loki -->|PVC| LonghornCSI
+    Prometheus -->|PVC| LonghornCSI
+    AlertManager -->|PVC| LonghornCSI
+    VLLM -->|PVC| LonghornCSI
+    OLLAMA -->|PVC| LonghornCSI
+    BitFrost -->|PVC| LonghornCSI
+    Control -->|PVC| LonghornCSI
+    Mail -->|PVC| LonghornCSI
+    KubeAICache[KUBEAI CACHE] -->|PVC| LonghornCSI
+    ModelsExplorer -->|PVC| ModelsPVC[MODELS PVC]
+    ModelsPVC -->|RWX| LonghornCSI
+    
+    %% Backup System
+    LonghornCSI -->|BACKUP| S3Backend[S3 BACKEND]
+    Velero -->|BACKUP| S3Backend
+    Velero -->|CSI SNAPSHOTS| SnapshotController[SNAPSHOT-CONTROLLER]
+    Velero -->|MANAGE| VUI
+    SnapshotController -->|SNAPSHOTS| LonghornCSI
+    
+    %% System Upgrade
+    SystemUpgrade[SYSTEM-UPGRADE CONTROLLER]
+    
+    %% GPU Operators
+    NvidiaGPU[NVIDIA GPU OPERATOR] -.->|TIME-SLICING| VLLM
+    NvidiaGPU -.->|TIME-SLICING| OLLAMA
+    AMDGPU[AMD GPU OPERATOR] -.->|ROCM| VLLM
+    AMDGPU -.->|ROCM| OLLAMA
+    
+    %% External Services
+    Mail -->|RELAY| SMTPRelay[SMTP RELAY HOST]
+    Grafana -->|EMAIL| Mail
+    Control -->|API| Odoo[ODOO ERP]
+    
+    %% DNS
+    ExternalDNS[EXTERNAL-DNS] -.->|UPDATE| Cloudflare[CLOUDFLARE DNS]
+    IngressNGINX -.->|SYNC| ExternalDNS
+    
+    %% Headscale
+    Headscale[HEADSCALE VPN]
+    
+    %% HuggingFace
+    KubeAI -->|MODEL DOWNLOAD| HuggingFace[HUGGINGFACE HUB]
+    
+    %% Styling - AI/ML Stack (Purple/Magenta)
+    style KubeAI fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style VLLM fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style OLLAMA fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style FasterWhisper fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style Infinity fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style BitFrost fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style ModelsPVC fill:#9B59B6,stroke:#8E44AD,color:#fff
+    style KubeAICache fill:#9B59B6,stroke:#8E44AD,color:#fff
+    
+    %% Monitoring Stack (Orange)
+    style Prometheus fill:#E67E22,stroke:#D35400,color:#fff
+    style Grafana fill:#E67E22,stroke:#D35400,color:#fff
+    style AlertManager fill:#E67E22,stroke:#D35400,color:#fff
+    style Loki fill:#E67E22,stroke:#D35400,color:#fff
+    style Tempo fill:#E67E22,stroke:#D35400,color:#fff
+    style FluentBit fill:#E67E22,stroke:#D35400,color:#fff
+    style NodeExporter fill:#E67E22,stroke:#D35400,color:#fff
+    style KubeStateMetrics fill:#E67E22,stroke:#D35400,color:#fff
+    
+    %% Storage & Backup (Brown/Tan)
+    style LonghornCSI fill:#A0522D,stroke:#8B4513,color:#fff
+    style Longhorn fill:#A0522D,stroke:#8B4513,color:#fff
+    style Velero fill:#A0522D,stroke:#8B4513,color:#fff
+    style VUI fill:#A0522D,stroke:#8B4513,color:#fff
+    style SnapshotController fill:#A0522D,stroke:#8B4513,color:#fff
+    style S3Backend fill:#A0522D,stroke:#8B4513,color:#fff
+    
+    %% Authentication & Security (Red)
+    style Dex fill:#E74C3C,stroke:#C0392B,color:#fff
+    style OAuth2Proxy fill:#E74C3C,stroke:#C0392B,color:#fff
+    style CertManager fill:#E74C3C,stroke:#C0392B,color:#fff
+    style LetsEncrypt fill:#E74C3C,stroke:#C0392B,color:#fff
+    style RootCA fill:#E74C3C,stroke:#C0392B,color:#fff
+    
+    %% Networking (Blue)
+    style IngressNGINX fill:#3498DB,stroke:#2980B9,color:#fff
+    style MetalLB fill:#3498DB,stroke:#2980B9,color:#fff
+    style ExternalDNS fill:#3498DB,stroke:#2980B9,color:#fff
+    style Router fill:#3498DB,stroke:#2980B9,color:#fff
+    style KubeVIP fill:#3498DB,stroke:#2980B9,color:#fff
+    
+    %% Management & Control (Green)
+    style Control fill:#27AE60,stroke:#229954,color:#fff
+    style Headlamp fill:#27AE60,stroke:#229954,color:#fff
+    style ModelsExplorer fill:#27AE60,stroke:#229954,color:#fff
+    style SystemUpgrade fill:#27AE60,stroke:#229954,color:#fff
+    
+    %% GPU & Hardware (Teal/Cyan)
+    style NvidiaGPU fill:#16A085,stroke:#138D75,color:#fff
+    style AMDGPU fill:#16A085,stroke:#138D75,color:#fff
+    
+    %% External Services (Gray)
+    style Slack fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style SMTPRelay fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style Odoo fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style Cloudflare fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style HuggingFace fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    style WAN fill:#95A5A6,stroke:#7F8C8D,color:#fff
+    
+    %% Other Services (Yellow/Gold)
+    style Mail fill:#F39C12,stroke:#D68910,color:#fff
+    style Headscale fill:#F39C12,stroke:#D68910,color:#fff
+```
+
+---
+
 ## Quick Reference
 
 **Model Deployment:** Headlamp UI → Create Model resource with openrouter.ai/json annotation  
