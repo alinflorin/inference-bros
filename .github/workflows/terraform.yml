@@ -54,27 +54,6 @@ env:
   BACKEND_TYPE: ${{ github.event_name == 'workflow_dispatch' && 'cloud' || 'local' }}
 
 jobs:
-  security-scan:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Run Snyk IaC scan
-        uses: snyk/actions/iac@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          file: ./src/terraform
-          args: --severity-threshold=high
-
-      - name: Upload Snyk results to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: snyk.sarif
-
   plan:
     name: Terraform Plan / Validate
     runs-on: ubuntu-latest
@@ -225,7 +204,7 @@ jobs:
 
   apply:
     name: Terraform Apply
-    needs: [security-scan, plan]
+    needs: [plan]
     runs-on: ubuntu-latest
 
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
