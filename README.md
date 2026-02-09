@@ -445,7 +445,7 @@ graph TB
     KubeAI --> Infinity[INFINITY]
     
     %% Monitoring Stack - Prometheus Scraping
-    Prometheus -->|SCRAPE| FluentBit[FLUENT-BIT]
+    Prometheus -->|SCRAPE| Promtail[FLUENT-BIT]
     Prometheus -->|SCRAPE| AlertManager
     Prometheus -->|SCRAPE| IngressNGINX
     Prometheus -->|SCRAPE| CertManager[CERT-MANAGER]
@@ -462,7 +462,7 @@ graph TB
     Prometheus -->|SCRAPE| VLLM
     
     %% Logging Flow
-    FluentBit -->|LOGS| Loki[LOKI]
+    Promtail -->|LOGS| Loki[LOKI]
     
     %% Tracing Flow
     IngressNGINX -->|OTEL| Tempo
@@ -555,7 +555,7 @@ graph TB
     style AlertManager fill:#E67E22,stroke:#D35400,color:#fff
     style Loki fill:#E67E22,stroke:#D35400,color:#fff
     style Tempo fill:#E67E22,stroke:#D35400,color:#fff
-    style FluentBit fill:#E67E22,stroke:#D35400,color:#fff
+    style Promtail fill:#E67E22,stroke:#D35400,color:#fff
     style NodeExporter fill:#E67E22,stroke:#D35400,color:#fff
     style KubeStateMetrics fill:#E67E22,stroke:#D35400,color:#fff
     
