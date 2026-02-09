@@ -265,3 +265,13 @@ variable "s3_url" {
 variable "create_s3_buckets" {
   type = bool
 }
+
+variable "sun2000_enabled" {
+  type = bool
+}
+
+
+variable "sun2000_kiosk_kk" {
+  type      = string
+  sensitive = true
+}

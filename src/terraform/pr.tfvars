@@ -105,3 +105,5 @@ s3_key_id                      = "..."
 s3_key_secret                  = "..."
 s3_url                         = "http://localhost:9000"
 create_s3_buckets              = false
+sun2000_enabled                = true
+sun2000_kiosk_kk               = "..."
