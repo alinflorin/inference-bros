@@ -398,7 +398,7 @@ Save this kubeconfig to `~/.kube/config` or use with `KUBECONFIG` environment va
 ---
 
 
-## Architecture
+## 7. Architecture
 ```mermaid
 graph TB
     WAN[WAN] --> Router
@@ -606,7 +606,7 @@ graph TB
 
 ---
 
-## Quick Reference
+## 8. Quick Reference
 
 **Model Deployment:** Headlamp UI → Create Model resource with openrouter.ai/json annotation  
 **Customer Setup:** Bifrost UI → Governance → Customers & Virtual Keys  
