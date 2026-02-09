@@ -25,7 +25,7 @@ resource "helm_release" "fluent-bit" {
               Match                  *
               Host                   loki
               Port                   3100
-              Labels job=fluentbit, namespace=${namespace}, pod=${pod_name}, service=${service_name}
+              Labels job=fluentbit, namespace=$${namespace}, pod=$${pod_name}, service=$${service_name}
     EOT
   ]
   count      = var.monitoring_enabled ? 1 : 0
