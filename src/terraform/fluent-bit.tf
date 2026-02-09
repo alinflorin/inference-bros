@@ -26,7 +26,7 @@ resource "helm_release" "fluent-bit" {
               Host                   loki
               Port                   3100
               Labels                 job=fluentbit
-              Auto_Kubernetes_Labels: on
+              Auto_Kubernetes_Labels on
     EOT
   ]
   count      = var.monitoring_enabled ? 1 : 0
