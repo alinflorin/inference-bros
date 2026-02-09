@@ -21,12 +21,11 @@ resource "helm_release" "fluent-bit" {
       config:
         outputs: |
           [OUTPUT]
-              Name        loki
-              Match       *
-              Host        loki
-              Port        3100
-              Labels      job=fluent-bit
-              Auto_Kubernetes_Labels on
+              Name                   loki
+              Match                  *
+              Host                   loki
+              Port                   3100
+              Labels job=fluentbit, namespace=$${namespace}, pod=$${pod_name}, service=$${service_name}
     EOT
   ]
   count      = var.monitoring_enabled ? 1 : 0

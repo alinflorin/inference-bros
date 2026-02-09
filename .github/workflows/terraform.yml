@@ -30,7 +30,7 @@ on:
         options:
           - stalpeni
       destroy:
-        description: 'Check this to DESTROY resources'
+        description: "Check this to DESTROY resources"
         required: false
         type: boolean
         default: false
@@ -126,16 +126,15 @@ jobs:
           if [ "${{ github.event.inputs.destroy }}" == "true" ]; then
             DESTROY_FLAG="-destroy"
           fi
-          
+
           # 2. Run the plan
           terraform plan $DESTROY_FLAG -input=false -var-file=${{ env.ENV }}.tfvars -out=tfplan
-          
+
           # 3. Generate the summary
           echo "### Terraform Plan Summary (Env: ${{ env.ENV }})" >> $GITHUB_STEP_SUMMARY
           echo '```hcl' >> $GITHUB_STEP_SUMMARY
           terraform show -no-color tfplan >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-
 
       - name: Update PR Comment
         uses: actions/github-script@v8
@@ -156,22 +155,22 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
-            
+
             const botComment = comments.find(comment => 
               comment.user.login === 'github-actions[bot]' && 
               comment.body.includes('Terraform Plan')
             );
 
             const output = `#### Terraform Plan 📖 \`${PLAN_OUTCOME}\`
-            
+
             <details><summary>Show Plan</summary>
-            
+
             \`\`\`hcl
             ${PLAN_STDOUT}
             \`\`\`
-            
+
             </details>
-            
+
             *Pusher: @${PUSHER}, Action: \`${EVENT_NAME}\`*`;
 
             if (botComment) {

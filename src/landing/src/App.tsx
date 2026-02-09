@@ -484,31 +484,85 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
                     </div>
 
                     {/* Dynamic Window */}
-                    <div className="bg-black flex flex-col justify-center items-center p-20 col-start-2 row-start-1 row-span-2 overflow-hidden">
-                        <div className="text-7xl font-light tracking-[4px] text-center leading-[1.4] mb-10 max-w-4xl">
-                            {content[activeMenu].title.split(' ').map((word, i, arr) => (
-                                <React.Fragment key={i}>
-                                    {word}
-                                    {(i + 1) % 3 === 0 && i !== arr.length - 1 ? <br /> : ' '}
-                                </React.Fragment>
-                            ))}
-                        </div>
-                        <div className="text-xl tracking-[2px] opacity-90 mb-6">
-                            {content[activeMenu].subtitle}
-                        </div>
-                        <div className="text-base max-w-2xl text-center opacity-80 leading-relaxed mb-8">
-                            {content[activeMenu].description}
-                        </div>
 
-                        {/* Renewable Energy Badge - Only for Infrastructure */}
-                        {activeMenu === 'INFRASTRUCTURE' && (
-                            <div className="flex flex-col items-center mt-6 opacity-70">
-                                <img src="/leaf.svg" alt="Renewable Energy" className="h-8 w-8 mb-2" />
-                                <div className="text-sm tracking-[2px] uppercase">
-                                    Powered by 100% Renewable Energy
-                                </div>
+                    <style>{`
+                        @keyframes fadeSlideIn {
+                            from {
+                                opacity: 0;
+                                transform: translateY(20px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+
+                        @keyframes expandFromCorner {
+                            from {
+                                opacity: 0;
+                                clip-path: circle(0% at 100% 0%);
+                            }
+                            to {
+                                opacity: 1;
+                                clip-path: circle(150% at 100% 0%);
+                            }
+                        }
+
+                        @keyframes typeIn {
+                            from {
+                                opacity: 0;
+                                width: 0;
+                                overflow: hidden;
+                            }
+                            to {
+                                opacity: 1;
+                                width: 100%;
+                            }
+                        }
+
+                        @keyframes blink {
+                            0%, 50% {
+                                opacity: 1;
+                            }
+                            51%, 100% {
+                                opacity: 0;
+                            }
+                        }
+
+                        .animate-content {
+                            animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                        }
+                    `}</style>
+
+                    {/* Dynamic Window */}
+                    {/* Dynamic Window */}
+                    <div className="bg-black flex flex-col justify-center items-center p-20 col-start-2 row-start-1 row-span-2 overflow-hidden">
+                        <div key={activeMenu} className="animate-content flex flex-col items-center">
+                            <div className="text-7xl font-light tracking-[4px] text-center leading-[1.4] mb-10 max-w-4xl">
+                                {content[activeMenu].title.split(' ').map((word, i, arr) => (
+                                    <React.Fragment key={i}>
+                                        {word}
+                                        {(i + 1) % 3 === 0 && i !== arr.length - 1 ? <br /> : ' '}
+                                    </React.Fragment>
+                                ))}
                             </div>
-                        )}
+                            <div className="text-xl tracking-[2px] opacity-90 mb-6">
+                                {content[activeMenu].subtitle}
+                            </div>
+                            <div className="text-base max-w-2xl text-center opacity-80 leading-relaxed mb-8">
+                                {content[activeMenu].description}
+                            </div>
+
+                            {/* Renewable Energy Badge - Only for Infrastructure */}
+                            {activeMenu === 'INFRASTRUCTURE' && (
+                                <div className="flex flex-col items-center mt-6 opacity-70">
+                                    <img src="/leaf.svg" alt="Renewable Energy" className="h-8 w-8 mb-2" />
+                                    <div className="text-sm tracking-[2px] uppercase">
+                                        Powered by 100% Renewable Energy
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Navigation History */}
@@ -592,7 +646,13 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
 
                 {/* Mobile Menu Overlay */}
                 {isMobileMenuOpen && (
-                    <div className="fixed inset-0 bg-black z-50 flex flex-col pt-24 overflow-hidden">
+                    <div
+                        className="fixed inset-0 bg-black z-50 flex flex-col pt-24 overflow-hidden"
+                        style={{
+                            animation: 'expandFromCorner 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                            transformOrigin: 'top right'
+                        }}
+                    >
                         {/* Close button */}
                         <button
                             className="text-4xl font-bold leading-none bg-transparent border-none outline-none focus:outline-none flex items-center justify-center text-white"
@@ -603,17 +663,67 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
                         </button>
 
                         <div className="flex-1 flex flex-col justify-center px-6 gap-8">
-                            <div className="text-base opacity-50 mb-4 tracking-wider">$ ls /menu</div>
-                            {menuItems.map((item) => (
+                            <div
+                                className="text-base opacity-50 mb-4 tracking-wider"
+                                style={{ animation: 'typeIn 0.5s steps(10) 0.2s both' }}
+                            >
+                                $ ls /menu
+                            </div>
+                            {menuItems.map((item, index) => (
                                 <div
                                     key={item}
                                     className="text-4xl font-bold tracking-tight cursor-pointer select-none break-words"
+                                    style={{
+                                        animation: `typeIn 0.6s steps(15) ${0.3 + (index * 0.1)}s both`
+                                    }}
                                     onClick={() => handleMenuClick(item)}
                                 >
                                     {item}
+                                    <span
+                                        className="inline-block"
+                                        style={{
+                                            animation: `blink 1s step-end ${0.3 + (index * 0.1) + 0.6}s infinite`
+                                        }}
+                                    >
+                                        _
+                                    </span>
                                 </div>
                             ))}
                         </div>
+
+                        <style>{`
+                            @keyframes expandFromCorner {
+                                from {
+                                    opacity: 0;
+                                    clip-path: circle(0% at 100% 0%);
+                                }
+                                to {
+                                    opacity: 1;
+                                    clip-path: circle(150% at 100% 0%);
+                                }
+                            }
+
+                            @keyframes typeIn {
+                                from {
+                                    opacity: 0;
+                                    width: 0;
+                                    overflow: hidden;
+                                }
+                                to {
+                                    opacity: 1;
+                                    width: 100%;
+                                }
+                            }
+
+                            @keyframes blink {
+                                0%, 50% {
+                                    opacity: 1;
+                                }
+                                51%, 100% {
+                                    opacity: 0;
+                                }
+                            }
+                        `}</style>
                     </div>
                 )}
 
@@ -621,37 +731,41 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
                 {!isMobileMenuOpen && (
                     <div className="flex flex-col overflow-x-hidden">
                         {/* Dynamic Window */}
+                        {/* Dynamic Window */}
                         <div className="bg-black flex flex-col justify-center items-center px-4 py-16 min-h-[60vh]">
-                            <div className="text-4xl font-light tracking-[2px] text-center leading-[1.2] mb-8 break-words w-full">
-                                {content[activeMenu].title}
-                            </div>
-                            <div className="text-xl tracking-[2px] opacity-90 mb-6 text-center break-words">
-                                {content[activeMenu].subtitle}
-                            </div>
-                            <div className="text-base max-w-lg text-center opacity-80 leading-relaxed px-2">
-                                {content[activeMenu].description}
-                            </div>
-
-                            {/* Renewable Energy Badge - Only for Infrastructure */}
-                            {activeMenu === 'INFRASTRUCTURE' && (
-                                <div className="flex flex-col items-center mt-8 opacity-70">
-                                    <img src="/leaf.svg" alt="Renewable Energy" className="h-12 w-12 mb-3" />
-                                    <div className="text-sm tracking-[2px] uppercase text-center px-4">
-                                        Powered by 100% Renewable Energy
-                                    </div>
+                            <div key={activeMenu} className="animate-content flex flex-col items-center w-full">
+                                <div className="text-4xl font-light tracking-[2px] text-center leading-[1.2] mb-8 break-words w-full">
+                                    {content[activeMenu].title}
                                 </div>
-                            )}
+                                <div className="text-xl tracking-[2px] opacity-90 mb-6 text-center break-words">
+                                    {content[activeMenu].subtitle}
+                                </div>
+                                <div className="text-base max-w-lg text-center opacity-80 leading-relaxed px-2">
+                                    {content[activeMenu].description}
+                                </div>
+
+                                {/* Renewable Energy Badge - Only for Infrastructure */}
+                                {activeMenu === 'INFRASTRUCTURE' && (
+                                    <div className="flex flex-col items-center mt-8 opacity-70">
+                                        <img src="/leaf.svg" alt="Renewable Energy" className="h-12 w-12 mb-3" />
+                                        <div className="text-sm tracking-[2px] uppercase text-center px-4">
+                                            Powered by 100% Renewable Energy
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="grid grid-cols-1 bg-black border-t-2 border-white">
+                        <div className="flex flex-col bg-black gap-4 p-4">
                             {currentButtons.map((button, index) => (
                                 <button
                                     key={index}
                                     className={`${index === 1 && activeMenu === 'GET STARTED'
-                                            ? 'bg-white text-black'
-                                            : 'bg-black text-white'
-                                        } flex items-center justify-center font-bold text-lg tracking-wide py-8 border-b-2 border-white last:border-b-0 px-4`}
+                                        ? 'bg-white text-black'
+                                        : 'bg-black text-white'
+                                        } flex items-center justify-center font-bold text-lg tracking-wide py-8 border-2 border-white px-4`}
+                                    style={{ borderRadius: 0 }}
                                     onClick={() => openModal(button.title, button.content)}
                                 >
                                     {button.label}
@@ -660,7 +774,7 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
                         </div>
 
                         {/* System Status */}
-                        <div className="bg-black px-4 py-8 border-t-2 border-white overflow-x-hidden">
+                        <div className="bg-black px-4 py-8 overflow-x-hidden">
                             <div className="text-3xl font-bold tracking-wide mb-4">System Status</div>
                             <div className="flex flex-col-reverse gap-2">
                                 {logs.slice(-5).reverse().map((log, index) => (
