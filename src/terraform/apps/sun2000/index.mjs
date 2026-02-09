@@ -1,7 +1,7 @@
 import http from "node:http";
 import https from "node:https";
 
-const KIOSK_URL = process.env.KIOSK_URL;
+const KIOSK_URL = process.env.KIOSK_URL || "https://uni004eu5.fusionsolar.huawei.com/rest/pvms/web/kiosk/v1/station-kiosk-file";
 const KIOSK_KK = process.env.KIOSK_KK;
 const SCRAPE_INTERVAL = parseInt(process.env.SCRAPE_INTERVAL || "300", 10) * 1000;
 const PORT = 8080;
@@ -62,16 +62,16 @@ async function scrapeKiosk() {
     if (!response.data) {
       throw new Error("No data field in response");
     }
-
     const decoded = decodeHtmlEntities(response.data);
     const data = JSON.parse(decoded);
+    console.log(data);
 
-    metrics.realTimePower = parseFloat(data.realTimePower) || 0;
-    metrics.dailyEnergy = parseFloat(data.dailyEnergy) || 0;
-    metrics.monthEnergy = parseFloat(data.monthEnergy) || 0;
-    metrics.yearEnergy = parseFloat(data.yearEnergy) || 0;
-    metrics.cumulativeEnergy = parseFloat(data.cumulativeEnergy) || 0;
-
+    metrics.realTimePower = parseFloat(data.realKpi.realTimePower) || 0;
+    metrics.dailyEnergy = parseFloat(data.realKpi.dailyEnergy) || 0;
+    metrics.monthEnergy = parseFloat(data.realKpi.monthEnergy) || 0;
+    metrics.yearEnergy = parseFloat(data.realKpi.yearEnergy) || 0;
+    metrics.cumulativeEnergy = parseFloat(data.realKpi.cumulativeEnergy) || 0;
+    console.log(metrics);
     scrapeSuccess = 1;
     lastScrapeTimestamp = Date.now() / 1000;
     console.log(

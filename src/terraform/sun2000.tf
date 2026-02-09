@@ -12,7 +12,6 @@ module "sun2000" {
   memory_limit    = "64Mi"
   depends_on      = [helm_release.kube_prometheus_stack]
   env = {
-    "KIOSK_URL"       = "https://uni004eu5.fusionsolar.huawei.com/rest/pvms/web/kiosk/v1/station-kiosk-file"
     "KIOSK_KK"        = var.sun2000_kiosk_kk
     "SCRAPE_INTERVAL" = "300"
   }
