@@ -64,14 +64,12 @@ async function scrapeKiosk() {
     }
     const decoded = decodeHtmlEntities(response.data);
     const data = JSON.parse(decoded);
-    console.log(data);
 
     metrics.realTimePower = parseFloat(data.realKpi.realTimePower) || 0;
     metrics.dailyEnergy = parseFloat(data.realKpi.dailyEnergy) || 0;
     metrics.monthEnergy = parseFloat(data.realKpi.monthEnergy) || 0;
     metrics.yearEnergy = parseFloat(data.realKpi.yearEnergy) || 0;
     metrics.cumulativeEnergy = parseFloat(data.realKpi.cumulativeEnergy) || 0;
-    console.log(metrics);
     scrapeSuccess = 1;
     lastScrapeTimestamp = Date.now() / 1000;
     console.log(
