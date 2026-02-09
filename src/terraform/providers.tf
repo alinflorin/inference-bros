@@ -10,7 +10,7 @@ provider "kubernetes" {
 }
 
 provider "helm" {
-  burst_limit = 900
+  burst_limit = 300
   kubernetes = {
     host                   = local.k3s_kubeconfig_url
     client_certificate     = base64decode(local.k3s_kubeconfig_object.users[0].user.client-certificate-data)
