@@ -484,31 +484,85 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
                     </div>
 
                     {/* Dynamic Window */}
-                    <div className="bg-black flex flex-col justify-center items-center p-20 col-start-2 row-start-1 row-span-2 overflow-hidden">
-                        <div className="text-7xl font-light tracking-[4px] text-center leading-[1.4] mb-10 max-w-4xl">
-                            {content[activeMenu].title.split(' ').map((word, i, arr) => (
-                                <React.Fragment key={i}>
-                                    {word}
-                                    {(i + 1) % 3 === 0 && i !== arr.length - 1 ? <br /> : ' '}
-                                </React.Fragment>
-                            ))}
-                        </div>
-                        <div className="text-xl tracking-[2px] opacity-90 mb-6">
-                            {content[activeMenu].subtitle}
-                        </div>
-                        <div className="text-base max-w-2xl text-center opacity-80 leading-relaxed mb-8">
-                            {content[activeMenu].description}
-                        </div>
 
-                        {/* Renewable Energy Badge - Only for Infrastructure */}
-                        {activeMenu === 'INFRASTRUCTURE' && (
-                            <div className="flex flex-col items-center mt-6 opacity-70">
-                                <img src="/leaf.svg" alt="Renewable Energy" className="h-8 w-8 mb-2" />
-                                <div className="text-sm tracking-[2px] uppercase">
-                                    Powered by 100% Renewable Energy
-                                </div>
+                    <style>{`
+                        @keyframes fadeSlideIn {
+                            from {
+                                opacity: 0;
+                                transform: translateY(20px);
+                            }
+                            to {
+                                opacity: 1;
+                                transform: translateY(0);
+                            }
+                        }
+
+                        @keyframes expandFromCorner {
+                            from {
+                                opacity: 0;
+                                clip-path: circle(0% at 100% 0%);
+                            }
+                            to {
+                                opacity: 1;
+                                clip-path: circle(150% at 100% 0%);
+                            }
+                        }
+
+                        @keyframes typeIn {
+                            from {
+                                opacity: 0;
+                                width: 0;
+                                overflow: hidden;
+                            }
+                            to {
+                                opacity: 1;
+                                width: 100%;
+                            }
+                        }
+
+                        @keyframes blink {
+                            0%, 50% {
+                                opacity: 1;
+                            }
+                            51%, 100% {
+                                opacity: 0;
+                            }
+                        }
+
+                        .animate-content {
+                            animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+                        }
+                    `}</style>
+
+                    {/* Dynamic Window */}
+                    {/* Dynamic Window */}
+                    <div className="bg-black flex flex-col justify-center items-center p-20 col-start-2 row-start-1 row-span-2 overflow-hidden">
+                        <div key={activeMenu} className="animate-content flex flex-col items-center">
+                            <div className="text-7xl font-light tracking-[4px] text-center leading-[1.4] mb-10 max-w-4xl">
+                                {content[activeMenu].title.split(' ').map((word, i, arr) => (
+                                    <React.Fragment key={i}>
+                                        {word}
+                                        {(i + 1) % 3 === 0 && i !== arr.length - 1 ? <br /> : ' '}
+                                    </React.Fragment>
+                                ))}
                             </div>
-                        )}
+                            <div className="text-xl tracking-[2px] opacity-90 mb-6">
+                                {content[activeMenu].subtitle}
+                            </div>
+                            <div className="text-base max-w-2xl text-center opacity-80 leading-relaxed mb-8">
+                                {content[activeMenu].description}
+                            </div>
+
+                            {/* Renewable Energy Badge - Only for Infrastructure */}
+                            {activeMenu === 'INFRASTRUCTURE' && (
+                                <div className="flex flex-col items-center mt-6 opacity-70">
+                                    <img src="/leaf.svg" alt="Renewable Energy" className="h-8 w-8 mb-2" />
+                                    <div className="text-sm tracking-[2px] uppercase">
+                                        Powered by 100% Renewable Energy
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {/* Navigation History */}
@@ -677,26 +731,29 @@ Visit our documentation portal for detailed guides, video tutorials, and communi
                 {!isMobileMenuOpen && (
                     <div className="flex flex-col overflow-x-hidden">
                         {/* Dynamic Window */}
+                        {/* Dynamic Window */}
                         <div className="bg-black flex flex-col justify-center items-center px-4 py-16 min-h-[60vh]">
-                            <div className="text-4xl font-light tracking-[2px] text-center leading-[1.2] mb-8 break-words w-full">
-                                {content[activeMenu].title}
-                            </div>
-                            <div className="text-xl tracking-[2px] opacity-90 mb-6 text-center break-words">
-                                {content[activeMenu].subtitle}
-                            </div>
-                            <div className="text-base max-w-lg text-center opacity-80 leading-relaxed px-2">
-                                {content[activeMenu].description}
-                            </div>
-
-                            {/* Renewable Energy Badge - Only for Infrastructure */}
-                            {activeMenu === 'INFRASTRUCTURE' && (
-                                <div className="flex flex-col items-center mt-8 opacity-70">
-                                    <img src="/leaf.svg" alt="Renewable Energy" className="h-12 w-12 mb-3" />
-                                    <div className="text-sm tracking-[2px] uppercase text-center px-4">
-                                        Powered by 100% Renewable Energy
-                                    </div>
+                            <div key={activeMenu} className="animate-content flex flex-col items-center w-full">
+                                <div className="text-4xl font-light tracking-[2px] text-center leading-[1.2] mb-8 break-words w-full">
+                                    {content[activeMenu].title}
                                 </div>
-                            )}
+                                <div className="text-xl tracking-[2px] opacity-90 mb-6 text-center break-words">
+                                    {content[activeMenu].subtitle}
+                                </div>
+                                <div className="text-base max-w-lg text-center opacity-80 leading-relaxed px-2">
+                                    {content[activeMenu].description}
+                                </div>
+
+                                {/* Renewable Energy Badge - Only for Infrastructure */}
+                                {activeMenu === 'INFRASTRUCTURE' && (
+                                    <div className="flex flex-col items-center mt-8 opacity-70">
+                                        <img src="/leaf.svg" alt="Renewable Energy" className="h-12 w-12 mb-3" />
+                                        <div className="text-sm tracking-[2px] uppercase text-center px-4">
+                                            Powered by 100% Renewable Energy
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Action Buttons */}
