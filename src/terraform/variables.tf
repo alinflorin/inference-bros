@@ -267,7 +267,7 @@ variable "create_s3_buckets" {
 }
 
 variable "sun2000_enabled" {
-  type    = bool
+  type = bool
 }
 
 
