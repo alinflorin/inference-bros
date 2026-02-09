@@ -103,10 +103,6 @@ resource "helm_release" "kube_prometheus_stack" {
               gnetId: 23838
               datasource: Prometheus
               revision: 1
-            postgres:
-              gnetId: 9628
-              datasource: Prometheus
-              revision: 8
             logs:
               gnetId: 13186
               datasource: Loki
