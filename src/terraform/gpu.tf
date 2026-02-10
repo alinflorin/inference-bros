@@ -51,68 +51,68 @@ resource "helm_release" "nvidia_gpu_operator" {
         gc:
           resources:
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 20Mi
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 50Mi
         master:
           resources:
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 30Mi
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 90Mi
         worker:
           resources:
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 30Mi
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 90Mi
       gfd:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 50Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 100Mi
       operator:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 30Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 90Mi
       validator:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 10Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 30Mi
       dcgmExporter:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 450Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 512Mi
       driver:
         enabled: false
       devicePlugin:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 30Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 90Mi
         config:
           name: time-slicing-config-all
@@ -121,10 +121,10 @@ resource "helm_release" "nvidia_gpu_operator" {
         enabled: true
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 10Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 30Mi
         env:
           - name: CONTAINERD_CONFIG
@@ -161,18 +161,18 @@ resource "helm_release" "amd_gpu_operator" {
       dp:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 30Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 90Mi
       lbl:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 30Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 90Mi
     EOT
 

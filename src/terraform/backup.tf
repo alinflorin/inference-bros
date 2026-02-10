@@ -21,10 +21,10 @@ resource "helm_release" "snapshot_controller" {
       controller:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 50Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 50Mi
     EOT
   ]
