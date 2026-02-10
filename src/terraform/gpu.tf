@@ -51,27 +51,27 @@ resource "helm_release" "nvidia_gpu_operator" {
         gc:
           resources:
             requests:
-              cpu: 50m
-              memory: 20Mi
-            limits:
               cpu: 100m
-              memory: 50Mi
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
         master:
           resources:
             requests:
-              cpu: 50m
-              memory: 30Mi
-            limits:
               cpu: 100m
-              memory: 90Mi
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
         worker:
           resources:
             requests:
-              cpu: 50m
-              memory: 30Mi
-            limits:
               cpu: 100m
-              memory: 90Mi
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
       gfd:
         resources:
           requests:
