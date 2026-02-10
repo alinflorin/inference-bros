@@ -96,11 +96,11 @@ resource "helm_release" "kubeai" {
         enabled: false
       resources:
         requests:
-          cpu: "50m"
+          cpu: "100m"
           memory: "128Mi"
         limits:
-          cpu: "100m"
-          memory: "256Mi"
+          cpu: "300m"
+          memory: "512Mi"
     EOT
 
   ]
@@ -280,10 +280,10 @@ resource "helm_release" "kubeai_models_explorer" {
         # Resource Limits
         resources:
           requests:
-            memory: 128Mi
+            memory: 256Mi
             cpu: 100m
           limits:
-            memory: 256Mi
+            memory: 512Mi
             cpu: 300m
 
 

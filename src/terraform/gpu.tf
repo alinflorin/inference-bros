@@ -51,68 +51,68 @@ resource "helm_release" "nvidia_gpu_operator" {
         gc:
           resources:
             requests:
-              cpu: 10m
+              cpu: 50m
               memory: 20Mi
             limits:
-              cpu: 20m
+              cpu: 100m
               memory: 50Mi
         master:
           resources:
             requests:
-              cpu: 10m
+              cpu: 50m
               memory: 30Mi
             limits:
-              cpu: 20m
+              cpu: 100m
               memory: 90Mi
         worker:
           resources:
             requests:
-              cpu: 10m
+              cpu: 50m
               memory: 30Mi
             limits:
-              cpu: 20m
+              cpu: 100m
               memory: 90Mi
       gfd:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 50Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 100Mi
       operator:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 30Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 90Mi
       validator:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 10Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 30Mi
       dcgmExporter:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 450Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 512Mi
       driver:
         enabled: false
       devicePlugin:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 30Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 90Mi
         config:
           name: time-slicing-config-all
@@ -161,18 +161,18 @@ resource "helm_release" "amd_gpu_operator" {
       dp:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 30Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 90Mi
       lbl:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 30Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 90Mi
     EOT
 

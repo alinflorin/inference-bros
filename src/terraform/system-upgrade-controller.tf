@@ -12,10 +12,10 @@ resource "helm_release" "system_upgrade_controller" {
     <<-EOT
     resources:
       limits:
-        cpu: 20m
+        cpu: 50m
         memory: 90Mi
       requests:
-        cpu: 10m
+        cpu: 100m
         memory: 30Mi
     EOT
 

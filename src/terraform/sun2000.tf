@@ -6,9 +6,9 @@ module "sun2000" {
   domain          = var.domain
   ingress_enabled = false
   service_enabled = true
-  cpu_request     = "10m"
+  cpu_request     = "50m"
   memory_request  = "32Mi"
-  cpu_limit       = "20m"
+  cpu_limit       = "100m"
   memory_limit    = "90Mi"
   depends_on      = [helm_release.kube_prometheus_stack]
   env = {

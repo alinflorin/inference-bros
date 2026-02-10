@@ -20,10 +20,10 @@ resource "helm_release" "tempo" {
         multitenancyEnabled: false
         resources:
           requests:
-            cpu: 50m
+            cpu: 100m
             memory: 256Mi
           limits:
-            cpu: 100m
+            cpu: 200m
             memory: 512Mi
     EOT
   ]

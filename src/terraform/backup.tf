@@ -13,19 +13,19 @@ resource "helm_release" "snapshot_controller" {
       webhook:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 30Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 50Mi
       controller:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 50Mi
           limits:
             cpu: 20m
-            memory: 50Mi
+            memory: 100Mi
     EOT
   ]
 
@@ -127,10 +127,10 @@ resource "helm_release" "velero" {
       nodeAgent:
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 50Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 100Mi
       initContainers:
         - name: velero-plugin-for-aws
@@ -190,28 +190,28 @@ resource "helm_release" "vui" {
         deployment:
           resources:
             requests:
-              cpu: 25m
+              cpu: 50m
               memory: 200Mi
             limits:
-              cpu: 50m
+              cpu: 100m
               memory: 256Mi
       uiService:
         deployment:
           resources:
             requests:
-              cpu: 15m
+              cpu: 50m
               memory: 80Mi
             limits:
-              cpu: 30m
+              cpu: 100m
               memory: 128Mi
       watchdogService:
         deployment:
           resources:
             requests:
-              cpu: 15m
+              cpu: 50m
               memory: 80Mi
             limits:
-              cpu: 30m
+              cpu: 100m
               memory: 100Mi
       auth:
         enabled: false

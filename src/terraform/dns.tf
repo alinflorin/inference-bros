@@ -45,10 +45,10 @@ resource "helm_release" "external_dns" {
     <<-EOT
       resources:
         requests:
-          cpu: 10m
+          cpu: 50m
           memory: 90Mi
         limits:
-          cpu: 20m
+          cpu: 100m
           memory: 128Mi
       serviceMonitor:
         enabled: true

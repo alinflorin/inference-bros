@@ -164,10 +164,10 @@ resource "helm_release" "kube_prometheus_stack" {
         # Added resource requests and limits for Grafana
         resources:
           requests:
-            cpu: "50m"
+            cpu: "100m"
             memory: "256Mi"
           limits:
-            cpu: "100m"
+            cpu: "200m"
             memory: "512Mi"
       alertmanager:
         ingress:
@@ -371,20 +371,20 @@ resource "helm_release" "kube_prometheus_stack" {
           retention: "72h"
           resources:
             requests:
-              cpu: 15m
+              cpu: 50m
               memory: 50Mi
             limits:
-              cpu: 30m
+              cpu: 100m
               memory: 100Mi
       crds:
         enabled: false
         upgradeJob:
           resources:
             requests:
-              cpu: 10m
+              cpu: 50m
               memory: 30Mi
             limits:
-              cpu: 20m
+              cpu: 100m
               memory: 90Mi
       prometheus:
         ingress:
@@ -426,7 +426,7 @@ resource "helm_release" "kube_prometheus_stack" {
                     storage: ${var.prometheus_storage_gb}Gi
           resources:
             requests:
-              cpu: 200m
+              cpu: 100m
               memory: 512Mi
             limits:
               cpu: 300m
@@ -434,45 +434,45 @@ resource "helm_release" "kube_prometheus_stack" {
       prometheusOperator:
         resources:
           requests:
-            cpu: 25m
+            cpu: 50m
             memory: 50Mi
           limits:
-            cpu: 50m
+            cpu: 100m
             memory: 100Mi
         admissionWebhooks:
           deployment:
             resources:
               requests:
-                cpu: 10m
+                cpu: 50m
                 memory: 30Mi
               limits:
-                cpu: 20m
+                cpu: 100m
                 memory: 90Mi
         prometheusConfigReloader:
           resources:
             requests:
-              cpu: 10m
+              cpu: 50m
               memory: 30Mi
             limits:
-              cpu: 20m
+              cpu: 100m
               memory: 90Mi
       thanosRuler:
         enabled: false
       nodeExporter:
         resources:
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 90Mi
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 30Mi
       kube-state-metrics:
         resources:
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 90Mi
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 30Mi
     EOT
 

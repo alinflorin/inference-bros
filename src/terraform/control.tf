@@ -8,9 +8,9 @@ module "control" {
   ingress_path      = "/"
   ingress_subdomain = "control"
   enable_auth       = true
-  cpu_request       = "10m"
+  cpu_request       = "50m"
   memory_request    = "40Mi"
-  cpu_limit         = "20m"
+  cpu_limit         = "100m"
   memory_limit      = "100Mi"
   depends_on        = [helm_release.bifrost]
   env = {
