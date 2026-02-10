@@ -106,8 +106,8 @@ resource "helm_release" "bifrost" {
           cpu: 100m
           memory: 256Mi
         limits:
-          cpu: 300m
-          memory: 512Mi
+          cpu: 500m
+          memory: 1Gi
       postgresql:
         enabled: true
         metrics:
@@ -122,8 +122,8 @@ resource "helm_release" "bifrost" {
               cpu: 100m
               memory: 256Mi
             limits:
-              cpu: 300m
-              memory: 512Mi
+              cpu: 500m
+              memory: 1Gi
       ingress:
         enabled: true
         className: nginx

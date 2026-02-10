@@ -163,7 +163,7 @@ resource "helm_release" "kube_prometheus_stack" {
             cpu: "100m"
             memory: "256Mi"
           limits:
-            cpu: "200m"
+            cpu: "300m"
             memory: "512Mi"
       alertmanager:
         ingress:
@@ -425,7 +425,7 @@ resource "helm_release" "kube_prometheus_stack" {
               cpu: 100m
               memory: 512Mi
             limits:
-              cpu: 300m
+              cpu: 500m
               memory: 1Gi
       prometheusOperator:
         resources:

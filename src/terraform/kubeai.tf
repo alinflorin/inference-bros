@@ -99,8 +99,8 @@ resource "helm_release" "kubeai" {
           cpu: "100m"
           memory: "128Mi"
         limits:
-          cpu: "300m"
-          memory: "512Mi"
+          cpu: "500m"
+          memory: "1Gi"
     EOT
 
   ]
