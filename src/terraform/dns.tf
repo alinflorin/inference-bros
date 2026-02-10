@@ -45,11 +45,11 @@ resource "helm_release" "external_dns" {
     <<-EOT
       resources:
         requests:
-          cpu: 50m
-          memory: 128Mi
+          cpu: 5m
+          memory: 90Mi
         limits:
-          cpu: 100m
-          memory: 256Mi
+          cpu: 10m
+          memory: 128Mi
       serviceMonitor:
         enabled: true
       provider: cloudflare

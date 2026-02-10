@@ -78,11 +78,11 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
                 operator: Exists
       resources:
         requests:
-          cpu: 50m
-          memory: 64Mi
+          cpu: 5m
+          memory: 30Mi
         limits:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 10m
+          memory: 90Mi
     EOT
   }
 

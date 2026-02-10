@@ -15,20 +15,20 @@ resource "helm_release" "goldilocks" {
         admissionController:
           resources:
             limits:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 10m
+              memory: 50Mi
             requests:
-              cpu: 25m
-              memory: 64Mi
+              cpu: 5m
+              memory: 20Mi
         updater:
           enabled: true
           resources:
             limits:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 10m
+              memory: 90Mi
             requests:
-              cpu: 25m
-              memory: 64Mi
+              cpu: 5m
+              memory: 30Mi
         recommender:
           extraArgs:
             prometheus-address: |
@@ -36,11 +36,11 @@ resource "helm_release" "goldilocks" {
             storage: prometheus
           resources:
             limits:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 10m
+              memory: 90Mi
             requests:
-              cpu: 25m
-              memory: 64Mi
+              cpu: 5m
+              memory: 30Mi
       image:
         pullPolicy: IfNotPresent
       controller:
@@ -48,20 +48,20 @@ resource "helm_release" "goldilocks" {
           on-by-default: true
         resources:
           requests:
-            cpu: 25m
-            memory: 64Mi
+            cpu: 5m
+            memory: 20Mi
           limits:
-            cpu: 50m
-            memory: 128Mi
+            cpu: 10m
+            memory: 90Mi
       dashboard:
         replicaCount: 1
         resources:
           requests:
-            cpu: 25m
-            memory: 64Mi
+            cpu: 5m
+            memory: 30Mi
           limits:
-            cpu: 50m
-            memory: 128Mi
+            cpu: 10m
+            memory: 90Mi
         ingress:
           enabled: true
           ingressClassName: nginx

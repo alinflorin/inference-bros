@@ -17,27 +17,27 @@ resource "helm_release" "cert_manager" {
           enabled: true
       resources:
         requests:
-          cpu: 25m
-          memory: 32Mi
+          cpu: 5m
+          memory: 50Mi
         limits:
-          cpu: 50m
-          memory: 128Mi
+          cpu: 10m
+          memory: 100Mi
       webhook:
         resources:
           requests:
-            cpu: 25m
+            cpu: 5m
             memory: 32Mi
           limits:
-            cpu: 50m
-            memory: 128Mi
+            cpu: 10m
+            memory: 50Mi
       cainjector:
         resources:
           requests:
-            cpu: 25m
-            memory: 32Mi
+            cpu: 5m
+            memory: 60Mi
           limits:
-            cpu: 50m
-            memory: 128Mi
+            cpu: 10m
+            memory: 100Mi
     EOT
   ]
 

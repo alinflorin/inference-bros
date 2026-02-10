@@ -61,11 +61,11 @@ resource "helm_release" "headlamp" {
         version: latest
       resources:
         requests:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 5m
+          memory: 30Mi
         limits:
-          cpu: 200m
-          memory: 256Mi
+          cpu: 10m
+          memory: 90Mi
     EOT
 
   ]

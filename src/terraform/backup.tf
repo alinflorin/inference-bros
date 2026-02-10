@@ -10,14 +10,22 @@ resource "helm_release" "snapshot_controller" {
 
   values = [
     <<-EOT
+      webhook:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 30Mi
+          limits:
+            cpu: 10m
+            memory: 50Mi
       controller:
         resources:
           requests:
-            cpu: 50m
-            memory: 64Mi
+            cpu: 5m
+            memory: 50Mi
           limits:
-            cpu: 100m
-            memory: 128Mi
+            cpu: 10m
+            memory: 50Mi
     EOT
   ]
 
@@ -38,7 +46,7 @@ resource "helm_release" "longhorn_volume_snapshot_class" {
 
   values = [
     <<-EOT
-      resources: 
+      resources:
         - |
           kind: VolumeSnapshotClass
           apiVersion: snapshot.storage.k8s.io/v1
@@ -109,21 +117,21 @@ resource "helm_release" "velero" {
       metrics:
         serviceMonitor:
           enabled: true
-      resources: 
+      resources:
         requests:
-          cpu: 100m
-          memory: 128Mi
+          cpu: 10m
+          memory: 100Mi
         limits:
-          cpu: 200m
+          cpu: 20m
           memory: 256Mi
       nodeAgent:
-        resources: 
+        resources:
           requests:
-            cpu: 50m
-            memory: 128Mi
+            cpu: 5m
+            memory: 50Mi
           limits:
-            cpu: 150m
-            memory: 256Mi
+            cpu: 10m
+            memory: 100Mi
       initContainers:
         - name: velero-plugin-for-aws
           image: velero/velero-plugin-for-aws:v1.13.1
@@ -182,29 +190,29 @@ resource "helm_release" "vui" {
         deployment:
           resources:
             requests:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 5m
+              memory: 200Mi
             limits:
-              cpu: 100m
+              cpu: 10m
               memory: 256Mi
       uiService:
         deployment:
           resources:
             requests:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 5m
+              memory: 80Mi
             limits:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 10m
+              memory: 128Mi
       watchdogService:
         deployment:
           resources:
             requests:
-              cpu: 50m
-              memory: 128Mi
+              cpu: 5m
+              memory: 80Mi
             limits:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 10m
+              memory: 100Mi
       auth:
         enabled: false
       exposure:

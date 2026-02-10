@@ -8,10 +8,10 @@ module "control" {
   ingress_path      = "/"
   ingress_subdomain = "control"
   enable_auth       = true
-  cpu_request       = "50m"
-  memory_request    = "128Mi"
-  cpu_limit         = "100m"
-  memory_limit      = "256Mi"
+  cpu_request       = "5m"
+  memory_request    = "40Mi"
+  cpu_limit         = "10m"
+  memory_limit      = "100Mi"
   depends_on        = [helm_release.bifrost]
   env = {
     "ODOO_URL"      = var.odoo_url,

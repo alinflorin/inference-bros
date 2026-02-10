@@ -6,10 +6,10 @@ module "sun2000" {
   domain          = var.domain
   ingress_enabled = false
   service_enabled = true
-  cpu_request     = "25m"
+  cpu_request     = "5m"
   memory_request  = "32Mi"
-  cpu_limit       = "50m"
-  memory_limit    = "64Mi"
+  cpu_limit       = "10m"
+  memory_limit    = "90Mi"
   depends_on      = [helm_release.kube_prometheus_stack]
   env = {
     "KIOSK_KK"        = var.sun2000_kiosk_kk

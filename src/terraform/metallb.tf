@@ -17,68 +17,68 @@ resource "helm_release" "metallb" {
       controller:
         resources:
           requests:
-            cpu: 100m
-            memory: 128Mi
+            cpu: 5m
+            memory: 50Mi
           limits:
-            cpu: 200m
-            memory: 256Mi
+            cpu: 10m
+            memory: 100Mi
       speaker:
         resources:
           requests:
-            cpu: 100m
-            memory: 128Mi
+            cpu: 5m
+            memory: 30Mi
           limits:
-            cpu: 200m
-            memory: 256Mi
+            cpu: 10m
+            memory: 90Mi
         frr:
           resources:
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 5m
+              memory: 30Mi
             limits:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 10m
+              memory: 90Mi
         reloader:
           resources:
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 5m
+              memory: 30Mi
             limits:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 10m
+              memory: 90Mi
         frrMetrics:
           resources:
             requests:
-              cpu: 50m
+              cpu: 5m
               memory: 30Mi
             limits:
-              cpu: 100m
-              memory: 50Mi
+              cpu: 10m
+              memory: 90Mi
         initContainers:
           cpFrrFiles:
             resources:
               requests:
-                cpu: 50m
-                memory: 20Mi
-              limits:
-                cpu: 100m
+                cpu: 5m
                 memory: 30Mi
+              limits:
+                cpu: 10m
+                memory: 90Mi
           cpReloader:
             resources:
               requests:
-                cpu: 10m
-                memory: 20Mi
-              limits:
-                cpu: 100m
+                cpu: 5m
                 memory: 30Mi
+              limits:
+                cpu: 10m
+                memory: 90Mi
           cpMetrics:
             resources:
               requests:
-                cpu: 10m
-                memory: 20Mi
-              limits:
-                cpu: 100m
+                cpu: 5m
                 memory: 30Mi
+              limits:
+                cpu: 10m
+                memory: 90Mi
     EOT
 
   ]

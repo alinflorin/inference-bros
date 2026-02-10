@@ -47,14 +47,85 @@ resource "helm_release" "nvidia_gpu_operator" {
 
   values = [
     <<-EOT
+      node-feature-discovery:
+        gc:
+          resources:
+            requests:
+              cpu: 5m
+              memory: 20Mi
+            limits:
+              cpu: 10m
+              memory: 50Mi
+        master:
+          resources:
+            requests:
+              cpu: 5m
+              memory: 30Mi
+            limits:
+              cpu: 10m
+              memory: 90Mi
+        worker:
+          resources:
+            requests:
+              cpu: 5m
+              memory: 30Mi
+            limits:
+              cpu: 10m
+              memory: 90Mi
+      gfd:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 50Mi
+          limits:
+            cpu: 10m
+            memory: 100Mi
+      operator:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 30Mi
+          limits:
+            cpu: 10m
+            memory: 90Mi
+      validator:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 10Mi
+          limits:
+            cpu: 10m
+            memory: 30Mi
+      dcgmExporter:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 450Mi
+          limits:
+            cpu: 10m
+            memory: 512Mi
       driver:
         enabled: false
       devicePlugin:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 30Mi
+          limits:
+            cpu: 10m
+            memory: 90Mi
         config:
           name: time-slicing-config-all
           default: any
       toolkit:
         enabled: true
+        resources:
+          requests:
+            cpu: 5m
+            memory: 10Mi
+          limits:
+            cpu: 10m
+            memory: 30Mi
         env:
           - name: CONTAINERD_CONFIG
             value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
@@ -87,6 +158,22 @@ resource "helm_release" "amd_gpu_operator" {
     <<-EOT
       kmm:
         enabled: false
+      dp:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 30Mi
+          limits:
+            cpu: 10m
+            memory: 90Mi
+      lbl:
+        resources:
+          requests:
+            cpu: 5m
+            memory: 30Mi
+          limits:
+            cpu: 10m
+            memory: 90Mi
     EOT
 
   ]
