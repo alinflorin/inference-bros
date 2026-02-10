@@ -371,10 +371,10 @@ resource "helm_release" "kube_prometheus_stack" {
           retention: "72h"
           resources:
             requests:
-              cpu: 5m
+              cpu: 15m
               memory: 50Mi
             limits:
-              cpu: 10m
+              cpu: 30m
               memory: 100Mi
       crds:
         enabled: false
@@ -426,7 +426,7 @@ resource "helm_release" "kube_prometheus_stack" {
                     storage: ${var.prometheus_storage_gb}Gi
           resources:
             requests:
-              cpu: 100m
+              cpu: 200m
               memory: 512Mi
             limits:
               cpu: 300m
@@ -461,18 +461,18 @@ resource "helm_release" "kube_prometheus_stack" {
       nodeExporter:
         resources:
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 90Mi
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 30Mi
       kube-state-metrics:
         resources:
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 90Mi
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 30Mi
     EOT
 
