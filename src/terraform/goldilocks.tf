@@ -12,8 +12,31 @@ resource "helm_release" "goldilocks" {
     <<-EOT
       vpa:
         enabled: true
+        admissionController:
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
         updater:
           enabled: true
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+        recommender:
+          resources:
+            limits:
+              cpu: 100m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
       image:
         pullPolicy: IfNotPresent
       controller:
