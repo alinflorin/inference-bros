@@ -52,8 +52,8 @@ resource "helm_release" "loki" {
             cpu: 100m
             memory: 256Mi
           limits:
-            cpu: 300m
-            memory: 1Gi
+            cpu: 200m
+            memory: 512Mi
       backend:
         replicas: 0
       read:

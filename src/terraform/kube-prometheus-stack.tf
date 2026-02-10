@@ -163,7 +163,7 @@ resource "helm_release" "kube_prometheus_stack" {
             cpu: "100m"
             memory: "256Mi"
           limits:
-            cpu: "300m"
+            cpu: "200m"
             memory: "512Mi"
       alertmanager:
         ingress:
