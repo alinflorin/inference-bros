@@ -54,7 +54,7 @@ resource "helm_release" "nvidia_gpu_operator" {
               cpu: 100m
               memory: 64Mi
             limits:
-              cpu: 200m
+              cpu: 300m
               memory: 128Mi
         master:
           resources:
@@ -62,7 +62,7 @@ resource "helm_release" "nvidia_gpu_operator" {
               cpu: 100m
               memory: 64Mi
             limits:
-              cpu: 200m
+              cpu: 300m
               memory: 128Mi
         worker:
           resources:
@@ -70,7 +70,7 @@ resource "helm_release" "nvidia_gpu_operator" {
               cpu: 100m
               memory: 64Mi
             limits:
-              cpu: 200m
+              cpu: 300m
               memory: 128Mi
       gfd:
         resources:
@@ -78,7 +78,7 @@ resource "helm_release" "nvidia_gpu_operator" {
             cpu: 100m
             memory: 50Mi
           limits:
-            cpu: 200m
+            cpu: 300m
             memory: 100Mi
       operator:
         resources:
