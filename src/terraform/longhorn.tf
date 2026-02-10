@@ -11,14 +11,6 @@ resource "helm_release" "longhorn" {
 
   values = [
     <<-EOT
-      longhornManager:
-        resources:
-          requests:
-            cpu: 100m
-            memory: 256Mi
-          limits:
-            cpu: 200m
-            memory: 512Mi
       longhornUI:
         replicas: 1
       ingress:
