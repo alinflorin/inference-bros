@@ -275,3 +275,7 @@ variable "sun2000_kiosk_kk" {
   type      = string
   sensitive = true
 }
+
+variable "vpa_enabled" {
+  type = bool
+}

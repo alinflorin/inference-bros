@@ -76,6 +76,7 @@ For older cards (1050Ti): https://us.download.nvidia.com/XFree86/Linux-x86_64/58
 - **Longhorn UI** - Storage management interface
 - **PVC Explorer** - Browse model cache contents
 - **VUI** - Velero management for backups
+- **Goldilocks** - Resource rightsizing recommendations for optimal CPU/memory allocation
 
 ### Service URLs & Access
 
@@ -95,6 +96,7 @@ All services follow the pattern: `https://{service}.{location}.inferencebros.com
 - `models.stalpeni.inferencebros.com` - Model storage browser
 - `control.stalpeni.inferencebros.com` - Invoicing & usage API
 - `vui.stalpeni.inferencebros.com` - Velero UI - backup solution
+- `goldilocks.stalpeni.inferencebros.com` - Resource rightsizing recommendations
 
 **Available Locations:**
 - **local** - Development environment
@@ -255,6 +257,12 @@ spec:
 5. Click **Manage Models** and select available models
 6. Start chatting to test the deployment!
 
+### Resource Optimization with Goldilocks
+
+**Accessing Goldilocks:**
+- Navigate to `https://goldilocks.{location}.inferencebros.com`
+- Authenticate via Dex/OAuth2
+
 ### Control Module APIs
 
 The control service exposes a GUI at `/` and several APIs at `control.{location}.inferencebros.com`:
@@ -345,6 +353,7 @@ Edit `/etc/hosts` on your development machine:
 192.168.1.240 models.local.inferencebros.com
 192.168.1.240 bifrost.local.inferencebros.com
 192.168.1.240 vui.local.inferencebros.com
+192.168.1.240 goldilocks.local.inferencebros.com
 ```
 
 #### Step 4: Deploy Infrastructure
@@ -493,6 +502,8 @@ S3 Storage"]
       LONGHORN_UI["Longhorn UI"]
       VUI["Velero UI"]
       PVCX["Model Cache Browser"]
+      GOLDILOCKS["Goldilocks
+Resource Rightsizing"]
     end
   end
 
@@ -521,6 +532,7 @@ S3 Storage"]
   KUBEAI --> PROM
   PROM --> GRAFANA
   PROM --> ALERT
+  PROM --> GOLDILOCKS
   ALERT --> SLACK["Slack Alerts"]
 
   %% =====================================================
@@ -543,6 +555,8 @@ Invoicing"]
   USERS --> HEADLAMP
   USERS --> GRAFANA
   USERS --> BIFROST
+  USERS --> GOLDILOCKS
+
 ```
 
 ---
@@ -551,6 +565,7 @@ Invoicing"]
 
 **Model Deployment:** Headlamp UI → Create Model resource with openrouter.ai/json annotation  
 **Customer Setup:** Bifrost UI → Governance → Customers & Virtual Keys  
+**Resource Optimization:** Goldilocks UI → Review recommendations → Update resource specs  
 **Monitoring:** Grafana dashboards + Bifrost portal  
 **Invoicing:** Automatic monthly or manual via Control API  
 **Development:** Terraform apply → Get kubeconfig → kubectl/Headlamp

@@ -120,3 +120,4 @@ s3_url                         = "#{S3_URL}"
 create_s3_buckets              = true
 sun2000_enabled                = true
 sun2000_kiosk_kk               = "#{SUN2000_KIOSK_KK}"
+vpa_enabled = true
