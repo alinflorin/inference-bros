@@ -121,11 +121,11 @@ resource "helm_release" "nvidia_gpu_operator" {
         enabled: true
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 10Mi
           limits:
-            cpu: 20m
-            memory: 30Mi
+            cpu: 100m
+            memory: 50Mi
         env:
           - name: CONTAINERD_CONFIG
             value: /var/lib/rancher/k3s/agent/etc/containerd/config.toml
