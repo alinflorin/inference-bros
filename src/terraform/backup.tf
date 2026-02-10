@@ -24,7 +24,7 @@ resource "helm_release" "snapshot_controller" {
             cpu: 50m
             memory: 50Mi
           limits:
-            cpu: 20m
+            cpu: 100m
             memory: 100Mi
     EOT
   ]
