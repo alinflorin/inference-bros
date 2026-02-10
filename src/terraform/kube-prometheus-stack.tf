@@ -434,7 +434,7 @@ resource "helm_release" "kube_prometheus_stack" {
       prometheusOperator:
         resources:
           requests:
-            cpu: 20m
+            cpu: 25m
             memory: 50Mi
           limits:
             cpu: 50m
