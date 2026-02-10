@@ -49,10 +49,10 @@ resource "helm_release" "loki" {
           size: ${var.loki_storage_gb}Gi
         resources:
           requests:
-            cpu: 10m
+            cpu: 50m
             memory: 256Mi
           limits:
-            cpu: 50m
+            cpu: 100m
             memory: 384Mi
       backend:
         replicas: 0

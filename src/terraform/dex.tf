@@ -80,10 +80,10 @@ resource "helm_release" "dex" {
           http: 0.0.0.0:5556
       resources:
         requests:
-          cpu: 5m
+          cpu: 10m
           memory: 30Mi
         limits:
-          cpu: 10m
+          cpu: 20m
           memory: 90Mi
 
     EOT

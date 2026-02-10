@@ -24,7 +24,7 @@ resource "helm_release" "ingress_nginx" {
             cpu: 100m
             memory: 128Mi
           limits:
-            cpu: 200m
+            cpu: 300m
             memory: 256Mi
         replicaCount: ${var.nginx_replicas}
         config:

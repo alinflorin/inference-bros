@@ -36,10 +36,10 @@ resource "helm_release" "goldilocks" {
             storage: prometheus
           resources:
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 90Mi
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 30Mi
       image:
         pullPolicy: IfNotPresent
@@ -48,19 +48,19 @@ resource "helm_release" "goldilocks" {
           on-by-default: true
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 20Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 90Mi
       dashboard:
         replicaCount: 1
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 30Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 90Mi
         ingress:
           enabled: true

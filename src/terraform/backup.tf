@@ -119,18 +119,18 @@ resource "helm_release" "velero" {
           enabled: true
       resources:
         requests:
-          cpu: 10m
+          cpu: 50m
           memory: 100Mi
         limits:
-          cpu: 20m
+          cpu: 100m
           memory: 256Mi
       nodeAgent:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 50Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 100Mi
       initContainers:
         - name: velero-plugin-for-aws
@@ -190,28 +190,28 @@ resource "helm_release" "vui" {
         deployment:
           resources:
             requests:
-              cpu: 5m
+              cpu: 25m
               memory: 200Mi
             limits:
-              cpu: 10m
+              cpu: 50m
               memory: 256Mi
       uiService:
         deployment:
           resources:
             requests:
-              cpu: 5m
+              cpu: 15m
               memory: 80Mi
             limits:
-              cpu: 10m
+              cpu: 30m
               memory: 128Mi
       watchdogService:
         deployment:
           resources:
             requests:
-              cpu: 5m
+              cpu: 15m
               memory: 80Mi
             limits:
-              cpu: 10m
+              cpu: 30m
               memory: 100Mi
       auth:
         enabled: false
