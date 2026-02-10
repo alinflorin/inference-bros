@@ -123,11 +123,7 @@ resource "helm_release" "kube_prometheus_stack" {
         assertNoLeakedSecrets: false
         grafana.ini:
           smtp:
-            enabled: true
-            from_address: ${var.smtp_username}
-            from_name: Grafana
-            host: mail.mail:587
-            startTLS_policy: NoStartTLS
+            enabled: false
           auth:
             disable_login_form: true
           auth.generic_oauth:
@@ -168,10 +164,10 @@ resource "helm_release" "kube_prometheus_stack" {
         # Added resource requests and limits for Grafana
         resources:
           requests:
-            cpu: "5m"
+            cpu: "50m"
             memory: "256Mi"
           limits:
-            cpu: "15m"
+            cpu: "100m"
             memory: "512Mi"
       alertmanager:
         ingress:
@@ -430,10 +426,10 @@ resource "helm_release" "kube_prometheus_stack" {
                     storage: ${var.prometheus_storage_gb}Gi
           resources:
             requests:
-              cpu: 50m
+              cpu: 100m
               memory: 512Mi
             limits:
-              cpu: 100m
+              cpu: 200m
               memory: 1Gi
       prometheusOperator:
         resources:

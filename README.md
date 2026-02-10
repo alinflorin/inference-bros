@@ -281,7 +281,7 @@ The control service exposes a GUI at `/` and several APIs at `control.{location}
 **Automatic Invoicing:**
 - Runs automatically on the 2nd of each month at 00:00 UTC
 - Bills for the previous complete calendar month
-- Automatically syncs invoices to Odoo and emails customers
+- Automatically syncs invoices to Odoo
 
 ### Monitoring & Alerts
 
@@ -541,12 +541,10 @@ Resource Rightsizing"]
   subgraph EXT["🔗 External Integrations"]
     ODOO["Odoo
 Invoicing"]
-    SMTP["Email / SMTP"]
     HF["HuggingFace"]
   end
 
   BIFROST --> ODOO
-  ODOO --> SMTP
   KUBEAI --> HF
 
   %% =====================================================

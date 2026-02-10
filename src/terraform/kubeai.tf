@@ -280,11 +280,11 @@ resource "helm_release" "kubeai_models_explorer" {
         # Resource Limits
         resources:
           requests:
-            memory: 50Mi
-            cpu: 5m
-          limits:
             memory: 128Mi
-            cpu: 10m
+            cpu: 100m
+          limits:
+            memory: 256Mi
+            cpu: 200m
 
 
       # Service Configuration

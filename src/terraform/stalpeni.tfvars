@@ -78,15 +78,9 @@ prometheus_storage_gb   = 10
 loki_storage_gb         = 10
 grafana_storage_gb      = 10
 tempo_storage_gb        = 10
-mail_storage_gb         = 1
 bifrost_storage_gb      = 20
 alertmanager_storage_gb = 5
 kubeai_pvc_storage_gb   = 20
-
-smtp_username       = "#{SMTP_USERNAME}"
-smtp_password       = "#{SMTP_PASSWORD}"
-smtp_host           = "#{SMTP_HOST}"
-smtp_allowed_domain = "inferencebros.com"
 
 slack_webhook_url        = "#{SLACK_WEBHOOK_URL}"
 huggingface_token        = "#{HF_TOKEN}"

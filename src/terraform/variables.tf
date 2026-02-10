@@ -82,10 +82,6 @@ variable "tempo_storage_gb" {
   type = number
 }
 
-variable "mail_storage_gb" {
-  type = number
-}
-
 variable "bifrost_storage_gb" {
   type = number
 }
@@ -96,25 +92,6 @@ variable "alertmanager_storage_gb" {
 
 variable "kubeai_pvc_storage_gb" {
   type = number
-}
-
-variable "smtp_allowed_domain" {
-  type = string
-}
-
-variable "smtp_host" {
-  type      = string
-  sensitive = true
-}
-
-variable "smtp_username" {
-  type      = string
-  sensitive = true
-}
-
-variable "smtp_password" {
-  type      = string
-  sensitive = true
 }
 
 variable "slack_webhook_url" {
