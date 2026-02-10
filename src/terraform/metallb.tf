@@ -42,43 +42,43 @@ resource "helm_release" "metallb" {
         reloader:
           resources:
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 30Mi
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 90Mi
         frrMetrics:
           resources:
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 30Mi
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 90Mi
         initContainers:
           cpFrrFiles:
             resources:
               requests:
-                cpu: 5m
+                cpu: 10m
                 memory: 30Mi
               limits:
-                cpu: 10m
+                cpu: 20m
                 memory: 90Mi
           cpReloader:
             resources:
               requests:
-                cpu: 5m
+                cpu: 10m
                 memory: 30Mi
               limits:
-                cpu: 10m
+                cpu: 20m
                 memory: 90Mi
           cpMetrics:
             resources:
               requests:
-                cpu: 5m
+                cpu: 10m
                 memory: 30Mi
               limits:
-                cpu: 10m
+                cpu: 20m
                 memory: 90Mi
     EOT
 

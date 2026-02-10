@@ -13,10 +13,10 @@ resource "helm_release" "snapshot_controller" {
       webhook:
         resources:
           requests:
-            cpu: 5m
+            cpu: 10m
             memory: 30Mi
           limits:
-            cpu: 10m
+            cpu: 20m
             memory: 50Mi
       controller:
         resources:

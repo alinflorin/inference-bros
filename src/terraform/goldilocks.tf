@@ -15,19 +15,19 @@ resource "helm_release" "goldilocks" {
         admissionController:
           resources:
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 50Mi
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 20Mi
         updater:
           enabled: true
           resources:
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 90Mi
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 30Mi
         recommender:
           extraArgs:

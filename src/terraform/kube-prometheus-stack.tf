@@ -381,10 +381,10 @@ resource "helm_release" "kube_prometheus_stack" {
         upgradeJob:
           resources:
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 30Mi
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 90Mi
       prometheus:
         ingress:
@@ -443,18 +443,18 @@ resource "helm_release" "kube_prometheus_stack" {
           deployment:
             resources:
               requests:
-                cpu: 5m
+                cpu: 10m
                 memory: 30Mi
               limits:
-                cpu: 10m
+                cpu: 20m
                 memory: 90Mi
         prometheusConfigReloader:
           resources:
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 30Mi
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 90Mi
       thanosRuler:
         enabled: false
