@@ -17,6 +17,8 @@ resource "helm_release" "goldilocks" {
       image:
         pullPolicy: IfNotPresent
       controller:
+        flags:
+          on-by-default: true
         resources:
           requests:
             cpu: 50m
@@ -58,6 +60,6 @@ resource "helm_release" "goldilocks" {
 
   ]
 
-  count = var.vpa_enabled ? 1 : 0
+  count      = var.vpa_enabled ? 1 : 0
   depends_on = [helm_release.kube_prometheus_stack]
 }
