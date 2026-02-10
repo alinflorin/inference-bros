@@ -71,10 +71,10 @@ resource "helm_release" "oauth2_proxy" {
         cookieSecret: ${sensitive(random_string.oauth2_proxy_cookie_secret.result)}
       resources:
         limits:
-          cpu: 50m
+          cpu: 100m
           memory: 90Mi
         requests:
-          cpu: 100m
+          cpu: 50m
           memory: 30Mi
     EOT
 
