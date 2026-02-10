@@ -17,10 +17,10 @@ resource "helm_release" "metallb" {
       controller:
         resources:
           requests:
-            cpu: 5m
+            cpu: 50m
             memory: 50Mi
           limits:
-            cpu: 10m
+            cpu: 100m
             memory: 100Mi
       speaker:
         resources:
@@ -33,10 +33,10 @@ resource "helm_release" "metallb" {
         frr:
           resources:
             requests:
-              cpu: 5m
+              cpu: 10m
               memory: 30Mi
             limits:
-              cpu: 10m
+              cpu: 20m
               memory: 90Mi
         reloader:
           resources:
