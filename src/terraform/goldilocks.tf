@@ -48,11 +48,11 @@ resource "helm_release" "goldilocks" {
           on-by-default: true
         resources:
           requests:
-            cpu: 50m
-            memory: 20Mi
-          limits:
             cpu: 100m
-            memory: 90Mi
+            memory: 50Mi
+          limits:
+            cpu: 200m
+            memory: 100Mi
       dashboard:
         replicaCount: 1
         resources:

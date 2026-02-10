@@ -75,10 +75,10 @@ resource "helm_release" "nvidia_gpu_operator" {
       gfd:
         resources:
           requests:
-            cpu: 50m
+            cpu: 100m
             memory: 50Mi
           limits:
-            cpu: 100m
+            cpu: 200m
             memory: 100Mi
       operator:
         resources:
