@@ -103,10 +103,6 @@ resource "helm_release" "kube_prometheus_stack" {
               gnetId: 23838
               datasource: Prometheus
               revision: 1
-            logs:
-              gnetId: 13186
-              datasource: Loki
-              revision: 1
         additionalDataSources:
           - name: Tempo
             type: tempo
