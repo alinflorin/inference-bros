@@ -163,8 +163,8 @@ resource "helm_release" "kube_prometheus_stack" {
             cpu: "100m"
             memory: "256Mi"
           limits:
-            cpu: "200m"
-            memory: "512Mi"
+            cpu: "0"
+            memory: "1Gi"
       alertmanager:
         ingress:
           enabled: true
@@ -370,8 +370,8 @@ resource "helm_release" "kube_prometheus_stack" {
               cpu: 50m
               memory: 50Mi
             limits:
-              cpu: 100m
-              memory: 100Mi
+              cpu: "0"
+              memory: 128Mi
       crds:
         enabled: false
         upgradeJob:
@@ -425,16 +425,16 @@ resource "helm_release" "kube_prometheus_stack" {
               cpu: 100m
               memory: 512Mi
             limits:
-              cpu: 500m
-              memory: 1Gi
+              cpu: "0"
+              memory: 2Gi
       prometheusOperator:
         resources:
           requests:
             cpu: 50m
             memory: 50Mi
           limits:
-            cpu: 100m
-            memory: 100Mi
+            cpu: "0"
+            memory: 128Mi
         admissionWebhooks:
           deployment:
             resources:
@@ -442,7 +442,7 @@ resource "helm_release" "kube_prometheus_stack" {
                 cpu: 50m
                 memory: 30Mi
               limits:
-                cpu: 100m
+                cpu: "0"
                 memory: 90Mi
         prometheusConfigReloader:
           resources:
@@ -450,14 +450,14 @@ resource "helm_release" "kube_prometheus_stack" {
               cpu: 50m
               memory: 30Mi
             limits:
-              cpu: 100m
+              cpu: "0"
               memory: 90Mi
       thanosRuler:
         enabled: false
       nodeExporter:
         resources:
           limits:
-            cpu: 100m
+            cpu: "0"
             memory: 90Mi
           requests:
             cpu: 50m
@@ -465,7 +465,7 @@ resource "helm_release" "kube_prometheus_stack" {
       kube-state-metrics:
         resources:
           limits:
-            cpu: 100m
+            cpu: "0"
             memory: 90Mi
           requests:
             cpu: 50m

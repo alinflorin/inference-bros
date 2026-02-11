@@ -64,8 +64,8 @@ resource "helm_release" "headlamp" {
           cpu: 100m
           memory: 30Mi
         limits:
-          cpu: 200m
-          memory: 90Mi
+          cpu: "0"
+          memory: 128Mi
     EOT
 
   ]

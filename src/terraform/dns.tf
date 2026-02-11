@@ -48,7 +48,7 @@ resource "helm_release" "external_dns" {
           cpu: 50m
           memory: 90Mi
         limits:
-          cpu: 100m
+          cpu: "0"
           memory: 128Mi
       serviceMonitor:
         enabled: true

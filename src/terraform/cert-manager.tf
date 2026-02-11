@@ -20,7 +20,7 @@ resource "helm_release" "cert_manager" {
           cpu: 50m
           memory: 50Mi
         limits:
-          cpu: 100m
+          cpu: "0"
           memory: 100Mi
       webhook:
         resources:
@@ -28,7 +28,7 @@ resource "helm_release" "cert_manager" {
             cpu: 50m
             memory: 32Mi
           limits:
-            cpu: 100m
+            cpu: "0"
             memory: 50Mi
       cainjector:
         resources:
@@ -36,7 +36,7 @@ resource "helm_release" "cert_manager" {
             cpu: 50m
             memory: 60Mi
           limits:
-            cpu: 100m
+            cpu: "0"
             memory: 100Mi
     EOT
   ]

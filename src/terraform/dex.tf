@@ -83,8 +83,8 @@ resource "helm_release" "dex" {
           cpu: 50m
           memory: 30Mi
         limits:
-          cpu: 100m
-          memory: 90Mi
+          cpu: "0"
+          memory: 128Mi
 
     EOT
     ,

@@ -15,16 +15,16 @@ resource "helm_release" "goldilocks" {
         admissionController:
           resources:
             limits:
-              cpu: 100m
-              memory: 50Mi
+              cpu: "0"
+              memory: 90Mi
             requests:
               cpu: 50m
-              memory: 20Mi
+              memory: 30Mi
         updater:
           enabled: true
           resources:
             limits:
-              cpu: 100m
+              cpu: "0"
               memory: 90Mi
             requests:
               cpu: 50m
@@ -36,7 +36,7 @@ resource "helm_release" "goldilocks" {
             storage: prometheus
           resources:
             limits:
-              cpu: 100m
+              cpu: "0"
               memory: 90Mi
             requests:
               cpu: 50m
@@ -51,7 +51,7 @@ resource "helm_release" "goldilocks" {
             cpu: 100m
             memory: 50Mi
           limits:
-            cpu: 200m
+            cpu: "0"
             memory: 100Mi
       dashboard:
         replicaCount: 1
@@ -60,7 +60,7 @@ resource "helm_release" "goldilocks" {
             cpu: 50m
             memory: 30Mi
           limits:
-            cpu: 100m
+            cpu: "0"
             memory: 90Mi
         ingress:
           enabled: true
