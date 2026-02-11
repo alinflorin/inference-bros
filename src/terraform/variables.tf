@@ -39,6 +39,8 @@ variable "servers" {
     port               = number
     user               = string
     master             = bool
+    ram_gb             = number
+    cpu_millis         = number
   }))
 }
 
