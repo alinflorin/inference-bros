@@ -21,7 +21,7 @@ resource "helm_release" "goldilocks" {
               cpu: 50m
               memory: 30Mi
         updater:
-          enabled: true
+          enabled: false
           resources:
             limits:
               cpu: null
