@@ -54,7 +54,7 @@ resource "helm_release" "nvidia_gpu_operator" {
               cpu: 100m
               memory: 64Mi
             limits:
-              cpu: "0"
+              cpu: null
               memory: 128Mi
         master:
           resources:
@@ -62,7 +62,7 @@ resource "helm_release" "nvidia_gpu_operator" {
               cpu: 100m
               memory: 64Mi
             limits:
-              cpu: "0"
+              cpu: null
               memory: 128Mi
         worker:
           resources:
@@ -70,7 +70,7 @@ resource "helm_release" "nvidia_gpu_operator" {
               cpu: 100m
               memory: 64Mi
             limits:
-              cpu: "0"
+              cpu: null
               memory: 128Mi
       gfd:
         resources:
@@ -78,7 +78,7 @@ resource "helm_release" "nvidia_gpu_operator" {
             cpu: 100m
             memory: 50Mi
           limits:
-            cpu: "0"
+            cpu: null
             memory: 100Mi
       operator:
         resources:
@@ -86,7 +86,7 @@ resource "helm_release" "nvidia_gpu_operator" {
             cpu: 50m
             memory: 30Mi
           limits:
-            cpu: "0"
+            cpu: null
             memory: 90Mi
       validator:
         resources:
@@ -94,7 +94,7 @@ resource "helm_release" "nvidia_gpu_operator" {
             cpu: 50m
             memory: 10Mi
           limits:
-            cpu: "0"
+            cpu: null
             memory: 50Mi
       dcgmExporter:
         resources:
@@ -102,7 +102,7 @@ resource "helm_release" "nvidia_gpu_operator" {
             cpu: 50m
             memory: 450Mi
           limits:
-            cpu: "0"
+            cpu: null
             memory: 512Mi
       driver:
         enabled: false
@@ -112,7 +112,7 @@ resource "helm_release" "nvidia_gpu_operator" {
             cpu: 50m
             memory: 30Mi
           limits:
-            cpu: "0"
+            cpu: null
             memory: 90Mi
         config:
           name: time-slicing-config-all
@@ -124,7 +124,7 @@ resource "helm_release" "nvidia_gpu_operator" {
             cpu: 50m
             memory: 10Mi
           limits:
-            cpu: "0"
+            cpu: null
             memory: 50Mi
         env:
           - name: CONTAINERD_CONFIG
@@ -164,7 +164,7 @@ resource "helm_release" "amd_gpu_operator" {
             cpu: 50m
             memory: 30Mi
           limits:
-            cpu: "0"
+            cpu: null
             memory: 90Mi
       lbl:
         resources:
@@ -172,7 +172,7 @@ resource "helm_release" "amd_gpu_operator" {
             cpu: 50m
             memory: 30Mi
           limits:
-            cpu: "0"
+            cpu: null
             memory: 90Mi
     EOT
 

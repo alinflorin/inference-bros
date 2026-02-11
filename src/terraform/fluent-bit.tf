@@ -12,7 +12,7 @@ resource "helm_release" "fluent-bit" {
     <<-EOT
       resources:
         limits:
-          cpu: "0"
+          cpu: null
           memory: 128Mi
         requests:
           cpu: 50m

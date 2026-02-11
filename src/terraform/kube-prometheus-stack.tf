@@ -163,7 +163,7 @@ resource "helm_release" "kube_prometheus_stack" {
             cpu: "100m"
             memory: "256Mi"
           limits:
-            cpu: "0"
+            cpu: null
             memory: "1Gi"
       alertmanager:
         ingress:
@@ -370,7 +370,7 @@ resource "helm_release" "kube_prometheus_stack" {
               cpu: 50m
               memory: 50Mi
             limits:
-              cpu: "0"
+              cpu: null
               memory: 128Mi
       crds:
         enabled: false
@@ -425,7 +425,7 @@ resource "helm_release" "kube_prometheus_stack" {
               cpu: 100m
               memory: 512Mi
             limits:
-              cpu: "0"
+              cpu: null
               memory: 2Gi
       prometheusOperator:
         resources:
@@ -433,7 +433,7 @@ resource "helm_release" "kube_prometheus_stack" {
             cpu: 50m
             memory: 50Mi
           limits:
-            cpu: "0"
+            cpu: null
             memory: 128Mi
         admissionWebhooks:
           deployment:
@@ -442,7 +442,7 @@ resource "helm_release" "kube_prometheus_stack" {
                 cpu: 50m
                 memory: 30Mi
               limits:
-                cpu: "0"
+                cpu: null
                 memory: 90Mi
         prometheusConfigReloader:
           resources:
@@ -450,14 +450,14 @@ resource "helm_release" "kube_prometheus_stack" {
               cpu: 50m
               memory: 30Mi
             limits:
-              cpu: "0"
+              cpu: null
               memory: 90Mi
       thanosRuler:
         enabled: false
       nodeExporter:
         resources:
           limits:
-            cpu: "0"
+            cpu: null
             memory: 90Mi
           requests:
             cpu: 50m
@@ -465,7 +465,7 @@ resource "helm_release" "kube_prometheus_stack" {
       kube-state-metrics:
         resources:
           limits:
-            cpu: "0"
+            cpu: null
             memory: 90Mi
           requests:
             cpu: 50m
