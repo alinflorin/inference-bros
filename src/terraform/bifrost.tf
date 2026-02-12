@@ -18,7 +18,7 @@ resource "helm_release" "bifrost" {
   create_namespace = true
   atomic           = true
   wait             = true
-  version          = "2.0.3"
+  version          = "2.0.4"
 
   values = [
     <<-EOT
@@ -97,7 +97,7 @@ resource "helm_release" "bifrost" {
               trace_type: "otel"
               protocol: "http"
       image:
-        tag: 'v1.4.4'
+        tag: 'v1.4.5'
       replicaCount: ${var.bifrost_replicas}
       storage:
         mode: postgres
