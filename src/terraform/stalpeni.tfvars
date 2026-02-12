@@ -6,8 +6,6 @@ servers = [
     user               = "root"
     master             = true
     hostname           = "k3s-master-1"
-    cpu_millis         = 4000
-    ram_gb             = 15.5
   }
 ]
 k3s_vip          = "192.168.1.252"
