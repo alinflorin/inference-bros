@@ -107,7 +107,7 @@ resource "helm_release" "bifrost" {
           memory: 128Mi
         limits:
           cpu: null
-          memory: 2Gi
+          memory: 1Gi
       postgresql:
         enabled: true
         metrics:
