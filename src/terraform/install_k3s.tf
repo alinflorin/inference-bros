@@ -100,7 +100,12 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
         - servicelb
         - traefik
         ${var.longhorn_enabled == false ? "" : "- local-storage"}
+      kubelet-arg:
+        - "feature-gates=InPlacePodVerticalScaling=true"
+      kube-controller-manager-arg:
+        - "feature-gates=InPlacePodVerticalScaling=true"
       kube-apiserver-arg:
+        - "feature-gates=InPlacePodVerticalScaling=true"
         - "oidc-issuer-url=https://dex.${var.domain}"
         - "oidc-client-id=k3s"
         - "oidc-username-claim=email"
@@ -291,7 +296,12 @@ resource "ssh_sensitive_resource" "install_k3s_other_masters" {
         - servicelb
         - traefik
         ${var.longhorn_enabled == false ? "" : "- local-storage"}
+      kubelet-arg:
+        - "feature-gates=InPlacePodVerticalScaling=true"
+      kube-controller-manager-arg:
+        - "feature-gates=InPlacePodVerticalScaling=true"
       kube-apiserver-arg:
+        - "feature-gates=InPlacePodVerticalScaling=true"
         - "oidc-issuer-url=https://dex.${var.domain}"
         - "oidc-client-id=k3s"
         - "oidc-username-claim=email"
@@ -360,6 +370,8 @@ resource "ssh_sensitive_resource" "install_k3s_workers" {
       node-name: ${each.value.hostname}
       server: https://${var.k3s_vip}:6443
       token: ${local.k3s_token}
+      kubelet-arg:
+        - "feature-gates=InPlacePodVerticalScaling=true"
     EOT
 
     destination = "/etc/rancher/k3s/config.yaml"
