@@ -127,7 +127,7 @@ resource "helm_release" "velero" {
       nodeAgent:
         resources:
           requests:
-            cpu: 50m
+            cpu: 100m
             memory: 50Mi
           limits:
             cpu: null
