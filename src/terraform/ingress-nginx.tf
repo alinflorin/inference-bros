@@ -21,7 +21,7 @@ resource "helm_release" "ingress_nginx" {
           targetMemoryUtilizationPercentage: ${var.nginx_hpa.memory_utilization}
         resources:
           requests:
-            cpu: 150m
+            cpu: 100m
             memory: 128Mi
           limits:
             cpu: null
