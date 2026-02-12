@@ -51,6 +51,7 @@ resource "helm_release" "bifrost" {
             keys:
               - value: "-"
                 weight: 1
+                name: "nokey"
             network_config:
               base_url: http://kubeai.kubeai/openai
               default_request_timeout_in_seconds: 60
