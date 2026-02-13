@@ -234,9 +234,9 @@ resource "helm_release" "kube_prometheus_stack" {
 
               {{/* First line of Slack alerts */}}
               {{ define "slack.monzo.title" -}}
-                  [{{ .Status | toUpper -}}
+                  [IB ${var.location}] [{{ .Status | toUpper -}}
                   {{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{- end -}}
-                  ] {{ template "__alert_severity_prefix_title" . }} {{ .CommonLabels.alertname }} ${var.location}
+                  ] {{ template "__alert_severity_prefix_title" . }} {{ .CommonLabels.alertname }}
               {{- end }}
 
 
