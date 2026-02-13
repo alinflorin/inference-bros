@@ -466,10 +466,10 @@ resource "helm_release" "kube_prometheus_stack" {
         resources:
           limits:
             cpu: null
-            memory: 90Mi
+            memory: 128Mi
           requests:
             cpu: 50m
-            memory: 30Mi
+            memory: 50Mi
     EOT
 
   ]
