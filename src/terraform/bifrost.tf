@@ -107,8 +107,8 @@ resource "helm_release" "bifrost" {
         mode: postgres
       resources:
         requests:
-          cpu: 150m
-          memory: 256Mi
+          cpu: 100m
+          memory: 128Mi
         limits:
           cpu: 2000m
           memory: 2Gi
@@ -123,8 +123,8 @@ resource "helm_release" "bifrost" {
             size: ${var.bifrost_storage_gb}Gi
           resources:
             requests:
-              cpu: 150m
-              memory: 256Mi
+              cpu: 100m
+              memory: 128Mi
             limits:
               cpu: 2000m
               memory: 2Gi

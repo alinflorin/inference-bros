@@ -190,7 +190,7 @@ resource "helm_release" "vui" {
         deployment:
           resources:
             requests:
-              cpu: 100m
+              cpu: 50m
               memory: 200Mi
             limits:
               cpu: 300m

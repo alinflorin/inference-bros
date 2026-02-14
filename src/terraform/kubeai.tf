@@ -96,8 +96,8 @@ resource "helm_release" "kubeai" {
         enabled: false
       resources:
         requests:
-          cpu: "150m"
-          memory: "256Mi"
+          cpu: "100m"
+          memory: "128Mi"
         limits:
           cpu: 2000m
           memory: "2Gi"
