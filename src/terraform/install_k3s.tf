@@ -81,6 +81,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
           cpu: 50m
           memory: 64Mi
         limits:
+          cpu: 150m
           memory: 128Mi
     EOT
   }

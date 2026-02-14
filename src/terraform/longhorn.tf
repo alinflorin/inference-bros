@@ -14,10 +14,10 @@ resource "helm_release" "longhorn" {
       longhornManager:
         resources:
           requests:
-            cpu: 200m
+            cpu: 150m
             memory: 256Mi
           limits:
-            
+            cpu: 1000m
             memory: 1Gi
       longhornUI:
         replicas: 1

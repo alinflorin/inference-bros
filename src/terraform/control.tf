@@ -10,7 +10,7 @@ module "control" {
   enable_auth       = true
   cpu_request       = "50m"
   memory_request    = "40Mi"
-  cpu_limit         = null
+  cpu_limit         = "150m"
   memory_limit      = "100Mi"
   depends_on        = [helm_release.bifrost]
   env = {

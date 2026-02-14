@@ -20,7 +20,7 @@ resource "helm_release" "metallb" {
             cpu: 50m
             memory: 30Mi
           limits:
-            
+            cpu: 150m
             memory: 90Mi
       speaker:
         resources:
@@ -28,58 +28,10 @@ resource "helm_release" "metallb" {
             cpu: 50m
             memory: 30Mi
           limits:
-            
+            cpu: 150m
             memory: 90Mi
         frr:
           enabled: false
-          resources:
-            requests:
-              cpu: 50m
-              memory: 30Mi
-            limits:
-              
-              memory: 90Mi
-        reloader:
-          resources:
-            requests:
-              cpu: 50m
-              memory: 30Mi
-            limits:
-              
-              memory: 90Mi
-        frrMetrics:
-          resources:
-            requests:
-              cpu: 50m
-              memory: 30Mi
-            limits:
-              
-              memory: 90Mi
-        initContainers:
-          cpFrrFiles:
-            resources:
-              requests:
-                cpu: 50m
-                memory: 30Mi
-              limits:
-                
-                memory: 90Mi
-          cpReloader:
-            resources:
-              requests:
-                cpu: 50m
-                memory: 30Mi
-              limits:
-                
-                memory: 90Mi
-          cpMetrics:
-            resources:
-              requests:
-                cpu: 50m
-                memory: 30Mi
-              limits:
-                
-                memory: 90Mi
     EOT
 
   ]
