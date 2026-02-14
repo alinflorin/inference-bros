@@ -101,24 +101,18 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                       "min": 0
                     }
                   },
-                  "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+                  "gridPos": { "h": 6, "w": 5, "x": 0, "y": 0 },
                   "id": 1,
                   "options": {
                     "colorMode": "background",
                     "graphMode": "area",
                     "justifyMode": "auto",
-                    "orientation": "auto",
-                    "reduceOptions": { "calcs": ["lastNotNull"] },
-                    "textMode": "auto"
+                    "reduceOptions": { "calcs": ["lastNotNull"] }
                   },
                   "title": "Current Power",
                   "type": "stat",
                   "targets": [
-                    {
-                      "expr": "sun2000_real_time_power_kw",
-                      "legendFormat": "Power",
-                      "refId": "A"
-                    }
+                    { "expr": "sum(sun2000_real_time_power_kw)", "legendFormat": "Power", "refId": "A" }
                   ]
                 },
                 {
@@ -127,122 +121,80 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                     "defaults": {
                       "color": { "mode": "thresholds" },
                       "thresholds": {
-                        "steps": [
-                          { "color": "blue", "value": null },
-                          { "color": "green", "value": 1 }
-                        ]
+                        "steps": [{ "color": "blue", "value": null }, { "color": "green", "value": 0 }]
                       },
                       "unit": "kwatth",
                       "min": 0
                     }
                   },
-                  "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+                  "gridPos": { "h": 6, "w": 5, "x": 5, "y": 0 },
                   "id": 2,
                   "options": {
                     "colorMode": "background",
                     "graphMode": "none",
-                    "justifyMode": "auto",
-                    "orientation": "auto",
-                    "reduceOptions": { "calcs": ["lastNotNull"] },
-                    "textMode": "auto"
+                    "reduceOptions": { "calcs": ["lastNotNull"] }
                   },
                   "title": "Today",
                   "type": "stat",
                   "targets": [
-                    {
-                      "expr": "sun2000_daily_energy_kwh",
-                      "legendFormat": "Daily",
-                      "refId": "A"
-                    }
+                    { "expr": "sum(sun2000_daily_energy_kwh)", "legendFormat": "Daily", "refId": "A" }
                   ]
                 },
                 {
-                  "datasource": { "type": "prometheus", "uid": "$${datasource}" },
+                  "datasource": { "type": "prometheus", "uid": "${datasource}" },
                   "fieldConfig": {
                     "defaults": {
+                      "unit": "kwatth",
                       "color": { "mode": "thresholds" },
                       "thresholds": {
-                        "steps": [
-                          { "color": "blue", "value": null },
-                          { "color": "green", "value": 10 }
-                        ]
-                      },
-                      "unit": "kwatth",
-                      "min": 0
+                        "steps": [{ "color": "blue", "value": null }, { "color": "green", "value": 0 }]
+                      }
                     }
                   },
-                  "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+                  "gridPos": { "h": 6, "w": 5, "x": 10, "y": 0 },
                   "id": 3,
                   "options": {
                     "colorMode": "background",
                     "graphMode": "none",
-                    "justifyMode": "auto",
-                    "orientation": "auto",
-                    "reduceOptions": { "calcs": ["lastNotNull"] },
-                    "textMode": "auto"
+                    "reduceOptions": { "calcs": ["lastNotNull"] }
                   },
                   "title": "This Month",
                   "type": "stat",
                   "targets": [
-                    {
-                      "expr": "sun2000_month_energy_kwh",
-                      "legendFormat": "Monthly",
-                      "refId": "A"
-                    }
+                    { "expr": "sum(sun2000_month_energy_kwh)", "legendFormat": "Monthly", "refId": "A" }
                   ]
                 },
                 {
                   "datasource": { "type": "prometheus", "uid": "$${datasource}" },
                   "fieldConfig": {
                     "defaults": {
-                      "color": { "mode": "thresholds" },
-                      "thresholds": {
-                        "steps": [
-                          { "color": "blue", "value": null },
-                          { "color": "green", "value": 100 }
-                        ]
-                      },
-                      "unit": "kwatth",
-                      "min": 0
+                      "unit": "dateTimeAsIso",
+                      "color": { "mode": "fixed", "fixedColor": "grey" }
                     }
                   },
-                  "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
-                  "id": 4,
+                  "gridPos": { "h": 6, "w": 9, "x": 15, "y": 0 },
+                  "id": 10,
                   "options": {
-                    "colorMode": "background",
+                    "colorMode": "value",
                     "graphMode": "none",
-                    "justifyMode": "auto",
-                    "orientation": "auto",
-                    "reduceOptions": { "calcs": ["lastNotNull"] },
-                    "textMode": "auto"
+                    "justifyMode": "center",
+                    "textMode": "value",
+                    "reduceOptions": { "calcs": ["lastNotNull"] }
                   },
-                  "title": "This Year",
+                  "title": "Last Kiosk Refresh",
                   "type": "stat",
                   "targets": [
-                    {
-                      "expr": "sun2000_year_energy_kwh",
-                      "legendFormat": "Yearly",
-                      "refId": "A"
-                    }
+                    { "expr": "sum(sun2000_last_scrape_timestamp) * 1000", "refId": "A" }
                   ]
                 },
                 {
                   "datasource": { "type": "prometheus", "uid": "$${datasource}" },
                   "fieldConfig": {
                     "defaults": {
-                      "color": { "mode": "palette-classic" },
                       "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisLabel": "Power (kW)",
                         "drawStyle": "line",
                         "fillOpacity": 30,
-                        "gradientMode": "opacity",
-                        "lineInterpolation": "smooth",
-                        "lineWidth": 2,
-                        "pointSize": 5,
-                        "showPoints": "auto",
-                        "spanNulls": false
+                        "lineInterpolation": "smooth"
                       },
                       "unit": "kwatt",
                       "min": 0
@@ -250,127 +202,10 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   },
                   "gridPos": { "h": 10, "w": 24, "x": 0, "y": 6 },
                   "id": 5,
-                  "options": {
-                    "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
-                    "tooltip": { "mode": "single" }
-                  },
                   "title": "Power Output Over Time",
                   "type": "timeseries",
                   "targets": [
-                    {
-                      "expr": "sun2000_real_time_power_kw",
-                      "legendFormat": "Power (kW)",
-                      "refId": "A"
-                    }
-                  ]
-                },
-                {
-                  "datasource": { "type": "prometheus", "uid": "$${datasource}" },
-                  "fieldConfig": {
-                    "defaults": {
-                      "color": { "mode": "palette-classic" },
-                      "custom": {
-                        "axisBorderShow": false,
-                        "axisCenteredZero": false,
-                        "axisLabel": "Energy (kWh)",
-                        "drawStyle": "line",
-                        "fillOpacity": 20,
-                        "gradientMode": "opacity",
-                        "lineInterpolation": "smooth",
-                        "lineWidth": 2,
-                        "pointSize": 5,
-                        "showPoints": "auto",
-                        "spanNulls": false
-                      },
-                      "unit": "kwatth",
-                      "min": 0
-                    }
-                  },
-                  "gridPos": { "h": 10, "w": 24, "x": 0, "y": 16 },
-                  "id": 6,
-                  "options": {
-                    "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "bottom" },
-                    "tooltip": { "mode": "single" }
-                  },
-                  "title": "Daily Energy Production",
-                  "type": "timeseries",
-                  "targets": [
-                    {
-                      "expr": "sun2000_daily_energy_kwh",
-                      "legendFormat": "Daily (kWh)",
-                      "refId": "A"
-                    }
-                  ]
-                },
-                {
-                  "datasource": { "type": "prometheus", "uid": "$${datasource}" },
-                  "fieldConfig": {
-                    "defaults": {
-                      "color": { "mode": "thresholds" },
-                      "thresholds": {
-                        "steps": [
-                          { "color": "blue", "value": null },
-                          { "color": "green", "value": 500 }
-                        ]
-                      },
-                      "unit": "kwatth",
-                      "min": 0
-                    }
-                  },
-                  "gridPos": { "h": 6, "w": 12, "x": 0, "y": 26 },
-                  "id": 7,
-                  "options": {
-                    "colorMode": "background",
-                    "graphMode": "none",
-                    "justifyMode": "auto",
-                    "orientation": "auto",
-                    "reduceOptions": { "calcs": ["lastNotNull"] },
-                    "textMode": "auto"
-                  },
-                  "title": "Lifetime Production",
-                  "type": "stat",
-                  "targets": [
-                    {
-                      "expr": "sun2000_cumulative_energy_kwh",
-                      "legendFormat": "Cumulative",
-                      "refId": "A"
-                    }
-                  ]
-                },
-                {
-                  "datasource": { "type": "prometheus", "uid": "$${datasource}" },
-                  "fieldConfig": {
-                    "defaults": {
-                      "color": { "mode": "thresholds" },
-                      "thresholds": {
-                        "steps": [
-                          { "color": "red", "value": null },
-                          { "color": "green", "value": 1 }
-                        ]
-                      },
-                      "mappings": [
-                        { "options": { "0": { "text": "FAIL" }, "1": { "text": "OK" } }, "type": "value" }
-                      ]
-                    }
-                  },
-                  "gridPos": { "h": 6, "w": 12, "x": 12, "y": 26 },
-                  "id": 8,
-                  "options": {
-                    "colorMode": "background",
-                    "graphMode": "none",
-                    "justifyMode": "auto",
-                    "orientation": "auto",
-                    "reduceOptions": { "calcs": ["lastNotNull"] },
-                    "textMode": "auto"
-                  },
-                  "title": "Scrape Status",
-                  "type": "stat",
-                  "targets": [
-                    {
-                      "expr": "sun2000_scrape_success",
-                      "legendFormat": "Status",
-                      "refId": "A"
-                    }
+                    { "expr": "sum(sun2000_real_time_power_kw)", "legendFormat": "Power (kW)", "refId": "A" }
                   ]
                 }
               ],
@@ -378,11 +213,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
               "templating": {
                 "list": [
                   {
-                    "current": { "selected": false, "text": "Prometheus", "value": "prometheus" },
-                    "hide": 0,
-                    "includeAll": false,
                     "name": "datasource",
-                    "options": [],
                     "query": "prometheus",
                     "refresh": 1,
                     "type": "datasource"
@@ -392,7 +223,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
               "time": { "from": "now-24h", "to": "now" },
               "title": "Sun2000 Solar Inverter",
               "uid": "sun2000-solar",
-              "version": 1
+              "version": 2
             }
     EOT
   ]
