@@ -108,7 +108,7 @@ resource "helm_release" "bifrost" {
       resources:
         requests:
           cpu: 150m
-          memory: 128Mi
+          memory: 256Mi
         limits:
           cpu: 2000m
           memory: 2Gi
@@ -124,7 +124,7 @@ resource "helm_release" "bifrost" {
           resources:
             requests:
               cpu: 150m
-              memory: 128Mi
+              memory: 256Mi
             limits:
               cpu: 2000m
               memory: 2Gi

@@ -123,15 +123,15 @@ resource "helm_release" "velero" {
           memory: 100Mi
         limits:
           cpu: 500m
-          memory: 512Mi
+          memory: 1Gi
       nodeAgent:
         resources:
           requests:
             cpu: 100m
-            memory: 50Mi
+            memory: 256Mi
           limits:
             cpu: 500m
-            memory: 100Mi
+            memory: 1Gi
       initContainers:
         - name: velero-plugin-for-aws
           image: velero/velero-plugin-for-aws:v1.13.1

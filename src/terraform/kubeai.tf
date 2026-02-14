@@ -97,7 +97,7 @@ resource "helm_release" "kubeai" {
       resources:
         requests:
           cpu: "150m"
-          memory: "128Mi"
+          memory: "256Mi"
         limits:
           cpu: 2000m
           memory: "2Gi"

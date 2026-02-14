@@ -20,7 +20,7 @@ resource "helm_release" "metallb" {
             cpu: 50m
             memory: 30Mi
           limits:
-            cpu: 150m
+            cpu: 250m
             memory: 90Mi
       speaker:
         resources:
@@ -28,7 +28,7 @@ resource "helm_release" "metallb" {
             cpu: 50m
             memory: 30Mi
           limits:
-            cpu: 150m
+            cpu: 250m
             memory: 90Mi
         frr:
           enabled: false

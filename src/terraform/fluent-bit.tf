@@ -13,10 +13,10 @@ resource "helm_release" "fluent-bit" {
       resources:
         limits:
           cpu: 300m
-          memory: 128Mi
+          memory: 256Mi
         requests:
           cpu: 100m
-          memory: 20Mi
+          memory: 128Mi
 
       config:
         outputs: |
