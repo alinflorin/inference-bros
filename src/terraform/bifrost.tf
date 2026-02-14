@@ -155,7 +155,7 @@ resource "helm_release" "bifrost" {
 
   ]
 
-  depends_on = [helm_release.kubeai, helm_release.ingress_nginx]
+  depends_on = [helm_release.kubeai, helm_release.longhorn[0]]
 }
 
 resource "helm_release" "bifrost_service_monitor" {
