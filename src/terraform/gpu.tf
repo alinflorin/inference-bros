@@ -86,7 +86,7 @@ resource "helm_release" "nvidia_gpu_operator" {
             cpu: 50m
             memory: 30Mi
           limits:
-            cpu: ""
+            cpu: 0m
             memory: 90Mi
       validator:
         resources:
