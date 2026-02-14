@@ -141,7 +141,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   ]
                 },
                 {
-                  "datasource": { "type": "prometheus", "uid": "${datasource}" },
+                  "datasource": { "type": "prometheus", "uid": "$${datasource}" },
                   "fieldConfig": {
                     "defaults": {
                       "unit": "kwatth",
