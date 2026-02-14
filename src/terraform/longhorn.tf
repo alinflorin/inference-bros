@@ -17,7 +17,7 @@ resource "helm_release" "longhorn" {
             cpu: 200m
             memory: 256Mi
           limits:
-            cpu: null
+            
             memory: 1Gi
       longhornUI:
         replicas: 1

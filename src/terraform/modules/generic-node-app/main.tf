@@ -26,11 +26,11 @@ resource "helm_release" "generic" {
         terminationGracePeriodSeconds: ${var.termination_grace_period_seconds}
         resources:
           limits:
-            cpu: ${var.cpu_limit != "" ? var.cpu_limit : "null"}
-            memory: ${var.memory_limit != "" ? var.memory_limit : "null"}
+            ${var.cpu_limit != null ? "cpu: ${var.cpu_limit}" : ""}
+            ${var.memory_limit != null ? "memory: ${var.memory_limit}" : ""}
           requests:
-            cpu: ${var.cpu_request != "" ? var.cpu_request : "null"}
-            memory: ${var.memory_request != "" ? var.memory_request : "null"}
+            ${var.cpu_request != null ? "cpu: ${var.cpu_request}" : ""}
+            ${var.memory_request != null ? "memory: ${var.memory_request}" : ""}
         containerSecurityContext:
           readOnlyRootFilesystem: false
           runAsNonRoot: false

@@ -8,7 +8,7 @@ module "sun2000" {
   service_enabled = true
   cpu_request     = "50m"
   memory_request  = "32Mi"
-  cpu_limit       = "null"
+  cpu_limit       = null
   memory_limit    = "90Mi"
   depends_on      = [helm_release.kube_prometheus_stack]
   env = {

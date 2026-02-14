@@ -99,7 +99,7 @@ resource "helm_release" "kubeai" {
           cpu: "150m"
           memory: "128Mi"
         limits:
-          cpu: null
+          
           memory: "1Gi"
     EOT
 
@@ -284,7 +284,7 @@ resource "helm_release" "kubeai_models_explorer" {
             cpu: 50m
           limits:
             memory: 384Mi
-            cpu: null
+            
 
 
       # Service Configuration
