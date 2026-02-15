@@ -95,22 +95,6 @@ jobs:
         run: |
           terraform init
 
-      - name: Terraform plan
-        working-directory: src/terraform
-        run: |
-          terraform plan -var-file=pr.tfvars -input=false -out=tfplan
-          terraform show -json tfplan > tfplan.json
-
-      - name: Prepare chart
-        working-directory: src/terraform
-        run: |
-          node scripts/prepare_for_scan.mjs tfplan.json
-
-      - name: Helm dependency update
-        working-directory: src/chart
-        run: |
-          helm dependency update
-
       - name: Run Trivy TF scan
         uses: aquasecurity/trivy-action@master
         with:
@@ -128,6 +112,22 @@ jobs:
         with:
           sarif_file: 'trivy-terraform-results.sarif'
           category: 'terraform'
+
+      - name: Terraform plan
+        working-directory: src/terraform
+        run: |
+          terraform plan -var-file=pr.tfvars -input=false -out=tfplan
+          terraform show -json tfplan > tfplan.json
+
+      - name: Prepare chart
+        working-directory: src/terraform
+        run: |
+          node scripts/prepare_for_scan.mjs tfplan.json
+
+      - name: Helm dependency update
+        working-directory: src/chart
+        run: |
+          helm dependency update
           
       - name: Run Trivy scan on Helm chart
         uses: aquasecurity/trivy-action@master
