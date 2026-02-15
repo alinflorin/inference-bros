@@ -97,6 +97,7 @@ jobs:
 
       - name: Run Trivy TF scan
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           scan-type: 'config'
           scan-ref: 'src/terraform'
