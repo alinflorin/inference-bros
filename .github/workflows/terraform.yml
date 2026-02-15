@@ -112,7 +112,7 @@ jobs:
           helm dependency update
 
       - name: Run Trivy TF scan
-        uses: aquasecurity/trivy-action@0.34.0
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'config'
           scan-ref: 'src/terraform'
@@ -130,7 +130,7 @@ jobs:
           category: 'terraform'
           
       - name: Run Trivy scan on Helm chart
-        uses: aquasecurity/trivy-action@0.34.0
+        uses: aquasecurity/trivy-action@master
         continue-on-error: true
         with:
           scan-type: 'config'
