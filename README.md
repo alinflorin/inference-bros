@@ -75,7 +75,6 @@ For older cards (1050Ti): https://us.download.nvidia.com/XFree86/Linux-x86_64/58
 - **Headlamp** - Kubernetes dashboard for cluster management
 - **Longhorn UI** - Storage management interface
 - **PVC Explorer** - Browse model cache contents
-- **VUI** - Velero management for backups
 - **Goldilocks** - Resource rightsizing recommendations for optimal CPU/memory allocation
 
 ### Service URLs & Access
@@ -95,7 +94,6 @@ All services follow the pattern: `https://{service}.{location}.inferencebros.com
 - `bifrost.stalpeni.inferencebros.com` - LLM gateway & customer management
 - `models.stalpeni.inferencebros.com` - Model storage browser
 - `control.stalpeni.inferencebros.com` - Invoicing & usage API
-- `vui.stalpeni.inferencebros.com` - Velero UI - backup solution
 - `goldilocks.stalpeni.inferencebros.com` - Resource rightsizing recommendations
 
 **Available Locations:**
@@ -352,7 +350,6 @@ Edit `/etc/hosts` on your development machine:
 192.168.1.240 control.local.inferencebros.com
 192.168.1.240 models.local.inferencebros.com
 192.168.1.240 bifrost.local.inferencebros.com
-192.168.1.240 vui.local.inferencebros.com
 192.168.1.240 goldilocks.local.inferencebros.com
 ```
 
@@ -500,7 +497,6 @@ S3 Storage"]
     subgraph MGMT["🧩 Management UIs"]
       HEADLAMP["Headlamp"]
       LONGHORN_UI["Longhorn UI"]
-      VUI["Velero UI"]
       PVCX["Model Cache Browser"]
       GOLDILOCKS["Goldilocks
 Resource Rightsizing"]
