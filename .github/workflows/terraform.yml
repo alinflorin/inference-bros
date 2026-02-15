@@ -55,7 +55,7 @@ env:
 
 jobs:
   scan:
-    name: Terraform Plan / Validate
+    name: Security Scan (Trivy)
     runs-on: ubuntu-latest
     environment: pr
     steps:
@@ -106,44 +106,20 @@ jobs:
         run: |
           node scripts/prepare_for_scan.mjs tfplan.json
 
-      - name: Helm dependency upgrade
+      - name: Helm dependency update
         working-directory: src/terraform/chart
         run: |
-          helm dependency upgrade
+          helm dependency update
 
-      - name: Run Trivy scan on Terraform
+      - name: Run Trivy scan
         uses: aquasecurity/trivy-action@0.34.0
         with:
           scan-type: 'config'
           scan-ref: 'src/terraform'
           format: 'sarif'
-          output: 'trivy-terraform-results.sarif'
+          output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
           exit-code: '0'
-      
-      - name: Upload Terraform Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: 'trivy-terraform-results.sarif'
-          category: 'terraform'
-      
-      - name: Run Trivy scan on Helm chart
-        uses: aquasecurity/trivy-action@0.34.0
-        with:
-          scan-type: 'config'
-          scan-ref: 'src/terraform/chart'
-          format: 'sarif'
-          output: 'trivy-helm-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          exit-code: '0'
-      
-      - name: Upload Helm Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        with:
-          sarif_file: 'trivy-helm-results.sarif'
-          category: 'helm'
       
       - name: Upload SARIF files as artifacts
         uses: actions/upload-artifact@v6
@@ -151,8 +127,7 @@ jobs:
         with:
           name: trivy-sarif-results
           path: |
-            trivy-terraform-results.sarif
-            trivy-helm-results.sarif
+            trivy-results.sarif
           retention-days: 30
 
 
