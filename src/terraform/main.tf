@@ -1,7 +1,5 @@
 terraform {
-  backend "local" {
-
-  }
+  backend "local" {}
   required_providers {
     ssh = {
       source = "loafoe/ssh"
