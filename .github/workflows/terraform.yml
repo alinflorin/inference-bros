@@ -98,7 +98,8 @@ jobs:
       - name: Terraform plan
         working-directory: src/terraform
         run: |
-          terraform plan -input=false -var-file=pr.tfvars -out=tfplan
+          mv pr.tfvars terraform.tfvars
+          terraform plan -input=false -out=tfplan
           terraform show -json tfplan > tfplan.json
 
       - name: Prepare chart
