@@ -98,8 +98,7 @@ jobs:
       - name: Terraform plan
         working-directory: src/terraform
         run: |
-          mv pr.tfvars terraform.tfvars
-          terraform plan -input=false -out=tfplan
+          terraform plan -var-file=pr.tfvars -input=false -out=tfplan
           terraform show -json tfplan > tfplan.json
 
       - name: Prepare chart
@@ -118,6 +117,7 @@ jobs:
           scan-type: 'config'
           scan-ref: 'src/terraform'
           format: 'sarif'
+          tf-vars: src/terraform/pr.tfvars
           output: 'trivy-terraform-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
           exit-code: '0'
