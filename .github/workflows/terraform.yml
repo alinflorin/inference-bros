@@ -124,7 +124,7 @@ jobs:
         run: |
           node scripts/prepare_for_scan.mjs tfplan.json
 
-      - name: Cache Helm dependencies
+      - name: Cache Helm Dependencies
         uses: actions/cache@v5
         with:
           path: src/chart/charts

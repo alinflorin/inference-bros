@@ -13,7 +13,7 @@ This platform allows you to:
 ## 2. Hardware Requirements
 
 ### Production/Staging Servers
-- **Operating System:** Debian 13 (trixie)
+- **Operating System:** Debian 13 (Trixie)
 - **Access:** Root SSH access with your public key already trusted
 - **GPU Drivers:** Pre-installed (if using GPUs for model inference)
 - **Networking:** Static IPs configured on same LAN
