@@ -135,6 +135,7 @@ jobs:
         with:
           scan-type: 'config'
           scan-ref: 'src/chart'
+          skip-setup-trivy: true
           format: 'sarif'
           output: 'trivy-helm-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
