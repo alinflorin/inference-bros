@@ -70,7 +70,7 @@ jobs:
         name: Setup Terraform
         with:
           terraform_version: ${{ env.TF_VERSION }}
-          cli_config_credentials_token: ${{ github.event_name == 'workflow_dispatch' && secrets.TF_TOKEN || '' }}
+          cli_config_credentials_token: ''
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -83,9 +83,9 @@ jobs:
           path: |
             ${{ env.TF_PLUGIN_CACHE_DIR }}
             src/terraform/.terraform
-          key: terraform-${{ runner.os }}-${{ env.BACKEND_TYPE }}-${{ hashFiles('src/terraform/.terraform.lock.hcl') }}
+          key: terraform-${{ runner.os }}-local-${{ hashFiles('src/terraform/.terraform.lock.hcl') }}
           restore-keys: |
-            terraform-${{ runner.os }}-${{ env.BACKEND_TYPE }}-
+            terraform-${{ runner.os }}-local-
 
       - name: Create Plugin Cache Dir
         run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
