@@ -107,7 +107,7 @@ jobs:
           node scripts/prepare_for_scan.mjs tfplan.json
 
       - name: Helm dependency update
-        working-directory: src/terraform/chart
+        working-directory: src/chart
         run: |
           helm dependency update
 
@@ -134,7 +134,7 @@ jobs:
         continue-on-error: true
         with:
           scan-type: 'config'
-          scan-ref: 'src/terraform/chart'
+          scan-ref: 'src/chart'
           format: 'sarif'
           output: 'trivy-helm-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'

@@ -4,11 +4,11 @@ import * as fs from "fs/promises";
 (async () => {
   try {
     try {
-      await fs.rm('./chart', {recursive: true, force: true});
+      await fs.rm('../chart', {recursive: true, force: true});
     } catch {
       // ignored
     }
-    await fs.mkdir('./chart');
+    await fs.mkdir('../chart');
 
     const planFile = process.argv[2];
     const planObject = JSON.parse(
@@ -43,9 +43,9 @@ import * as fs from "fs/promises";
       valuesObject = {...valuesObject, ...hr.values};
     }
 
-    const writeValues = fs.writeFile('./chart/values.yaml', yaml.dump(valuesObject));
-    const writeChartYaml = fs.writeFile('./chart/Chart.yaml', yaml.dump(chartYamlObject));
-    const writeHelmIgnore = fs.writeFile('./chart/.helmignore', `.DS_Store
+    const writeValues = fs.writeFile('../chart/values.yaml', yaml.dump(valuesObject));
+    const writeChartYaml = fs.writeFile('../chart/Chart.yaml', yaml.dump(chartYamlObject));
+    const writeHelmIgnore = fs.writeFile('../chart/.helmignore', `.DS_Store
 .git/
 .gitignore
 *.swp
