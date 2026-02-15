@@ -112,23 +112,49 @@ jobs:
         run: |
           helm dependency update
 
-      - name: Run Trivy scan
+      - name: Run Trivy TF scan
         uses: aquasecurity/trivy-action@0.34.0
         with:
           scan-type: 'config'
           scan-ref: 'src/terraform'
           format: 'sarif'
-          output: 'trivy-results.sarif'
+          output: 'trivy-terraform-results.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '0'
+
+      - name: Upload Terraform Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: 'trivy-terraform-results.sarif'
+          category: 'terraform'
+          
+      - name: Run Trivy scan on Helm chart
+        uses: aquasecurity/trivy-action@0.34.0
+        continue-on-error: true
+        with:
+          scan-type: 'config'
+          scan-ref: 'src/terraform/chart'
+          format: 'sarif'
+          output: 'trivy-helm-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
           exit-code: '0'
       
+      - name: Upload Helm Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: 'trivy-helm-results.sarif'
+          category: 'helm'
+
       - name: Upload SARIF files as artifacts
         uses: actions/upload-artifact@v6
         if: always()
         with:
           name: trivy-sarif-results
           path: |
-            trivy-results.sarif
+            trivy-terraform-results.sarif
+            trivy-helm-results.sarif
           retention-days: 30
 
 
