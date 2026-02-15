@@ -22,6 +22,14 @@ resource "helm_release" "bifrost" {
 
   values = [
     <<-EOT
+      bifrost:
+        encryptionKey: ${sensitive(random_string.bifrost_enc_key.result)}
+      postgresql:
+        auth:
+          password: ${sensitive(random_string.bifrost_pg_password.result)}
+    EOT
+    ,
+    <<-EOT
       autoscaling:
         enabled: ${var.bifrost_hpa.enabled}
         minReplicas: ${var.bifrost_hpa.min_replicas}
@@ -33,7 +41,6 @@ resource "helm_release" "bifrost" {
           pricing:
             pricingUrl: 'http://control.control/bifrost/pricingSheet'
             pricingSyncInterval: 3600
-        encryptionKey: ${sensitive(random_string.bifrost_enc_key.result)}
         logLevel: info
 
         client:
@@ -116,8 +123,6 @@ resource "helm_release" "bifrost" {
         enabled: true
         metrics:
           enabled: true
-        auth:
-          password: ${sensitive(random_string.bifrost_pg_password.result)}
         primary:
           persistence:
             size: ${var.bifrost_storage_gb}Gi
