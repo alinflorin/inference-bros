@@ -73,7 +73,7 @@ async function scrapeKiosk() {
     scrapeSuccess = 1;
     lastScrapeTimestamp = Date.now() / 1000;
     console.log(
-      `Scrape OK: ${metrics.realTimePower} kW, ${metrics.dailyEnergy} kWh today`
+      `Scrape OK: ${JSON.stringify(metrics)}. Scrape date: ${lastScrapeTimestamp}`
     );
   } catch (err) {
     scrapeSuccess = 0;
