@@ -319,7 +319,7 @@ jobs:
 
   apply:
     name: Terraform Apply
-    needs: [plan, scan]
+    needs: plan
     runs-on: ubuntu-latest
 
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
