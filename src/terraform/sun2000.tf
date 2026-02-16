@@ -553,7 +553,10 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   "title": "Yesterday's Production",
                   "type": "stat",
                   "targets": [
-                    { "expr": "sum(sun2000_daily_energy_kwh offset 1d)", "refId": "A" }
+                    {
+                      "expr": "max_over_time(sum(sun2000_daily_energy_kwh)[1d:] offset 1d)",
+                      "refId": "A"
+                    }
                   ]
                 }
               ],
