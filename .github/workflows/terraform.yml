@@ -40,6 +40,7 @@ permissions:
   pull-requests: write
   issues: write
   security-events: write
+  actions: read
 
 concurrency:
   group: terraform-${{ github.event.inputs.environment || github.run_id }}
