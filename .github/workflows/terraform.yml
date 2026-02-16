@@ -109,6 +109,7 @@ jobs:
 
       - name: Upload Terraform Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
         if: always()
         with:
           sarif_file: 'trivy-terraform-results.sarif'
@@ -152,6 +153,7 @@ jobs:
       
       - name: Upload Helm Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
         if: always()
         with:
           sarif_file: 'trivy-helm-results.sarif'
