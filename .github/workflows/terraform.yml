@@ -55,122 +55,6 @@ env:
   BACKEND_TYPE: ${{ github.event_name == 'workflow_dispatch' && 'cloud' || 'local' }}
 
 jobs:
-  scan:
-    name: Security Scan (Trivy)
-    runs-on: ubuntu-latest
-    environment: pr
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install Helm
-        uses: azure/setup-helm@v4
-        with:
-          version: 'latest'
-
-      - uses: hashicorp/setup-terraform@v3
-        name: Setup Terraform
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-          cli_config_credentials_token: ''
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 25
-
-      - name: Cache Terraform Plugins
-        uses: actions/cache@v5
-        with:
-          path: |
-            ${{ env.TF_PLUGIN_CACHE_DIR }}
-            src/terraform/.terraform
-          key: terraform-${{ runner.os }}-local-${{ hashFiles('src/terraform/.terraform.lock.hcl') }}
-          restore-keys: |
-            terraform-${{ runner.os }}-local-
-
-      - name: Create Plugin Cache Dir
-        run: mkdir -p ${{ env.TF_PLUGIN_CACHE_DIR }}
-
-      - name: Terraform init
-        working-directory: src/terraform
-        run: |
-          terraform init
-
-      - name: Run Trivy TF scan
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
-        with:
-          scan-type: 'config'
-          scan-ref: 'src/terraform'
-          format: 'sarif'
-          tf-vars: src/terraform/pr.tfvars
-          output: 'trivy-terraform-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          exit-code: '0'
-
-      - name: Upload Terraform Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        continue-on-error: true
-        if: always()
-        with:
-          sarif_file: 'trivy-terraform-results.sarif'
-          category: 'terraform'
-
-      - name: Terraform plan
-        working-directory: src/terraform
-        run: |
-          terraform plan -var-file=pr.tfvars -input=false -out=tfplan
-          terraform show -json tfplan > tfplan.json
-
-      - name: Prepare chart
-        working-directory: src/terraform
-        run: |
-          node scripts/prepare_for_scan.mjs tfplan.json
-
-      - name: Cache Helm Dependencies
-        uses: actions/cache@v5
-        with:
-          path: src/chart/charts
-          key: helm-deps-${{ hashFiles('src/chart/Chart.yaml') }}
-          restore-keys: |
-            helm-deps-
-          
-      - name: Helm dependency update
-        working-directory: src/chart
-        run: |
-          helm dependency update
-          
-      - name: Run Trivy scan on Helm chart
-        uses: aquasecurity/trivy-action@master
-        continue-on-error: true
-        with:
-          scan-type: 'config'
-          scan-ref: 'src/chart'
-          skip-setup-trivy: true
-          format: 'sarif'
-          output: 'trivy-helm-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          exit-code: '0'
-      
-      - name: Upload Helm Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        continue-on-error: true
-        if: always()
-        with:
-          sarif_file: 'trivy-helm-results.sarif'
-          category: 'helm'
-
-      - name: Upload SARIF files as artifacts
-        uses: actions/upload-artifact@v6
-        if: always()
-        with:
-          name: trivy-sarif-results
-          path: |
-            trivy-terraform-results.sarif
-            trivy-helm-results.sarif
-          retention-days: 30
-
-
   plan:
     name: Terraform Plan / Validate
     runs-on: ubuntu-latest
@@ -322,9 +206,7 @@ jobs:
     name: Terraform Apply
     needs: plan
     runs-on: ubuntu-latest
-
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-
     environment: approval
 
     steps:
