@@ -4,7 +4,7 @@ resource "helm_release" "tempo" {
   chart            = "tempo"
   namespace        = "monitoring"
   create_namespace = true
-  version          = "1.26.4"
+  version          = "1.26.3"
   atomic           = true
   wait             = true
 
