@@ -17,7 +17,7 @@ LLMPERF_MEAN_OUTPUT_TOKENS="${LLMPERF_MEAN_OUTPUT_TOKENS:-150}"
 LLMPERF_STDDEV_OUTPUT_TOKENS="${LLMPERF_STDDEV_OUTPUT_TOKENS:-50}"
 LLMPERF_ENV="${LLMPERF_ENV:-local}"
 OPENAI_API_BASE="${OPENAI_API_BASE:-https://bifrost.${LLMPERF_ENV}.inferencebros.com/v1}"
-
+LLMPERF_TIMEOUT="${LLMPERF_TIMEOUT:-180}"
 # OPENAI_API_KEY should be set by user (no default for security)
 export OPENAI_API_BASE
 export OPENAI_API_KEY
@@ -177,6 +177,7 @@ run_llmperf() {
     info "  OPENAI_API_BASE: ${OPENAI_API_BASE}"
     info "  OPENAI_API_KEY: ${OPENAI_API_KEY:+***set***}"
     info "  Model: ${LLMPERF_MODEL}"
+    info "  Timeout: ${LLMPERF_TIMEOUT}"
     info "  Concurrent requests: ${LLMPERF_CONCURRENT}"
     info "  Max requests: ${LLMPERF_MAX_REQUESTS}"
     info "  Mean input tokens: ${LLMPERF_MEAN_TOKENS} (±${LLMPERF_STDDEV_INPUT_TOKENS})"
@@ -188,6 +189,7 @@ run_llmperf() {
         --num-concurrent-requests "${LLMPERF_CONCURRENT}" \
         --no-check-endpoint \
         --no-thinking \
+        --timeout ${LLMPERF_TIMEOUT} \
         --max-num-completed-requests "${LLMPERF_MAX_REQUESTS}" \
         --mean-input-tokens "${LLMPERF_MEAN_TOKENS}" \
         --stddev-input-tokens "${LLMPERF_STDDEV_INPUT_TOKENS}" \

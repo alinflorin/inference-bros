@@ -52,7 +52,7 @@ resource "ssh_sensitive_resource" "install_k3s_first_master" {
     permissions = "0700"
     content     = <<-EOT
       image:
-        tag: v1.0.3
+        tag: v1.0.4
       config:
         address: "${var.k3s_vip}"
 

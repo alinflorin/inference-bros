@@ -4,7 +4,7 @@ resource "helm_release" "cert_manager" {
   chart            = "cert-manager"
   namespace        = "cert-manager"
   create_namespace = true
-  version          = "1.19.2"
+  version          = "1.19.3"
   atomic           = true
   wait             = true
 

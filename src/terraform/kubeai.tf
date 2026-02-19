@@ -188,7 +188,7 @@ resource "helm_release" "kubeai_models_explorer" {
   repository = "https://stakater.github.io/stakater-charts"
   chart      = "application"
   namespace  = "kubeai"
-  version    = "6.14.1"
+  version    = "6.16.1"
   atomic     = true
   wait       = true
 
