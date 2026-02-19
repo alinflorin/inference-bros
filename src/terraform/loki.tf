@@ -4,7 +4,7 @@ resource "helm_release" "loki" {
   chart            = "loki"
   namespace        = "monitoring"
   create_namespace = true
-  version          = "6.51.0"
+  version          = "6.53.0"
   atomic           = true
   wait             = true
 

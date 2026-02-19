@@ -16,7 +16,7 @@ resource "helm_release" "oauth2_proxy" {
   chart            = "oauth2-proxy"
   namespace        = "oauth2-proxy"
   create_namespace = true
-  version          = "10.1.1"
+  version          = "10.1.4"
   atomic           = true
   wait             = true
 

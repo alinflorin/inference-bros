@@ -4,7 +4,7 @@ resource "helm_release" "snapshot_controller" {
   chart            = "snapshot-controller"
   namespace        = "kube-system"
   create_namespace = true
-  version          = "5.0.2"
+  version          = "5.0.3"
   atomic           = true
   wait             = true
 
