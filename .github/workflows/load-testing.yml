@@ -70,38 +70,6 @@ jobs:
       - name: Run benchmark
         run: aiperf profile --no-server-metrics --tokenizer ${{ github.event.inputs.tokenizer }} --ui-type none --api-key ${{ github.event.inputs.apiKey }} --endpoint-type chat --endpoint /v1/chat/completions --request-count ${{ github.event.inputs.requestCount }} --concurrency ${{ github.event.inputs.concurrency }} --streaming --model ${{ github.event.inputs.model }} --url https://bifrost.${{ github.event.inputs.location }}.inferencebros.com
 
-      - name: Generate Summary from JSON
-        if: always()
-        run: |
-          JSON_PATH=$(find artifacts -name "profile_export_aiperf.json" | head -n 1)
-          
-          if [ -f "$JSON_PATH" ]; then
-            echo "## 📊 NVIDIA AIPerf | LLM Metrics" >> $GITHUB_STEP_SUMMARY
-            echo "Model: \`${{ github.event.inputs.model }}\` | Concurrency: \`${{ github.event.inputs.concurrency }}\`" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            
-            echo "| Metric | Avg | p50 | p99 | Unit |" >> $GITHUB_STEP_SUMMARY
-            echo "| :--- | :--- | :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
-            
-            # Use standard jq select and manual string formatting
-            jq -r '
-              [
-                "time_to_first_token", 
-                "inter_token_latency", 
-                "output_token_throughput", 
-                "request_latency", 
-                "request_throughput", 
-                "output_sequence_length"
-              ] as $cols |
-              to_entries | 
-              .[] | 
-              select(.key as $k | $cols | index($k)) | 
-              "| \(.key | gsub("_"; " ")) | \(.value.avg | if . == null then "N/A" else (.*100 | round / 100) end) | \(.value.p50 // "N/A") | \(.value.p99 // "N/A") | \(.value.unit) |"
-            ' "$JSON_PATH" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ Error: profile_export_aiperf.json not found." >> $GITHUB_STEP_SUMMARY
-          fi
-
       - name: Upload Artifacts
         if: always()
         uses: actions/upload-artifact@v6
