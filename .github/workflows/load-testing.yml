@@ -68,7 +68,6 @@ jobs:
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install aiperf
-        if: steps.cache-aiperf.outputs.cache-hit != 'true'
         run: pip install --user aiperf==${{ env.AIPERF_VERSION }}
 
       - name: Run benchmark
