@@ -17,11 +17,11 @@ on:
       concurrency:
         description: "Concurrency"
         required: false
-        default: "10"
+        default: "2"
       requestCount:
         description: "Request Count"
         required: false
-        default: "100"
+        default: "8"
       model:
         description: "LLM model name"
         required: false
