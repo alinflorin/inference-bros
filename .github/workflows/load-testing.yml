@@ -72,7 +72,6 @@ jobs:
         run: pip install --user aiperf==${{ env.AIPERF_VERSION }}
 
       - name: Run benchmark
-        continue-on-error: true
         run: aiperf profile --no-server-metrics --tokenizer ${{ github.event.inputs.tokenizer }} --ui-type none --api-key ${{ github.event.inputs.apiKey }} --endpoint-type chat --endpoint /v1/chat/completions --request-count ${{ github.event.inputs.requestCount }} --concurrency ${{ github.event.inputs.concurrency }} --streaming --model ${{ github.event.inputs.model }} --url https://bifrost.${{ github.event.inputs.location }}.inferencebros.com
 
         
