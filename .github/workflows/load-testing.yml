@@ -83,7 +83,7 @@ jobs:
             echo "| Metric | Avg | p50 | p99 | Unit |" >> $GITHUB_STEP_SUMMARY
             echo "| :--- | :--- | :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
             
-            # This logic targets specific keys from your JSON structure
+            # Use standard jq select and manual string formatting
             jq -r '
               [
                 "time_to_first_token", 
@@ -94,9 +94,9 @@ jobs:
                 "output_sequence_length"
               ] as $cols |
               to_entries | 
-              filter(.key as $k | $cols | index($k)) | 
               .[] | 
-              "| \(.key | gsub("_"; " ") | title) | \(.value.avg | title // "N/A") | \(.value.p50 // "N/A") | \(.value.p99 // "N/A") | \(.value.unit) |"
+              select(.key as $k | $cols | index($k)) | 
+              "| \(.key | gsub("_"; " ")) | \(.value.avg | if . == null then "N/A" else (.*100 | round / 100) end) | \(.value.p50 // "N/A") | \(.value.p99 // "N/A") | \(.value.unit) |"
             ' "$JSON_PATH" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ Error: profile_export_aiperf.json not found." >> $GITHUB_STEP_SUMMARY
