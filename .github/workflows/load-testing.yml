@@ -73,8 +73,6 @@ jobs:
       - name: Generate Summary from JSON
         if: always()
         run: |
-          # Find the specific JSON file in the artifacts directory
-          # The path includes model name and concurrency as you've seen
           JSON_PATH=$(find artifacts -name "profile_export_aiperf.json" | head -n 1)
           
           if [ -f "$JSON_PATH" ]; then
@@ -82,12 +80,24 @@ jobs:
             echo "Model: \`${{ github.event.inputs.model }}\` | Concurrency: \`${{ github.event.inputs.concurrency }}\`" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             
-            # Create a Markdown Table using jq to parse the JSON metrics
-            echo "| Metric | Avg | Min | Max | p99 | p50 |" >> $GITHUB_STEP_SUMMARY
-            echo "| :--- | :--- | :--- | :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Avg | p50 | p99 | Unit |" >> $GITHUB_STEP_SUMMARY
+            echo "| :--- | :--- | :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
             
-            # This jq command maps the JSON keys to a readable table
-            jq -r '.metrics | to_entries[] | "| \(.key) | \(.value.avg // "N/A") | \(.value.min // "N/A") | \(.value.max // "N/A") | \(.value.p99 // "N/A") | \(.value.p50 // "N/A") |"' "$JSON_PATH" >> $GITHUB_STEP_SUMMARY
+            # This logic targets specific keys from your JSON structure
+            jq -r '
+              [
+                "time_to_first_token", 
+                "inter_token_latency", 
+                "output_token_throughput", 
+                "request_latency", 
+                "request_throughput", 
+                "output_sequence_length"
+              ] as $cols |
+              to_entries | 
+              filter(.key as $k | $cols | index($k)) | 
+              .[] | 
+              "| \(.key | gsub("_"; " ") | title) | \(.value.avg | title // "N/A") | \(.value.p50 // "N/A") | \(.value.p99 // "N/A") | \(.value.unit) |"
+            ' "$JSON_PATH" >> $GITHUB_STEP_SUMMARY
           else
             echo "❌ Error: profile_export_aiperf.json not found." >> $GITHUB_STEP_SUMMARY
           fi
