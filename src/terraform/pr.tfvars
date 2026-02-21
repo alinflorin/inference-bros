@@ -92,7 +92,6 @@ cloudflare_zone_id             = "..."
 public_ip                      = "192.168.1.240"
 dns_type                       = "external-dns"
 public_hostname                = null
-nvidia_timeslicing_replicas    = 4
 kubeai_models_cache_storage_gb = 20
 enable_backup                  = true
 s3_key_id                      = "..."
