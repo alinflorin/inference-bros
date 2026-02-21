@@ -26,7 +26,10 @@ on:
         description: "LLM model name"
         required: false
         default: "kubeai/qwen25-05b-instruct"
-
+      tokenizer:
+        description: "LLM model tokenizer"
+        required: false
+        default: "Qwen/Qwen2.5-0.5B-Instruct"
 env:
   PYTHON_VERSION: '3.14'
   AIPERF_VERSION: '0.5.0'
@@ -39,7 +42,7 @@ jobs:
     steps:
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: ${{ env.PYTHON_VERSION }}
           
       - name: Cache Pip Tools
         uses: actions/cache@v5
@@ -59,6 +62,6 @@ jobs:
 
       - name: Run benchmark
         continue-on-error: true
-        run: aiperf profile --no-server-metrics --tokenizer "" --use-server-token-count --ui-type none --api-key ${{ github.event.inputs.apiKey }} --endpoint-type chat --endpoint /v1/chat/completions --request-count ${{ github.event.inputs.requestCount }} --concurrency ${{ github.event.inputs.concurrency }} --streaming --model ${{ github.event.inputs.model }} --url https://bifrost.${{ github.event.inputs.location }}.inferencebros.com
+        run: aiperf profile --no-server-metrics --tokenizer ${{ github.event.inputs.tokenizer }} --ui-type none --api-key ${{ github.event.inputs.apiKey }} --endpoint-type chat --endpoint /v1/chat/completions --request-count ${{ github.event.inputs.requestCount }} --concurrency ${{ github.event.inputs.concurrency }} --streaming --model ${{ github.event.inputs.model }} --url https://bifrost.${{ github.event.inputs.location }}.inferencebros.com
 
         
