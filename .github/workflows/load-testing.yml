@@ -44,23 +44,19 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           
-      - name: Cache Pip Tools
+      - name: Cache Global Pip Tools
         uses: actions/cache@v5
-        id: cache-aiperf
+        id: cache-global-tools
         with:
-          path: |
-            ~/.local/bin
-            ~/.local/lib/python${{ env.PYTHON_VERSION }}/site-packages
-          key: ${{ runner.os }}-aiperf-${{ env.AIPERF_VERSION }}-py${{ env.PYTHON_VERSION }}
+          path: ~/.local
+          key: ${{ runner.os }}-global-aiperf-${{ env.AIPERF_VERSION }}
 
       - name: Cache Tokenizer
         uses: actions/cache@v5
         id: cache-tokenizer
         with:
           path: ~/.cache/huggingface/hub
-          # Key is unique to the specific tokenizer name used in the input
           key: ${{ runner.os }}-tokenizer-${{ github.event.inputs.tokenizer }}
-          # Fallback to the most recent tokenizer cache if this specific one isn't found
           restore-keys: |
             ${{ runner.os }}-tokenizer-
 
@@ -68,9 +64,37 @@ jobs:
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install aiperf
+        if: steps.cache-global-tools.outputs.cache-hit != 'true'
         run: pip install --user aiperf==${{ env.AIPERF_VERSION }}
 
       - name: Run benchmark
         run: aiperf profile --no-server-metrics --tokenizer ${{ github.event.inputs.tokenizer }} --ui-type none --api-key ${{ github.event.inputs.apiKey }} --endpoint-type chat --endpoint /v1/chat/completions --request-count ${{ github.event.inputs.requestCount }} --concurrency ${{ github.event.inputs.concurrency }} --streaming --model ${{ github.event.inputs.model }} --url https://bifrost.${{ github.event.inputs.location }}.inferencebros.com
 
-        
+      - name: Generate Summary from JSON
+        if: always()
+        run: |
+          # Find the specific JSON file in the artifacts directory
+          # The path includes model name and concurrency as you've seen
+          JSON_PATH=$(find artifacts -name "profile_export_aiperf.json" | head -n 1)
+          
+          if [ -f "$JSON_PATH" ]; then
+            echo "## 📊 NVIDIA AIPerf | LLM Metrics" >> $GITHUB_STEP_SUMMARY
+            echo "Model: \`${{ github.event.inputs.model }}\` | Concurrency: \`${{ github.event.inputs.concurrency }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            # Create a Markdown Table using jq to parse the JSON metrics
+            echo "| Metric | Avg | Min | Max | p99 | p50 |" >> $GITHUB_STEP_SUMMARY
+            echo "| :--- | :--- | :--- | :--- | :--- | :--- |" >> $GITHUB_STEP_SUMMARY
+            
+            # This jq command maps the JSON keys to a readable table
+            jq -r '.metrics | to_entries[] | "| \(.key) | \(.value.avg // "N/A") | \(.value.min // "N/A") | \(.value.max // "N/A") | \(.value.p99 // "N/A") | \(.value.p50 // "N/A") |"' "$JSON_PATH" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Error: profile_export_aiperf.json not found." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: aiperf-results-${{ github.run_id }}
+          path: artifacts/
