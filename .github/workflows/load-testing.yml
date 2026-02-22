@@ -73,3 +73,60 @@ jobs:
         with:
           name: aiperf-results-${{ github.run_id }}
           path: artifacts/
+
+      - name: Generate Benchmark Summary
+        if: always()
+        shell: bash
+        run: |
+          python3 - <<EOF
+          import csv
+          import glob
+          import os
+
+          # Find the CSV regardless of the dynamic folder name
+          files = glob.glob("artifacts/**/profile_export_aiperf.csv", recursive=True)
+          if not files:
+              print("No benchmark CSV found.")
+              exit(1)
+
+          csv_file = files[0]
+          metrics = {}
+
+          with open(csv_file, mode='r') as f:
+              reader = csv.reader(f)
+              for row in reader:
+                  if not row or len(row) < 2: continue
+                  # Handle both summary (Metric, Value) and distribution (Metric, avg, min...) rows
+                  name = row[0].strip()
+                  metrics[name] = row
+
+          # Helper to extract a value from the metric row
+          # For Summary items, index 1 is Value. For Distribution items, index 1 is Avg, index 11 is P99.
+          def get_val(name, index=1):
+              row = metrics.get(name)
+              return row[index] if row and len(row) > index else "N/A"
+
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as s:
+              s.write(f"## 🚀 LLM Load Test Results\n")
+              s.write(f"**Model:** \`${{ github.event.inputs.model }}\` | **Concurrency:** \`${{ github.event.inputs.concurrency }}\`\n\n")
+              
+              s.write("### ⏱️ Latency (User Experience)\n")
+              s.write("| Metric | Average | P99 (Worst Case) |\n")
+              s.write("| :--- | :--- | :--- |\n")
+              s.write(f"| **Time to First Token (TTFT)** | {get_val('Time to First Token (ms)', 1)} ms | {get_val('Time to First Token (ms)', 11)} ms |\n")
+              s.write(f"| **Inter-Token Latency (ITL)** | {get_val('Inter Token Latency (ms)', 1)} ms | {get_val('Inter Token Latency (ms)', 11)} ms |\n")
+              s.write(f"| **Total Request Latency** | {get_val('Request Latency (ms)', 1)} ms | {get_val('Request Latency (ms)', 11)} ms |\n\n")
+
+              s.write("### 📈 Throughput & Efficiency\n")
+              s.write("| Metric | Value |\n")
+              s.write("| :--- | :--- |\n")
+              s.write(f"| **Tokens / Sec (per user)** | {get_val('Output Token Throughput Per User (tokens/sec/user)')} |\n")
+              s.write(f"| **Total System Throughput** | {get_val('Total Token Throughput (tokens/sec)')} tokens/s |\n")
+              s.write(f"| **Requests / Sec** | {get_val('Request Throughput (requests/sec)')} |\n")
+              s.write(f"| **Prefill Speed** | {get_val('Prefill Throughput Per User (tokens/sec/user)')} tokens/s |\n\n")
+
+              s.write("### 🛠️ Technical Health\n")
+              s.write(f"* **Total Requests:** {get_val('Request Count')} successful\n")
+              s.write(f"* **Tokenizer Discrepancies:** {get_val('Usage Discrepancy Count')} (Should be 0)\n")
+              s.write(f"* **Avg. Connection Overhead:** {get_val('HTTP Connection Overhead (ms)', 1)} ms\n")
+          EOF
