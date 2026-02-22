@@ -34,6 +34,7 @@ jobs:
   load-test:
     runs-on: ubuntu-latest
     name: Load testing
+    environment: ${{ github.event.inputs.location }}
 
     steps:
       - uses: actions/setup-python@v6
