@@ -377,3 +377,160 @@ resource "helm_release" "bifrost_openai_ingress_insecure" {
 
   depends_on = [helm_release.bifrost]
 }
+
+resource "helm_release" "sun2000_service_monitor" {
+  name             = "sun2000-service-monitor"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "monitoring"
+  create_namespace = true
+  version          = "0.1.1"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: monitoring.coreos.com/v1
+        kind: ServiceMonitor
+        metadata:
+          name: sun2000
+          namespace: monitoring
+        spec:
+          endpoints:
+          - interval: 60s
+            port: http
+            path: /metrics
+          namespaceSelector:
+            matchNames:
+            - monitoring
+          selector:
+            matchLabels:
+              app.kubernetes.io/instance: sun2000
+              app.kubernetes.io/name: sun2000
+    EOT
+  ]
+
+  count = var.sun2000_enabled ? 1 : 0
+
+  depends_on = [module.sun2000]
+}
+
+resource "helm_release" "bifrost_grafana_dashboard" {
+  name             = "bifrost-grafana-dashboard"
+  repository       = "https://dasmeta.github.io/helm/"
+  chart            = "resource"
+  namespace        = "monitoring"
+  create_namespace = true
+  version          = "0.1.1"
+  atomic           = true
+  wait             = true
+
+  values = [
+    <<-EOT
+      resource:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: bifrost-grafana-dashboard
+          namespace: monitoring
+          labels:
+            grafana_dashboard: "1"
+        data:
+          bifrost.json: |-
+            {
+              "title": "Bifrost Monitoring",
+              "uid": "bifrost-kubeai-full",
+              "schemaVersion": 42,
+              "timezone": "browser",
+              "editable": true,
+              "templating": {
+                "list": [
+                  {
+                    "name": "datasource",
+                    "type": "datasource",
+                    "query": "prometheus",
+                    "label": "Data Source",
+                    "refresh": 1
+                  }
+                ]
+              },
+              "panels": [
+                {
+                  "title": "Total Cost",
+                  "type": "stat",
+                  "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+                  "datasource": { "uid": "$${datasource}" },
+                  "targets": [{ "expr": "sum(bifrost_cost_total{provider=\"kubeai\"})", "refId": "A" }]
+                },
+                {
+                  "title": "Total Input Tokens",
+                  "type": "stat",
+                  "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+                  "datasource": { "uid": "$${datasource}" },
+                  "targets": [{ "expr": "sum(bifrost_input_tokens_total{provider=\"kubeai\"})", "refId": "A" }]
+                },
+                {
+                  "title": "Total Output Tokens",
+                  "type": "stat",
+                  "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
+                  "datasource": { "uid": "$${datasource}" },
+                  "targets": [{ "expr": "sum(bifrost_output_tokens_total{provider=\"kubeai\"})", "refId": "A" }]
+                },
+                {
+                  "title": "Success RPM",
+                  "type": "timeseries",
+                  "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+                  "datasource": { "uid": "$${datasource}" },
+                  "targets": [{ "expr": "sum(rate(bifrost_success_requests_total{provider=\"kubeai\"}[1m]))", "refId": "A" }]
+                },
+                {
+                  "title": "Error RPM",
+                  "type": "timeseries",
+                  "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+                  "datasource": { "uid": "$${datasource}" },
+                  "targets": [{ "expr": "sum(rate(bifrost_error_requests_total{provider=\"kubeai\"}[1m]))", "refId": "A" }]
+                },
+                {
+                  "title": "P99 TTFT Trend (SLA)",
+                  "type": "timeseries",
+                  "gridPos": { "h": 8, "w": 24, "x": 0, "y": 14 },
+                  "datasource": { "uid": "$${datasource}" },
+                  "fieldConfig": { "defaults": { "unit": "s" } },
+                  "targets": [{
+                    "expr": "histogram_quantile(0.99, sum by (le) (rate(bifrost_stream_first_token_latency_seconds_bucket{provider=\"kubeai\"}[5m])))",
+                    "refId": "A"
+                  }]
+                },
+                {
+                  "title": "First Token Latency (TTFT) Heatmap",
+                  "type": "heatmap",
+                  "gridPos": { "h": 10, "w": 24, "x": 0, "y": 22 },
+                  "datasource": { "uid": "$${datasource}" },
+                  "options": { "color": { "scheme": "Oranges" }, "calculate": { "pluginId": "histogram" } },
+                  "targets": [{
+                    "expr": "sum by (le) (rate(bifrost_stream_first_token_latency_seconds_bucket{provider=\"kubeai\"}[5m]))",
+                    "format": "heatmap",
+                    "refId": "A"
+                  }]
+                },
+                {
+                  "title": "Inter Token Latency (TPOT) Heatmap",
+                  "type": "heatmap",
+                  "gridPos": { "h": 10, "w": 24, "x": 0, "y": 32 },
+                  "datasource": { "uid": "$${datasource}" },
+                  "options": { "color": { "scheme": "Blues" }, "calculate": { "pluginId": "histogram" } },
+                  "targets": [{
+                    "expr": "sum by (le) (rate(bifrost_stream_inter_token_latency_seconds_bucket{provider=\"kubeai\"}[5m]))",
+                    "format": "heatmap",
+                    "refId": "A"
+                  }]
+                }
+              ],
+              "time": { "from": "now-6h", "to": "now" }
+            }
+    EOT
+  ]
+
+  depends_on = [helm_release.bifrost_service_monitor]
+}
