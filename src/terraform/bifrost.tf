@@ -378,44 +378,6 @@ resource "helm_release" "bifrost_openai_ingress_insecure" {
   depends_on = [helm_release.bifrost]
 }
 
-resource "helm_release" "sun2000_service_monitor" {
-  name             = "sun2000-service-monitor"
-  repository       = "https://dasmeta.github.io/helm/"
-  chart            = "resource"
-  namespace        = "monitoring"
-  create_namespace = true
-  version          = "0.1.1"
-  atomic           = true
-  wait             = true
-
-  values = [
-    <<-EOT
-      resource:
-        apiVersion: monitoring.coreos.com/v1
-        kind: ServiceMonitor
-        metadata:
-          name: sun2000
-          namespace: monitoring
-        spec:
-          endpoints:
-          - interval: 60s
-            port: http
-            path: /metrics
-          namespaceSelector:
-            matchNames:
-            - monitoring
-          selector:
-            matchLabels:
-              app.kubernetes.io/instance: sun2000
-              app.kubernetes.io/name: sun2000
-    EOT
-  ]
-
-  count = var.sun2000_enabled ? 1 : 0
-
-  depends_on = [module.sun2000]
-}
-
 resource "helm_release" "bifrost_grafana_dashboard" {
   name             = "bifrost-grafana-dashboard"
   repository       = "https://dasmeta.github.io/helm/"
