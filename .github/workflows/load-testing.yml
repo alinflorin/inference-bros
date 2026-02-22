@@ -10,10 +10,6 @@ on:
         type: choice
         options:
           - stalpeni
-      apiKey:
-        description: "API key for Bifrost"
-        required: false
-        default: ""
       concurrency:
         description: "Concurrency"
         required: false
@@ -68,7 +64,7 @@ jobs:
         run: pip install --user aiperf==${{ env.AIPERF_VERSION }}
 
       - name: Run benchmark
-        run: aiperf profile --no-server-metrics --tokenizer ${{ github.event.inputs.tokenizer }} --ui-type none --api-key ${{ github.event.inputs.apiKey }} --endpoint-type chat --endpoint /v1/chat/completions --request-count ${{ github.event.inputs.requestCount }} --concurrency ${{ github.event.inputs.concurrency }} --streaming --model ${{ github.event.inputs.model }} --url https://bifrost.${{ github.event.inputs.location }}.inferencebros.com
+        run: aiperf profile --no-server-metrics --tokenizer ${{ github.event.inputs.tokenizer }} --ui-type none --api-key ${{ secrets.BIFROST_API_KEY }} --endpoint-type chat --endpoint /v1/chat/completions --request-count ${{ github.event.inputs.requestCount }} --concurrency ${{ github.event.inputs.concurrency }} --streaming --model ${{ github.event.inputs.model }} --url https://bifrost.${{ github.event.inputs.location }}.inferencebros.com
 
       - name: Upload Artifacts
         if: always()
