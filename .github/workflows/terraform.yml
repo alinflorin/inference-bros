@@ -218,7 +218,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_TOKEN }}
 
       - name: Download plan artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: tfplan
           path: src/terraform
