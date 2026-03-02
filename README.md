@@ -213,7 +213,7 @@ spec:
   args:
     - "--gpu-memory-utilization=0.95"
     - "--dtype=float16"
-    - "--max-num-seqs=1"
+    - "--max-num-seqs=2"
     - "--enforce-eager"
     - "--max-model-len=2048"
   ##################################
