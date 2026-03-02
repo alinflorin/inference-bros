@@ -163,7 +163,7 @@ Use the **Headlamp dashboard** to create Model resources. All models require the
 - **VLLM** - Recommended for production (supports model caching with Longhorn)
 - **Ollama** - Alternative runner
 
-#### Example: QWEN 2.5-0.5B-Instruct
+#### Example: LLaMA 3.2 - 1B - Instruct
 
 ```yaml
 apiVersion: kubeai.org/v1
@@ -172,9 +172,9 @@ metadata:
   annotations:
     openrouter.ai/json: |
       {
-        "id": "qwen25-05b-instruct",
-        "hugging_face_id": "Qwen/Qwen2.5-0.5B-Instruct",
-        "name": "Qwen2.5-0.5B-Instruct",
+        "id": "llama-32-1b-instruct",
+        "hugging_face_id": "unsloth/Llama-3.2-1B-Instruct",
+        "name": "llama-32-1b-instruct",
         "created": 1690502400,
         "input_modalities": ["text"],
         "output_modalities": ["text"],
@@ -182,8 +182,8 @@ metadata:
         "context_length": 4096,
         "max_output_length": 1024,
         "pricing": {
-          "prompt": "0.000008",
-          "completion": "0.000024",
+          "prompt": "0.000000026",
+          "completion": "0.000000198",
           "image": "0",
           "request": "0",
           "input_cache_read": "0",
@@ -195,9 +195,9 @@ metadata:
           "json_mode",
           "structured_outputs"
         ],
-        "description": "Qwen's most used model",
+        "description": "Meta's most used model",
         "openrouter": {
-          "slug": "inferencebros-local/qwen25-05b-instruct"
+          "slug": "inferencebros-local/llama-32-1b-instruct"
         },
         "datacenters": [
           {
@@ -205,16 +205,17 @@ metadata:
           }
         ]
       }
-  name: qwen25-05b-instruct
+  name: llama-32-1b-instruct
   namespace: kubeai
 spec:
   engine: VLLM # or OLlama
   # For VLLM, use args:
   args:
-    - "--gpu-memory-utilization=0.85"
-    - "--dtype=half"
+    - "--gpu-memory-utilization=0.95"
+    - "--dtype=float16"
+    - "--max-num-seqs=1"
     - "--enforce-eager"
-    - "--max-model-len=2048"
+    - "--max-model-len=512"
   ##################################
   features:
     - TextGeneration
@@ -222,7 +223,7 @@ spec:
   maxReplicas: 1
   # replicas: 1 # pin replicas
   resourceProfile: nvidia-older-unlimited:1 # Add :1 suffix to resource profile
-  url: hf://Qwen/Qwen2.5-0.5B-Instruct # For Ollama use: ollama://hf.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF:qwen2.5-0.5b-instruct-q4_k_m.gguf
+  url: hf://unsloth/Llama-3.2-1B-Instruct # For Ollama use: ollama://hf.co/unsloth/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q4_K_M.gguf
   cacheProfile: storage # VLLM only, requires Longhorn for ReadWriteMany support
 ```
 
