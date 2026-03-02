@@ -215,7 +215,7 @@ spec:
     - "--dtype=float16"
     - "--max-num-seqs=1"
     - "--enforce-eager"
-    - "--max-model-len=512"
+    - "--max-model-len=2048"
   ##################################
   features:
     - TextGeneration
