@@ -17,15 +17,15 @@ on:
       requestCount:
         description: "Request Count"
         required: false
-        default: "8"
+        default: "50"
       model:
         description: "LLM model name"
         required: false
-        default: "kubeai/qwen25-05b-instruct"
+        default: "kubeai/llama-32-1b-instruct"
       tokenizer:
         description: "LLM model tokenizer"
         required: false
-        default: "Qwen/Qwen2.5-0.5B-Instruct"
+        default: "unsloth/Llama-3.2-1B-Instruct"
 env:
   PYTHON_VERSION: '3.12'
   AIPERF_VERSION: '0.5.0'
