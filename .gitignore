@@ -92,7 +92,5 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,linux,macos,git
 
-# Claude Code
-CLAUDE.md
 # GRAFANA Feature
 GRAFANA.md
