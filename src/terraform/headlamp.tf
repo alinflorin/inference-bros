@@ -10,8 +10,6 @@ resource "helm_release" "headlamp" {
 
   values = [
     <<-EOT
-      image:
-        tag: '0.40.1'
       config:
         baseURL: ""
         enableHelm: true
