@@ -18,7 +18,7 @@ resource "helm_release" "bifrost" {
   create_namespace = true
   atomic           = true
   wait             = true
-  version          = "2.0.8"
+  version          = "2.0.10"
 
   values = [
     <<-EOT
@@ -94,8 +94,12 @@ resource "helm_release" "bifrost" {
         plugins:
           telemetry:
             enabled: true
+            config:
+              custom_labels: ["team", "environment", "organization", "project"]
           logging:
             enabled: true
+            config:
+              disable_content_logging: true
           governance:
             enabled: true
             config:
@@ -108,7 +112,7 @@ resource "helm_release" "bifrost" {
               trace_type: "otel"
               protocol: "http"
       image:
-        tag: 'v1.4.9'
+        tag: 'v1.4.10'
       replicaCount: ${var.bifrost_replicas}
       storage:
         mode: postgres
