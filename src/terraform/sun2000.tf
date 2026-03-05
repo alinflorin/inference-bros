@@ -339,6 +339,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   },
                   "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
                   "id": 8,
+                  "timeFrom": "30d",
                   "title": "Daily Energy Production (Last 30 Days)",
                   "type": "timeseries",
                   "targets": [
@@ -383,6 +384,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   },
                   "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
                   "id": 15,
+                  "timeFrom": "365d",
                   "title": "Monthly Energy Production (Last 12 Months)",
                   "type": "timeseries",
                   "targets": [
