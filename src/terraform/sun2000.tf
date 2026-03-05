@@ -343,7 +343,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   "type": "timeseries",
                   "targets": [
                     {
-                      "expr": "sum(increase(sun2000_daily_energy_kwh[1d]))",
+                      "expr": "max_over_time(sum(sun2000_daily_energy_kwh)[1d:5m])",
                       "legendFormat": "Daily Energy",
                       "refId": "A",
                       "interval": "1d"
@@ -387,7 +387,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   "type": "timeseries",
                   "targets": [
                     {
-                      "expr": "sum(increase(sun2000_month_energy_kwh[30d]))",
+                      "expr": "max_over_time(sum(sun2000_month_energy_kwh)[30d:6h])",
                       "legendFormat": "Monthly Energy",
                       "refId": "A",
                       "interval": "30d"
@@ -523,7 +523,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   "title": "Avg Daily Production (30d)",
                   "type": "stat",
                   "targets": [
-                    { "expr": "avg_over_time(sum(sun2000_daily_energy_kwh)[30d:])", "refId": "A" }
+                    { "expr": "avg_over_time(max_over_time(sum(sun2000_daily_energy_kwh)[1d:5m])[30d:1d])", "refId": "A" }
                   ]
                 },
                 {
@@ -554,9 +554,111 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   "type": "stat",
                   "targets": [
                     {
-                      "expr": "max_over_time(sum(sun2000_daily_energy_kwh)[1d:] offset 1d)",
+                      "expr": "max_over_time(sun2000_daily_energy_kwh[1d:] offset 1d)",
                       "refId": "A"
                     }
+                  ]
+                },
+                {
+                  "datasource": { "type": "prometheus", "uid": "$${datasource}" },
+                  "fieldConfig": {
+                    "defaults": {
+                      "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 20,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 2,
+                        "showPoints": "never",
+                        "spanNulls": false
+                      },
+                      "color": { "mode": "palette-classic" },
+                      "unit": "kwatt",
+                      "min": 0
+                    }
+                  },
+                  "gridPos": { "h": 10, "w": 24, "x": 0, "y": 34 },
+                  "id": 16,
+                  "title": "Today vs Yesterday",
+                  "type": "timeseries",
+                  "targets": [
+                    { "expr": "sun2000_real_time_power_kw", "legendFormat": "Today", "refId": "A" },
+                    { "expr": "sun2000_real_time_power_kw offset 1d", "legendFormat": "Yesterday", "refId": "B" }
+                  ],
+                  "options": {
+                    "legend": { "calcs": ["max", "mean"], "displayMode": "table", "placement": "bottom" },
+                    "tooltip": { "mode": "multi", "sort": "none" }
+                  }
+                },
+                {
+                  "datasource": { "type": "prometheus", "uid": "$${datasource}" },
+                  "fieldConfig": {
+                    "defaults": {
+                      "color": { "mode": "fixed", "fixedColor": "green" },
+                      "unit": "short",
+                      "decimals": 0
+                    }
+                  },
+                  "gridPos": { "h": 4, "w": 8, "x": 0, "y": 44 },
+                  "id": 17,
+                  "options": {
+                    "colorMode": "background",
+                    "graphMode": "none",
+                    "orientation": "auto",
+                    "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+                    "textMode": "auto"
+                  },
+                  "title": "CO2 Avoided — Lifetime (kg, ~0.4kg/kWh EU avg)",
+                  "type": "stat",
+                  "targets": [
+                    { "expr": "sun2000_cumulative_energy_kwh * 0.4", "refId": "A" }
+                  ]
+                },
+                {
+                  "datasource": { "type": "prometheus", "uid": "$${datasource}" },
+                  "fieldConfig": {
+                    "defaults": {
+                      "color": { "mode": "fixed", "fixedColor": "yellow" },
+                      "unit": "kwatth",
+                      "decimals": 1
+                    }
+                  },
+                  "gridPos": { "h": 4, "w": 8, "x": 8, "y": 44 },
+                  "id": 18,
+                  "options": {
+                    "colorMode": "background",
+                    "graphMode": "none",
+                    "orientation": "auto",
+                    "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+                    "textMode": "auto"
+                  },
+                  "title": "Best Day (90d)",
+                  "type": "stat",
+                  "targets": [
+                    { "expr": "max_over_time(max_over_time(sun2000_daily_energy_kwh[1d:5m])[90d:1d])", "refId": "A" }
+                  ]
+                },
+                {
+                  "datasource": { "type": "prometheus", "uid": "$${datasource}" },
+                  "fieldConfig": {
+                    "defaults": {
+                      "color": { "mode": "fixed", "fixedColor": "orange" },
+                      "unit": "kwatt",
+                      "decimals": 2
+                    }
+                  },
+                  "gridPos": { "h": 4, "w": 8, "x": 16, "y": 44 },
+                  "id": 19,
+                  "options": {
+                    "colorMode": "background",
+                    "graphMode": "none",
+                    "orientation": "auto",
+                    "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+                    "textMode": "auto"
+                  },
+                  "title": "Record Peak Power (90d)",
+                  "type": "stat",
+                  "targets": [
+                    { "expr": "max_over_time(sun2000_real_time_power_kw[90d:5m])", "refId": "A" }
                   ]
                 }
               ],
@@ -575,7 +677,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
               "time": { "from": "now-24h", "to": "now" },
               "title": "Sun2000 Solar Inverter",
               "uid": "sun2000-solar",
-              "version": 3
+              "version": 4
             }
     EOT
   ]
