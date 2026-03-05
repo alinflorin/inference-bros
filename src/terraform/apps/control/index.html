@@ -55,6 +55,33 @@
             background: white;
             border: 1px solid #ddd;
         }
+        @media (max-width: 600px) {
+            html, body, #root {
+                height: auto;
+                min-height: 100vh;
+                overflow: auto;
+            }
+            .app-container {
+                height: auto;
+                min-height: 100vh;
+                padding: 8px;
+            }
+            .tab-panel {
+                overflow: visible;
+                flex-grow: 0;
+                margin-top: 8px;
+            }
+            .table-wrapper {
+                flex-grow: 0;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .json-display {
+                flex-grow: 0;
+                min-height: 300px;
+                max-height: 60vh;
+            }
+        }
     </style>
 </head>
 <body>
@@ -66,7 +93,7 @@
             Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
             Select, MenuItem, FormControl, InputLabel, Chip, Stack,
             IconButton, Collapse, Dialog, DialogTitle, DialogContent, DialogActions,
-            Checkbox, FormControlLabel, Divider, Alert
+            Checkbox, FormControlLabel, Divider, Alert, Card, CardContent
         } = MaterialUI;
 
         // --- CONSTANTS ---
@@ -127,14 +154,14 @@
                         </TableCell>
                         <TableCell sx={{ fontWeight: 'bold' }}>{invoice.customer_name}</TableCell>
                         <TableCell>EUR {invoice.total_cost.toFixed(2)}</TableCell>
-                        <TableCell>{invoice.total_tokens.toLocaleString()}</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{invoice.total_tokens.toLocaleString()}</TableCell>
                         <TableCell>
                             <Chip label={row.sync_result.status} size="small" color={row.sync_result.status === "success" ? "success" : "default"} />
                         </TableCell>
-                        <TableCell sx={{ fontSize: "10px", color: "#888" }}>{row.sync_result.odoo_id || row.sync_result.error || "-"}</TableCell>
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontSize: "10px", color: "#888" }}>{row.sync_result.odoo_id || row.sync_result.error || "-"}</TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+                        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6} sx={{ border: 0 }}>
                             <Collapse in={open} timeout="auto" unmountOnExit>
                                 <Box sx={{ margin: 2, borderLeft: '4px solid #1976d2', pl: 2, pb: 2 }}>
                                     <Typography variant="subtitle2" gutterBottom component="div">Usage Details</Typography>
@@ -204,6 +231,7 @@
         // --- MODEL DIALOG ---
 
         function ModelDialog({ open, model, onClose, onSaved, resourceProfiles }) {
+            const isMobile = MaterialUI.useMediaQuery('(max-width:600px)');
             const profiles = (resourceProfiles && resourceProfiles.length > 0) ? resourceProfiles : RESOURCE_PROFILES_FALLBACK;
             const [form, setForm] = React.useState(defaultModel());
             const [saving, setSaving] = React.useState(false);
@@ -258,7 +286,7 @@
             };
 
             return (
-                <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+                <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth fullScreen={isMobile}>
                     <DialogTitle sx={{ pb: 0 }}>
                         {isEdit ? `Edit Model: ${form.id}` : "Add Model"}
                     </DialogTitle>
@@ -267,13 +295,13 @@
 
                         <SectionHeader>Model Identity</SectionHeader>
                         <Grid container spacing={2}>
-                            <Grid item xs={6}>
+                            <Grid item xs={12} sm={6}>
                                 <TextField label="Model ID *" fullWidth size="small"
                                     value={form.id} onChange={e => upd("id", e.target.value)}
                                     disabled={isEdit}
                                     helperText={isEdit ? "Cannot be changed after creation" : "Unique lowercase identifier"} />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={12} sm={6}>
                                 <TextField label="HuggingFace ID" fullWidth size="small"
                                     value={form.hugging_face_id} onChange={e => upd("hugging_face_id", e.target.value)}
                                     placeholder="org/model-name" />
@@ -286,20 +314,20 @@
 
                         <SectionHeader>Modalities &amp; Capabilities</SectionHeader>
                         <Grid container spacing={2}>
-                            <Grid item xs={6}>
+                            <Grid item xs={12} sm={6}>
                                 <CheckboxGroup label="Input Modalities *" options={MODALITIES}
                                     value={form.input_modalities} onChange={item => toggleArr("input_modalities", item)} />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={12} sm={6}>
                                 <CheckboxGroup label="Output Modalities *" options={MODALITIES}
                                     value={form.output_modalities} onChange={item => toggleArr("output_modalities", item)} />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={12} sm={6}>
                                 <CheckboxGroup label="Sampling Parameters *" options={SAMPLING_PARAMS}
                                     value={form.supported_sampling_parameters}
                                     onChange={item => toggleArr("supported_sampling_parameters", item)} />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item xs={12} sm={6}>
                                 <CheckboxGroup label="Supported Features *" options={OR_FEATURES}
                                     value={form.supported_features} onChange={item => toggleArr("supported_features", item)} />
                             </Grid>
@@ -307,24 +335,24 @@
 
                         <SectionHeader>Model Parameters</SectionHeader>
                         <Grid container spacing={2}>
-                            <Grid item xs={3}>
+                            <Grid item xs={6} sm={3}>
                                 <TextField label="Quantization *" fullWidth size="small"
                                     value={form.quantization} onChange={e => upd("quantization", e.target.value)}
                                     placeholder="bf16" />
                             </Grid>
-                            <Grid item xs={3}>
+                            <Grid item xs={6} sm={3}>
                                 <TextField label="Context Length *" fullWidth size="small" type="number"
                                     value={form.context_length}
                                     onChange={e => upd("context_length", parseInt(e.target.value) || 0)}
                                     inputProps={{ min: 0 }} />
                             </Grid>
-                            <Grid item xs={3}>
+                            <Grid item xs={6} sm={3}>
                                 <TextField label="Max Output Length *" fullWidth size="small" type="number"
                                     value={form.max_output_length}
                                     onChange={e => upd("max_output_length", parseInt(e.target.value) || 0)}
                                     inputProps={{ min: 0 }} />
                             </Grid>
-                            <Grid item xs={3}>
+                            <Grid item xs={6} sm={3}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel>Datacenter *</InputLabel>
                                     <Select value={form.country_code} label="Datacenter *"
@@ -342,7 +370,7 @@
                                 ["file", "File"], ["video", "Video"], ["audio", "Audio"],
                                 ["request", "Request"], ["input_cache_read", "Cache Read"], ["input_cache_write", "Cache Write"],
                             ].map(([key, label]) => (
-                                <Grid item xs={4} key={key}>
+                                <Grid item xs={6} sm={4} key={key}>
                                     <TextField label={label} fullWidth size="small"
                                         value={form.pricing[key] || "0"}
                                         onChange={e => updPricing(key, e.target.value)} />
@@ -352,7 +380,7 @@
 
                         <SectionHeader>Kubernetes Spec</SectionHeader>
                         <Grid container spacing={2}>
-                            <Grid item xs={3}>
+                            <Grid item xs={12} sm={3}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel>Engine *</InputLabel>
                                     <Select value={form.engine} label="Engine *"
@@ -361,12 +389,12 @@
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={9}>
+                            <Grid item xs={12} sm={9}>
                                 <TextField label="URL *" fullWidth size="small"
                                     value={form.url} onChange={e => upd("url", e.target.value)}
                                     placeholder="hf://org/model  or  ollama://hf.co/org/model:tag" />
                             </Grid>
-                            <Grid item xs={8}>
+                            <Grid item xs={9} sm={8}>
                                 <FormControl fullWidth size="small">
                                     <InputLabel>Resource Profile *</InputLabel>
                                     <Select value={form.resourceProfileName} label="Resource Profile *"
@@ -375,7 +403,7 @@
                                     </Select>
                                 </FormControl>
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid item xs={3} sm={4}>
                                 <TextField label="Count" fullWidth size="small" type="number"
                                     value={form.resourceProfileCount}
                                     onChange={e => upd("resourceProfileCount", parseInt(e.target.value) || 1)}
@@ -385,19 +413,19 @@
                                 <CheckboxGroup label="KubeAI Features *" options={KUBEAI_FEATURES}
                                     value={form.features} onChange={item => toggleArr("features", item)} />
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid item xs={12} sm={4}>
                                 <TextField label="Min Replicas *" fullWidth size="small" type="number"
                                     value={form.minReplicas}
                                     onChange={e => upd("minReplicas", parseInt(e.target.value) || 0)}
                                     inputProps={{ min: 0 }} />
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid item xs={12} sm={4}>
                                 <TextField label="Max Replicas *" fullWidth size="small" type="number"
                                     value={form.maxReplicas}
                                     onChange={e => upd("maxReplicas", parseInt(e.target.value) || 1)}
                                     inputProps={{ min: 1 }} />
                             </Grid>
-                            <Grid item xs={4}>
+                            <Grid item xs={12} sm={4}>
                                 <TextField label="Replicas (pin, optional)" fullWidth size="small" type="number"
                                     value={form.replicas === null || form.replicas === undefined ? "" : form.replicas}
                                     onChange={e => upd("replicas", e.target.value === "" ? null : parseInt(e.target.value))}
@@ -545,7 +573,7 @@
 
                     <Box className="tab-panel">
                         {activeTab === 0 && (
-                            <Grid container spacing={2} sx={{ height: "100%" }}>
+                            <Grid container spacing={2} sx={{ height: { xs: 'auto', md: '100%' } }}>
                                 <Grid item xs={12} md={3}>
                                     <Stack spacing={2}>
                                         <TextField label="Simulation Date" type="date" value={billingDate} onChange={e => setBillingDate(e.target.value)} InputLabelProps={{ shrink: true }} fullWidth />
@@ -562,18 +590,18 @@
                                         </Button>
                                     </Stack>
                                 </Grid>
-                                <Grid item xs={12} md={9} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                                    <div className="table-wrapper">
+                                <Grid item xs={12} md={9} sx={{ height: { xs: 'auto', md: '100%' }, display: "flex", flexDirection: "column" }}>
+                                    <div className="table-wrapper" style={{ minHeight: '200px' }}>
                                         {invResults ? (
-                                            <Table size="small" stickyHeader>
+                                            <Table size="small" stickyHeader sx={{ minWidth: 320 }}>
                                                 <TableHead>
                                                     <TableRow>
                                                         <TableCell width="40" />
                                                         <TableCell>Customer</TableCell>
                                                         <TableCell>Cost</TableCell>
-                                                        <TableCell>Tokens</TableCell>
+                                                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Tokens</TableCell>
                                                         <TableCell>Status</TableCell>
-                                                        <TableCell>Reference</TableCell>
+                                                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Reference</TableCell>
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
@@ -598,7 +626,7 @@
                         )}
 
                         {activeTab === 2 && (
-                            <Grid container spacing={2} sx={{ height: "100%" }}>
+                            <Grid container spacing={2} sx={{ height: { xs: 'auto', md: '100%' } }}>
                                 <Grid item xs={12} md={3}>
                                     <Stack spacing={2}>
                                         <TextField label="API Key" value={statsKey} onChange={e => setStatsKey(e.target.value)} fullWidth type="password" />
@@ -609,7 +637,7 @@
                                         </Button>
                                     </Stack>
                                 </Grid>
-                                <Grid item xs={12} md={9} sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                                <Grid item xs={12} md={9} sx={{ height: { xs: 'auto', md: '100%' }, display: "flex", flexDirection: "column" }}>
                                     <pre className="json-display">{usageRes ? JSON.stringify(usageRes, null, 2) : "// Enter API key and date range, then click fetch"}</pre>
                                 </Grid>
                             </Grid>
@@ -623,7 +651,7 @@
                         )}
 
                         {activeTab === 4 && (
-                            <Box sx={{ height: "100%", display: "flex", flexDirection: "column", gap: 1.5 }}>
+                            <Box sx={{ height: { xs: 'auto', sm: '100%' }, display: "flex", flexDirection: "column", gap: 1.5 }}>
                                 <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
                                     <Button size="small" variant="outlined" onClick={() => { setModelsList(null); loadModels(); }} disabled={loading}>
                                         Refresh
@@ -632,77 +660,128 @@
                                         + Add Model
                                     </Button>
                                 </Box>
-                                <div className="table-wrapper">
-                                    {!modelsList ? (
-                                        <Box sx={{ p: 4, textAlign: "center" }}><CircularProgress /></Box>
-                                    ) : Array.isArray(modelsList) ? (
-                                        modelsList.length === 0 ? (
-                                            <Box sx={{ p: 4, textAlign: "center", color: "#aaa" }}>No models found in the kubeai namespace.</Box>
-                                        ) : (
-                                            <Table size="small" stickyHeader>
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell>Name</TableCell>
-                                                        <TableCell>Engine</TableCell>
-                                                        <TableCell>URL</TableCell>
-                                                        <TableCell>Resource Profile</TableCell>
-                                                        <TableCell>Replicas</TableCell>
-                                                        <TableCell>Ready</TableCell>
-                                                        <TableCell>Cache</TableCell>
-                                                        <TableCell>KubeAI Features</TableCell>
-                                                        <TableCell align="right">Actions</TableCell>
+
+                                {!modelsList && (
+                                    <Box sx={{ p: 4, textAlign: "center" }}><CircularProgress /></Box>
+                                )}
+                                {modelsList && !Array.isArray(modelsList) && (
+                                    <Box sx={{ p: 2 }}><Alert severity="error">{modelsList.error || "Failed to load models"}</Alert></Box>
+                                )}
+                                {Array.isArray(modelsList) && modelsList.length === 0 && (
+                                    <Box sx={{ p: 4, textAlign: "center", color: "#aaa" }}>No models found in the kubeai namespace.</Box>
+                                )}
+
+                                {/* Card list — mobile only */}
+                                {Array.isArray(modelsList) && modelsList.length > 0 && (
+                                    <Stack spacing={1.5} sx={{ display: { xs: 'flex', sm: 'none' }, pb: 2 }}>
+                                        {modelsList.map(m => (
+                                            <Paper key={m.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
+                                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                                                    <Box sx={{ minWidth: 0, mr: 1 }}>
+                                                        <Typography variant="subtitle2" sx={{ fontWeight: 'bold', wordBreak: 'break-all', lineHeight: 1.3 }}>{m.id}</Typography>
+                                                        <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 0.5 }}>
+                                                            <Chip label={m.engine} size="small" color={m.engine === "VLLM" ? "primary" : "default"} variant="outlined" />
+                                                            {m.cacheLoaded !== null && (
+                                                                <Chip label={m.cacheLoaded ? "cache: loaded" : "cache: pending"} size="small"
+                                                                    color={m.cacheLoaded ? "success" : "default"} variant="outlined" />
+                                                            )}
+                                                        </Box>
+                                                    </Box>
+                                                    <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
+                                                        <Button size="small" onClick={() => openEdit(m)}>Edit</Button>
+                                                        <Button size="small" color="error" onClick={() => confirmDelete(m.id)}>Del</Button>
+                                                    </Box>
+                                                </Box>
+                                                <Typography variant="caption" sx={{ display: 'block', color: '#666', wordBreak: 'break-all', mb: 1 }}>{m.url}</Typography>
+                                                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>Profile</Typography>
+                                                        <Typography variant="body2" sx={{ fontSize: '12px' }}>{m.resourceProfileName}:{m.resourceProfileCount}</Typography>
+                                                    </Box>
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>Replicas</Typography>
+                                                        <Typography variant="body2" sx={{ fontSize: '12px' }}>
+                                                            {m.minReplicas}–{m.maxReplicas}
+                                                            {m.replicas != null && m.replicas !== "" && ` (pinned: ${m.replicas})`}
+                                                        </Typography>
+                                                    </Box>
+                                                    <Box>
+                                                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>Ready</Typography>
+                                                        <Typography variant="body2" sx={{ fontSize: '12px' }}>{m.replicasReady !== null ? `${m.replicasReady}/${m.replicasAll}` : "—"}</Typography>
+                                                    </Box>
+                                                </Box>
+                                                {(m.features || []).length > 0 && (
+                                                    <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', mt: 1 }}>
+                                                        {(m.features || []).map(f => <Chip key={f} label={f} size="small" sx={{ fontSize: '10px' }} />)}
+                                                    </Box>
+                                                )}
+                                            </Paper>
+                                        ))}
+                                    </Stack>
+                                )}
+
+                                {/* Table — desktop only */}
+                                {Array.isArray(modelsList) && modelsList.length > 0 && (
+                                    <Box className="table-wrapper" sx={{ display: { xs: 'none', sm: 'block' } }}>
+                                        <Table size="small" stickyHeader>
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>Name</TableCell>
+                                                    <TableCell>Engine</TableCell>
+                                                    <TableCell sx={{ display: { sm: 'none', md: 'table-cell' } }}>URL</TableCell>
+                                                    <TableCell>Resource Profile</TableCell>
+                                                    <TableCell>Replicas</TableCell>
+                                                    <TableCell>Ready</TableCell>
+                                                    <TableCell>Cache</TableCell>
+                                                    <TableCell sx={{ display: { sm: 'none', lg: 'table-cell' } }}>KubeAI Features</TableCell>
+                                                    <TableCell align="right">Actions</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {modelsList.map(m => (
+                                                    <TableRow key={m.id} hover>
+                                                        <TableCell sx={{ fontWeight: 'bold', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{m.id}</TableCell>
+                                                        <TableCell>
+                                                            <Chip label={m.engine} size="small" color={m.engine === "VLLM" ? "primary" : "default"} variant="outlined" />
+                                                        </TableCell>
+                                                        <TableCell sx={{ display: { sm: 'none', md: 'table-cell' }, fontSize: '11px', color: '#555', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                            {m.url}
+                                                        </TableCell>
+                                                        <TableCell sx={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                                            {m.resourceProfileName}<Typography component="span" color="text.secondary">:{m.resourceProfileCount}</Typography>
+                                                        </TableCell>
+                                                        <TableCell sx={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                                            {m.minReplicas}-{m.maxReplicas}
+                                                            {m.replicas !== null && m.replicas !== undefined && m.replicas !== "" &&
+                                                                <Typography component="span" color="text.secondary"> (pinned: {m.replicas})</Typography>
+                                                            }
+                                                        </TableCell>
+                                                        <TableCell sx={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                                            {m.replicasReady !== null ? `${m.replicasReady}/${m.replicasAll}` : "-"}
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            {m.cacheLoaded === null ? "-" : (
+                                                                <Chip label={m.cacheLoaded ? "loaded" : "pending"} size="small"
+                                                                    color={m.cacheLoaded ? "success" : "default"} variant="outlined" />
+                                                            )}
+                                                        </TableCell>
+                                                        <TableCell sx={{ display: { sm: 'none', lg: 'table-cell' } }}>
+                                                            <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                                                                {(m.features || []).map(f => (
+                                                                    <Chip key={f} label={f} size="small" sx={{ fontSize: '10px' }} />
+                                                                ))}
+                                                            </Box>
+                                                        </TableCell>
+                                                        <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                                                            <Button size="small" onClick={() => openEdit(m)} sx={{ mr: 0.5 }}>Edit</Button>
+                                                            <Button size="small" color="error" onClick={() => confirmDelete(m.id)}>Delete</Button>
+                                                        </TableCell>
                                                     </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    {modelsList.map(m => (
-                                                        <TableRow key={m.id} hover>
-                                                            <TableCell sx={{ fontWeight: 'bold' }}>{m.id}</TableCell>
-                                                            <TableCell>
-                                                                <Chip label={m.engine} size="small" color={m.engine === "VLLM" ? "primary" : "default"} variant="outlined" />
-                                                            </TableCell>
-                                                            <TableCell sx={{ fontSize: '11px', color: '#555', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                                                {m.url}
-                                                            </TableCell>
-                                                            <TableCell sx={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                                                {m.resourceProfileName}<Typography component="span" color="text.secondary">:{m.resourceProfileCount}</Typography>
-                                                            </TableCell>
-                                                            <TableCell sx={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                                                {m.minReplicas}-{m.maxReplicas}
-                                                                {m.replicas !== null && m.replicas !== undefined && m.replicas !== "" &&
-                                                                    <Typography component="span" color="text.secondary"> (pinned: {m.replicas})</Typography>
-                                                                }
-                                                            </TableCell>
-                                                            <TableCell sx={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
-                                                                {m.replicasReady !== null ? `${m.replicasReady}/${m.replicasAll}` : "-"}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                {m.cacheLoaded === null ? "-" : (
-                                                                    <Chip label={m.cacheLoaded ? "loaded" : "pending"} size="small"
-                                                                        color={m.cacheLoaded ? "success" : "default"} variant="outlined" />
-                                                                )}
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                                                                    {(m.features || []).map(f => (
-                                                                        <Chip key={f} label={f} size="small" sx={{ fontSize: '10px' }} />
-                                                                    ))}
-                                                                </Box>
-                                                            </TableCell>
-                                                            <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                                                                <Button size="small" onClick={() => openEdit(m)} sx={{ mr: 0.5 }}>Edit</Button>
-                                                                <Button size="small" color="error" onClick={() => confirmDelete(m.id)}>Delete</Button>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        )
-                                    ) : (
-                                        <Box sx={{ p: 3 }}>
-                                            <Alert severity="error">{modelsList.error || "Failed to load models"}</Alert>
-                                        </Box>
-                                    )}
-                                </div>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </Box>
+                                )}
                             </Box>
                         )}
                     </Box>
