@@ -182,6 +182,9 @@ function parseModelCRD(item) {
     resourceProfileCount: ci >= 0 ? (parseInt(rp.substring(ci + 1)) || 1) : 1,
     url: item.spec.url || "",
     cacheProfile: !!item.spec.cacheProfile,
+    cacheLoaded: item.status?.cache?.loaded ?? null,
+    replicasAll: item.status?.replicas?.all ?? null,
+    replicasReady: item.status?.replicas?.ready ?? null,
   };
 }
 

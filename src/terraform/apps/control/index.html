@@ -647,6 +647,8 @@
                                                         <TableCell>URL</TableCell>
                                                         <TableCell>Resource Profile</TableCell>
                                                         <TableCell>Replicas</TableCell>
+                                                        <TableCell>Ready</TableCell>
+                                                        <TableCell>Cache</TableCell>
                                                         <TableCell>KubeAI Features</TableCell>
                                                         <TableCell align="right">Actions</TableCell>
                                                     </TableRow>
@@ -669,6 +671,15 @@
                                                                 {m.replicas !== null && m.replicas !== undefined && m.replicas !== "" &&
                                                                     <Typography component="span" color="text.secondary"> (pinned: {m.replicas})</Typography>
                                                                 }
+                                                            </TableCell>
+                                                            <TableCell sx={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                                                {m.replicasReady !== null ? `${m.replicasReady}/${m.replicasAll}` : "-"}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {m.cacheLoaded === null ? "-" : (
+                                                                    <Chip label={m.cacheLoaded ? "loaded" : "pending"} size="small"
+                                                                        color={m.cacheLoaded ? "success" : "default"} variant="outlined" />
+                                                                )}
                                                             </TableCell>
                                                             <TableCell>
                                                                 <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
