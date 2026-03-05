@@ -65,8 +65,56 @@
             Grid, CircularProgress, Tabs, Tab,
             Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
             Select, MenuItem, FormControl, InputLabel, Chip, Stack,
-            IconButton, Collapse
+            IconButton, Collapse, Dialog, DialogTitle, DialogContent, DialogActions,
+            Checkbox, FormControlLabel, Divider, Alert
         } = MaterialUI;
+
+        // --- CONSTANTS ---
+
+        const RESOURCE_PROFILES_FALLBACK = [
+            "cpu-unlimited", "cpu-avx2-unlimited",
+            "nvidia-unlimited", "nvidia-older-unlimited", "amd-unlimited"
+        ];
+        const MODALITIES = ["text", "image", "file", "video", "audio"];
+        const SAMPLING_PARAMS = ["temperature", "stop"];
+        const OR_FEATURES = ["tools", "json_mode", "structured_outputs", "web_search", "reasoning"];
+        const KUBEAI_FEATURES = ["TextGeneration", "TextEmbedding", "Reranking", "SpeechToText"];
+        const ENGINES = ["VLLM", "OLlama"];
+        const COUNTRY_CODES = ["RO"];
+
+        function defaultModel() {
+            return {
+                id: "",
+                hugging_face_id: "",
+                created: null,
+                input_modalities: ["text"],
+                output_modalities: ["text"],
+                quantization: "",
+                context_length: 4096,
+                max_output_length: 1024,
+                pricing: {
+                    prompt: "0", completion: "0", image: "0", file: "0",
+                    video: "0", audio: "0", request: "0",
+                    input_cache_read: "0", input_cache_write: "0",
+                },
+                supported_sampling_parameters: ["temperature", "stop"],
+                supported_features: [],
+                description: "",
+                country_code: "RO",
+                engine: "VLLM",
+                args: [],
+                features: ["TextGeneration"],
+                minReplicas: 0,
+                maxReplicas: 1,
+                replicas: "",
+                resourceProfileName: "nvidia-older-unlimited",
+                resourceProfileCount: 1,
+                url: "",
+                cacheProfile: false,
+            };
+        }
+
+        // --- SHARED COMPONENTS ---
 
         function CollapsibleInvoiceRow({ row }) {
             const [open, setOpen] = React.useState(false);
@@ -118,6 +166,288 @@
             );
         }
 
+        function CheckboxGroup({ label, options, value, onChange }) {
+            return (
+                <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{label}</Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                        {options.map(opt => (
+                            <FormControlLabel
+                                key={opt}
+                                control={
+                                    <Checkbox
+                                        size="small"
+                                        checked={(value || []).includes(opt)}
+                                        onChange={() => onChange(opt)}
+                                    />
+                                }
+                                label={<Typography variant="body2">{opt}</Typography>}
+                                sx={{ mr: 1 }}
+                            />
+                        ))}
+                    </Box>
+                </Box>
+            );
+        }
+
+        function SectionHeader({ children }) {
+            return (
+                <Box sx={{ mt: 3, mb: 1.5 }}>
+                    <Typography variant="overline" color="primary.main" sx={{ fontWeight: 600, letterSpacing: 1 }}>
+                        {children}
+                    </Typography>
+                    <Divider sx={{ mt: 0.5 }} />
+                </Box>
+            );
+        }
+
+        // --- MODEL DIALOG ---
+
+        function ModelDialog({ open, model, onClose, onSaved, resourceProfiles }) {
+            const profiles = (resourceProfiles && resourceProfiles.length > 0) ? resourceProfiles : RESOURCE_PROFILES_FALLBACK;
+            const [form, setForm] = React.useState(defaultModel());
+            const [saving, setSaving] = React.useState(false);
+            const [error, setError] = React.useState(null);
+            const isEdit = !!model;
+
+            React.useEffect(() => {
+                if (open) {
+                    setForm(model ? { ...model } : defaultModel());
+                    setError(null);
+                }
+            }, [open, model]);
+
+            const upd = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
+            const updPricing = (field, value) => setForm(prev => ({
+                ...prev, pricing: { ...prev.pricing, [field]: value }
+            }));
+            const toggleArr = (field, item) => setForm(prev => {
+                const arr = prev[field] || [];
+                return { ...prev, [field]: arr.includes(item) ? arr.filter(x => x !== item) : [...arr, item] };
+            });
+
+            const addArg = () => setForm(prev => ({ ...prev, args: [...(prev.args || []), ""] }));
+            const removeArg = idx => setForm(prev => ({ ...prev, args: prev.args.filter((_, i) => i !== idx) }));
+            const updArg = (idx, val) => setForm(prev => {
+                const args = [...prev.args];
+                args[idx] = val;
+                return { ...prev, args };
+            });
+
+            const save = async () => {
+                if (!form.id) { setError("Model ID is required"); return; }
+                if (!form.url) { setError("URL is required"); return; }
+                setSaving(true);
+                setError(null);
+                try {
+                    const method = isEdit ? "PUT" : "POST";
+                    const url = isEdit ? `/api/models/${form.id}` : "/api/models";
+                    const resp = await fetch(url, {
+                        method,
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(form),
+                    });
+                    const data = await resp.json();
+                    if (!resp.ok) throw new Error(data.error || "Request failed");
+                    onSaved();
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setSaving(false);
+                }
+            };
+
+            return (
+                <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+                    <DialogTitle sx={{ pb: 0 }}>
+                        {isEdit ? `Edit Model: ${form.id}` : "Add Model"}
+                    </DialogTitle>
+                    <DialogContent dividers sx={{ overflowY: 'auto' }}>
+                        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+                        <SectionHeader>Model Identity</SectionHeader>
+                        <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                                <TextField label="Model ID *" fullWidth size="small"
+                                    value={form.id} onChange={e => upd("id", e.target.value)}
+                                    disabled={isEdit}
+                                    helperText={isEdit ? "Cannot be changed after creation" : "Unique lowercase identifier"} />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <TextField label="HuggingFace ID" fullWidth size="small"
+                                    value={form.hugging_face_id} onChange={e => upd("hugging_face_id", e.target.value)}
+                                    placeholder="org/model-name" />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <TextField label="Description" fullWidth size="small" multiline rows={2}
+                                    value={form.description} onChange={e => upd("description", e.target.value)} />
+                            </Grid>
+                        </Grid>
+
+                        <SectionHeader>Modalities &amp; Capabilities</SectionHeader>
+                        <Grid container spacing={2}>
+                            <Grid item xs={6}>
+                                <CheckboxGroup label="Input Modalities *" options={MODALITIES}
+                                    value={form.input_modalities} onChange={item => toggleArr("input_modalities", item)} />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CheckboxGroup label="Output Modalities *" options={MODALITIES}
+                                    value={form.output_modalities} onChange={item => toggleArr("output_modalities", item)} />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CheckboxGroup label="Sampling Parameters *" options={SAMPLING_PARAMS}
+                                    value={form.supported_sampling_parameters}
+                                    onChange={item => toggleArr("supported_sampling_parameters", item)} />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CheckboxGroup label="Supported Features *" options={OR_FEATURES}
+                                    value={form.supported_features} onChange={item => toggleArr("supported_features", item)} />
+                            </Grid>
+                        </Grid>
+
+                        <SectionHeader>Model Parameters</SectionHeader>
+                        <Grid container spacing={2}>
+                            <Grid item xs={3}>
+                                <TextField label="Quantization *" fullWidth size="small"
+                                    value={form.quantization} onChange={e => upd("quantization", e.target.value)}
+                                    placeholder="bf16" />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <TextField label="Context Length *" fullWidth size="small" type="number"
+                                    value={form.context_length}
+                                    onChange={e => upd("context_length", parseInt(e.target.value) || 0)}
+                                    inputProps={{ min: 0 }} />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <TextField label="Max Output Length *" fullWidth size="small" type="number"
+                                    value={form.max_output_length}
+                                    onChange={e => upd("max_output_length", parseInt(e.target.value) || 0)}
+                                    inputProps={{ min: 0 }} />
+                            </Grid>
+                            <Grid item xs={3}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Datacenter *</InputLabel>
+                                    <Select value={form.country_code} label="Datacenter *"
+                                        onChange={e => upd("country_code", e.target.value)}>
+                                        {COUNTRY_CODES.map(c => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                        </Grid>
+
+                        <SectionHeader>Pricing (€ per token / request)</SectionHeader>
+                        <Grid container spacing={2}>
+                            {[
+                                ["prompt", "Prompt"], ["completion", "Completion"], ["image", "Image"],
+                                ["file", "File"], ["video", "Video"], ["audio", "Audio"],
+                                ["request", "Request"], ["input_cache_read", "Cache Read"], ["input_cache_write", "Cache Write"],
+                            ].map(([key, label]) => (
+                                <Grid item xs={4} key={key}>
+                                    <TextField label={label} fullWidth size="small"
+                                        value={form.pricing[key] || "0"}
+                                        onChange={e => updPricing(key, e.target.value)} />
+                                </Grid>
+                            ))}
+                        </Grid>
+
+                        <SectionHeader>Kubernetes Spec</SectionHeader>
+                        <Grid container spacing={2}>
+                            <Grid item xs={3}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Engine *</InputLabel>
+                                    <Select value={form.engine} label="Engine *"
+                                        onChange={e => upd("engine", e.target.value)}>
+                                        {ENGINES.map(e => <MenuItem key={e} value={e}>{e}</MenuItem>)}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={9}>
+                                <TextField label="URL *" fullWidth size="small"
+                                    value={form.url} onChange={e => upd("url", e.target.value)}
+                                    placeholder="hf://org/model  or  ollama://hf.co/org/model:tag" />
+                            </Grid>
+                            <Grid item xs={8}>
+                                <FormControl fullWidth size="small">
+                                    <InputLabel>Resource Profile *</InputLabel>
+                                    <Select value={form.resourceProfileName} label="Resource Profile *"
+                                        onChange={e => upd("resourceProfileName", e.target.value)}>
+                                        {profiles.map(p => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+                                    </Select>
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <TextField label="Count" fullWidth size="small" type="number"
+                                    value={form.resourceProfileCount}
+                                    onChange={e => upd("resourceProfileCount", parseInt(e.target.value) || 1)}
+                                    inputProps={{ min: 1 }} />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <CheckboxGroup label="KubeAI Features *" options={KUBEAI_FEATURES}
+                                    value={form.features} onChange={item => toggleArr("features", item)} />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <TextField label="Min Replicas *" fullWidth size="small" type="number"
+                                    value={form.minReplicas}
+                                    onChange={e => upd("minReplicas", parseInt(e.target.value) || 0)}
+                                    inputProps={{ min: 0 }} />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <TextField label="Max Replicas *" fullWidth size="small" type="number"
+                                    value={form.maxReplicas}
+                                    onChange={e => upd("maxReplicas", parseInt(e.target.value) || 1)}
+                                    inputProps={{ min: 1 }} />
+                            </Grid>
+                            <Grid item xs={4}>
+                                <TextField label="Replicas (pin, optional)" fullWidth size="small" type="number"
+                                    value={form.replicas === null || form.replicas === undefined ? "" : form.replicas}
+                                    onChange={e => upd("replicas", e.target.value === "" ? null : parseInt(e.target.value))}
+                                    inputProps={{ min: 0 }}
+                                    helperText="Pins exact replica count" />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox checked={!!form.cacheProfile}
+                                            onChange={e => upd("cacheProfile", e.target.checked)} />
+                                    }
+                                    label={
+                                        <Typography variant="body2">
+                                            Enable Cache Profile (storage) — VLLM only, requires Longhorn
+                                        </Typography>
+                                    }
+                                />
+                            </Grid>
+                        </Grid>
+
+                        <Box sx={{ mt: 2 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                                <Typography variant="caption" color="text.secondary">Server Args</Typography>
+                                <Button size="small" onClick={addArg}>+ Add Arg</Button>
+                            </Box>
+                            {(form.args || []).map((arg, i) => (
+                                <Box key={i} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                                    <TextField size="small" fullWidth value={arg}
+                                        onChange={e => updArg(i, e.target.value)}
+                                        placeholder="--flag=value" />
+                                    <IconButton size="small" onClick={() => removeArg(i)}>&#x2715;</IconButton>
+                                </Box>
+                            ))}
+                        </Box>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={onClose} disabled={saving}>Cancel</Button>
+                        <Button onClick={save} variant="contained" disableElevation disabled={saving}>
+                            {saving
+                                ? <CircularProgress size={20} color="inherit" />
+                                : (isEdit ? "Save Changes" : "Create Model")}
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            );
+        }
+
+        // --- APP ---
+
         function App() {
             const [activeTab, setActiveTab] = React.useState(0);
             const [loading, setLoading] = React.useState(false);
@@ -130,6 +460,14 @@
             const [pricingRes, setPricingRes] = React.useState(null);
             const [usageRes, setUsageRes] = React.useState(null);
             const [modelsRes, setModelsRes] = React.useState(null);
+
+            // Models tab state
+            const [modelsList, setModelsList] = React.useState(null);
+            const [resourceProfiles, setResourceProfiles] = React.useState([]);
+            const [modelDialogOpen, setModelDialogOpen] = React.useState(false);
+            const [editingModel, setEditingModel] = React.useState(null);
+            const [deleteConfirm, setDeleteConfirm] = React.useState({ open: false, name: null });
+            const [deleting, setDeleting] = React.useState(false);
 
             const apiCall = async (endpoint, setter, options = {}) => {
                 setLoading(true);
@@ -145,9 +483,15 @@
                 }
             };
 
+            const loadModels = () => apiCall("/api/models", setModelsList);
+
             React.useEffect(() => {
                 if (activeTab === 1 && !pricingRes) apiCall("/bifrost/pricingSheet", setPricingRes);
                 if (activeTab === 3 && !modelsRes) apiCall("/openrouter/models", setModelsRes);
+                if (activeTab === 4 && !modelsList) loadModels();
+                if (activeTab === 4 && resourceProfiles.length === 0) apiCall("/api/resource-profiles", data => {
+                    if (Array.isArray(data)) setResourceProfiles(data);
+                });
             }, [activeTab]);
 
             const triggerInvoicing = () => {
@@ -166,14 +510,36 @@
                 });
             };
 
+            const openCreate = () => { setEditingModel(null); setModelDialogOpen(true); };
+            const openEdit = model => { setEditingModel(model); setModelDialogOpen(true); };
+            const closeDialog = () => setModelDialogOpen(false);
+            const onSaved = () => { closeDialog(); setModelsList(null); loadModels(); };
+
+            const confirmDelete = name => setDeleteConfirm({ open: true, name });
+            const cancelDelete = () => setDeleteConfirm({ open: false, name: null });
+            const doDelete = async () => {
+                setDeleting(true);
+                try {
+                    await fetch(`/api/models/${deleteConfirm.name}`, { method: "DELETE" });
+                    cancelDelete();
+                    setModelsList(null);
+                    loadModels();
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    setDeleting(false);
+                }
+            };
+
             return (
                 <div className="app-container">
                     <Paper elevation={1} sx={{ borderRadius: 2 }}>
-                        <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} variant="fullWidth">
+                        <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)} variant="scrollable" scrollButtons="auto">
                             <Tab label="Run Invoicing" />
                             <Tab label="Pricing Sheet" />
                             <Tab label="Usage Stats" />
-                            <Tab label="Cluster Models" />
+                            <Tab label="OpenRouter JSON" />
+                            <Tab label="Models" />
                         </Tabs>
                     </Paper>
 
@@ -255,7 +621,104 @@
                                 <pre className="json-display">{modelsRes ? JSON.stringify(modelsRes, null, 2) : "// Loading model data..."}</pre>
                             </Stack>
                         )}
+
+                        {activeTab === 4 && (
+                            <Box sx={{ height: "100%", display: "flex", flexDirection: "column", gap: 1.5 }}>
+                                <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1 }}>
+                                    <Button size="small" variant="outlined" onClick={() => { setModelsList(null); loadModels(); }} disabled={loading}>
+                                        Refresh
+                                    </Button>
+                                    <Button variant="contained" disableElevation onClick={openCreate}>
+                                        + Add Model
+                                    </Button>
+                                </Box>
+                                <div className="table-wrapper">
+                                    {!modelsList ? (
+                                        <Box sx={{ p: 4, textAlign: "center" }}><CircularProgress /></Box>
+                                    ) : Array.isArray(modelsList) ? (
+                                        modelsList.length === 0 ? (
+                                            <Box sx={{ p: 4, textAlign: "center", color: "#aaa" }}>No models found in the kubeai namespace.</Box>
+                                        ) : (
+                                            <Table size="small" stickyHeader>
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell>Name</TableCell>
+                                                        <TableCell>Engine</TableCell>
+                                                        <TableCell>URL</TableCell>
+                                                        <TableCell>Resource Profile</TableCell>
+                                                        <TableCell>Replicas</TableCell>
+                                                        <TableCell>KubeAI Features</TableCell>
+                                                        <TableCell align="right">Actions</TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {modelsList.map(m => (
+                                                        <TableRow key={m.id} hover>
+                                                            <TableCell sx={{ fontWeight: 'bold' }}>{m.id}</TableCell>
+                                                            <TableCell>
+                                                                <Chip label={m.engine} size="small" color={m.engine === "VLLM" ? "primary" : "default"} variant="outlined" />
+                                                            </TableCell>
+                                                            <TableCell sx={{ fontSize: '11px', color: '#555', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                                {m.url}
+                                                            </TableCell>
+                                                            <TableCell sx={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                                                {m.resourceProfileName}<Typography component="span" color="text.secondary">:{m.resourceProfileCount}</Typography>
+                                                            </TableCell>
+                                                            <TableCell sx={{ fontSize: '12px', whiteSpace: 'nowrap' }}>
+                                                                {m.minReplicas}–{m.maxReplicas}
+                                                                {m.replicas !== null && m.replicas !== undefined && m.replicas !== "" &&
+                                                                    <Typography component="span" color="text.secondary"> (pinned: {m.replicas})</Typography>
+                                                                }
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                                                                    {(m.features || []).map(f => (
+                                                                        <Chip key={f} label={f} size="small" sx={{ fontSize: '10px' }} />
+                                                                    ))}
+                                                                </Box>
+                                                            </TableCell>
+                                                            <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                                                                <Button size="small" onClick={() => openEdit(m)} sx={{ mr: 0.5 }}>Edit</Button>
+                                                                <Button size="small" color="error" onClick={() => confirmDelete(m.id)}>Delete</Button>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        )
+                                    ) : (
+                                        <Box sx={{ p: 3 }}>
+                                            <Alert severity="error">{modelsList.error || "Failed to load models"}</Alert>
+                                        </Box>
+                                    )}
+                                </div>
+                            </Box>
+                        )}
                     </Box>
+
+                    <ModelDialog
+                        open={modelDialogOpen}
+                        model={editingModel}
+                        onClose={closeDialog}
+                        onSaved={onSaved}
+                        resourceProfiles={resourceProfiles}
+                    />
+
+                    <Dialog open={deleteConfirm.open} onClose={cancelDelete} maxWidth="xs" fullWidth>
+                        <DialogTitle>Delete Model</DialogTitle>
+                        <DialogContent>
+                            <Typography>
+                                Are you sure you want to delete <strong>{deleteConfirm.name}</strong>?
+                                This will remove the KubeAI Model CRD and stop all running instances.
+                            </Typography>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={cancelDelete} disabled={deleting}>Cancel</Button>
+                            <Button onClick={doDelete} color="error" variant="contained" disableElevation disabled={deleting}>
+                                {deleting ? <CircularProgress size={20} color="inherit" /> : "Delete"}
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
                 </div>
             );
         }
