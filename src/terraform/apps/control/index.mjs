@@ -99,6 +99,140 @@ function request(url, options = {}) {
   });
 }
 
+// --- BODY PARSING ---
+
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => (body += chunk));
+    req.on('end', () => {
+      try { resolve(JSON.parse(body)); } catch (e) { resolve({}); }
+    });
+    req.on('error', reject);
+  });
+}
+
+// --- K8S MODEL CRUD ---
+
+async function k8sModelRequest(method, name, body) {
+  const token = fs.readFileSync(CONFIG.tokenPath, "utf8");
+  const ca = fs.readFileSync(CONFIG.caPath);
+  const base = `/apis/kubeai.org/v1/namespaces/kubeai/models`;
+  const path = name ? `${base}/${name}` : base;
+  const opts = {
+    method,
+    ca,
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+  };
+  if (body) opts.body = body;
+  return request(`https://${CONFIG.k8sHost}:${CONFIG.k8sPort}${path}`, opts);
+}
+
+function parseResourceProfileNames(yamlStr) {
+  const profiles = [];
+  let inSection = false;
+  for (const line of yamlStr.split('\n')) {
+    if (/^resourceProfiles:/.test(line)) { inSection = true; continue; }
+    if (inSection) {
+      if (/^[a-z]/.test(line)) break; // back to top-level key
+      const m = line.match(/^  ([a-z0-9][a-z0-9-]+):\s*$/);
+      if (m) profiles.push(m[1]);
+    }
+  }
+  return profiles;
+}
+
+function parseModelCRD(item) {
+  let ann = {};
+  try { ann = JSON.parse(item.metadata.annotations?.["openrouter.ai/json"] || "{}"); } catch (e) {}
+
+  const rp = item.spec.resourceProfile || "";
+  const ci = rp.lastIndexOf(":");
+  return {
+    id: item.metadata.name,
+    hugging_face_id: ann.hugging_face_id || "",
+    created: ann.created || Math.floor(Date.now() / 1000),
+    input_modalities: ann.input_modalities || ["text"],
+    output_modalities: ann.output_modalities || ["text"],
+    quantization: ann.quantization || "",
+    context_length: ann.context_length || 0,
+    max_output_length: ann.max_output_length || 0,
+    pricing: {
+      prompt: ann.pricing?.prompt || "0",
+      completion: ann.pricing?.completion || "0",
+      image: ann.pricing?.image || "0",
+      file: ann.pricing?.file || "0",
+      video: ann.pricing?.video || "0",
+      audio: ann.pricing?.audio || "0",
+      request: ann.pricing?.request || "0",
+      input_cache_read: ann.pricing?.input_cache_read || "0",
+      input_cache_write: ann.pricing?.input_cache_write || "0",
+    },
+    supported_sampling_parameters: ann.supported_sampling_parameters || [],
+    supported_features: ann.supported_features || [],
+    description: ann.description || "",
+    country_code: ann.datacenters?.[0]?.country_code || "RO",
+    engine: item.spec.engine || "VLLM",
+    args: item.spec.args || [],
+    features: item.spec.features || [],
+    minReplicas: item.spec.minReplicas ?? 0,
+    maxReplicas: item.spec.maxReplicas ?? 1,
+    replicas: item.spec.replicas ?? null,
+    resourceProfileName: ci >= 0 ? rp.substring(0, ci) : rp,
+    resourceProfileCount: ci >= 0 ? (parseInt(rp.substring(ci + 1)) || 1) : 1,
+    url: item.spec.url || "",
+    cacheProfile: !!item.spec.cacheProfile,
+  };
+}
+
+function buildModelCRD(form) {
+  const location = process.env.LOCATION || "local";
+  const ann = {
+    id: form.id,
+    name: form.id,
+    created: form.created || Math.floor(Date.now() / 1000),
+    input_modalities: form.input_modalities,
+    output_modalities: form.output_modalities,
+    quantization: form.quantization,
+    context_length: Number(form.context_length),
+    max_output_length: Number(form.max_output_length),
+    pricing: form.pricing,
+    supported_sampling_parameters: form.supported_sampling_parameters,
+    supported_features: form.supported_features,
+    description: form.description || "",
+    openrouter: { slug: `inferencebros-${location}/${form.id}` },
+    datacenters: [{ country_code: form.country_code || "RO" }],
+  };
+  if (form.hugging_face_id) ann.hugging_face_id = form.hugging_face_id;
+
+  const spec = {
+    engine: form.engine,
+    features: form.features,
+    minReplicas: Number(form.minReplicas),
+    maxReplicas: Number(form.maxReplicas),
+    resourceProfile: `${form.resourceProfileName}:${form.resourceProfileCount}`,
+    url: form.url,
+  };
+  if (form.args?.length > 0) spec.args = form.args.filter(a => a.trim());
+  if (form.replicas !== null && form.replicas !== undefined && form.replicas !== "") {
+    spec.replicas = Number(form.replicas);
+  }
+  if (form.cacheProfile) spec.cacheProfile = "storage";
+
+  const crd = {
+    apiVersion: "kubeai.org/v1",
+    kind: "Model",
+    metadata: {
+      name: form.id,
+      namespace: "kubeai",
+      annotations: { "openrouter.ai/json": JSON.stringify(ann) },
+    },
+    spec,
+  };
+  if (form.resourceVersion) crd.metadata.resourceVersion = form.resourceVersion;
+  return crd;
+}
+
 // --- VALIDATION ---
 
 async function validateApiKey(apiKey) {
@@ -697,7 +831,7 @@ function initCron() {
 
 const server = http.createServer(async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
 
   if (req.method === "OPTIONS") {
@@ -910,6 +1044,127 @@ const server = http.createServer(async (req, res) => {
     } catch (err) {
       res.writeHead(500, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // GET /api/resource-profiles
+  if (req.url === "/api/resource-profiles" && req.method === "GET") {
+    try {
+      let cmData;
+      if (!CONFIG.useInClusterAuth) {
+        const ka = CONFIG.kubeconfig ? `--kubeconfig=${CONFIG.kubeconfig}` : "";
+        const { stdout } = await execAsync(`kubectl ${ka} get configmap kubeai-config -n kubeai -o json`);
+        cmData = JSON.parse(stdout);
+      } else {
+        const token = fs.readFileSync(CONFIG.tokenPath, "utf8");
+        const ca = fs.readFileSync(CONFIG.caPath);
+        cmData = await request(
+          `https://${CONFIG.k8sHost}:${CONFIG.k8sPort}/api/v1/namespaces/kubeai/configmaps/kubeai-config`,
+          { ca, headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
+        );
+      }
+      const yamlStr = cmData.data?.["system.yaml"] || "";
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(parseResourceProfileNames(yamlStr)));
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // GET /api/models
+  if (req.url === "/api/models" && req.method === "GET") {
+    try {
+      let kubeData;
+      if (!CONFIG.useInClusterAuth) {
+        const ka = CONFIG.kubeconfig ? `--kubeconfig=${CONFIG.kubeconfig}` : "";
+        const { stdout } = await execAsync(`kubectl ${ka} get models.kubeai.org -n kubeai -o json`);
+        kubeData = JSON.parse(stdout);
+      } else {
+        kubeData = await k8sModelRequest("GET");
+      }
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify((kubeData.items || []).map(parseModelCRD)));
+    } catch (err) {
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // POST /api/models
+  if (req.url === "/api/models" && req.method === "POST") {
+    try {
+      const form = await parseBody(req);
+      const crd = buildModelCRD(form);
+      if (!CONFIG.useInClusterAuth) {
+        const ka = CONFIG.kubeconfig ? `--kubeconfig=${CONFIG.kubeconfig}` : "";
+        const tmp = `/tmp/kubeai-model-${Date.now()}.json`;
+        fs.writeFileSync(tmp, JSON.stringify(crd));
+        try { await execAsync(`kubectl ${ka} apply -f ${tmp}`); } finally { try { fs.unlinkSync(tmp); } catch (e) {} }
+      } else {
+        await k8sModelRequest("POST", null, crd);
+      }
+      res.writeHead(201, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ status: "created" }));
+    } catch (err) {
+      logger("ERROR", "Model create failed", err.message);
+      res.writeHead(500, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // PUT + DELETE /api/models/:name
+  const modelNameMatch = req.url.match(/^\/api\/models\/([^/?]+)$/);
+  if (modelNameMatch) {
+    const name = decodeURIComponent(modelNameMatch[1]);
+    if (req.method === "PUT") {
+      try {
+        const form = await parseBody(req);
+        form.id = name;
+        if (!CONFIG.useInClusterAuth) {
+          const ka = CONFIG.kubeconfig ? `--kubeconfig=${CONFIG.kubeconfig}` : "";
+          const crd = buildModelCRD(form);
+          const tmp = `/tmp/kubeai-model-${Date.now()}.json`;
+          fs.writeFileSync(tmp, JSON.stringify(crd));
+          try { await execAsync(`kubectl ${ka} apply -f ${tmp}`); } finally { try { fs.unlinkSync(tmp); } catch (e) {} }
+        } else {
+          const existing = await k8sModelRequest("GET", name);
+          form.resourceVersion = existing.metadata.resourceVersion;
+          if (!form.created) {
+            try { form.created = JSON.parse(existing.metadata.annotations?.["openrouter.ai/json"] || "{}").created; } catch (e) {}
+          }
+          const crd = buildModelCRD(form);
+          await k8sModelRequest("PUT", name, crd);
+        }
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "updated" }));
+      } catch (err) {
+        logger("ERROR", "Model update failed", err.message);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    } else if (req.method === "DELETE") {
+      try {
+        if (!CONFIG.useInClusterAuth) {
+          const ka = CONFIG.kubeconfig ? `--kubeconfig=${CONFIG.kubeconfig}` : "";
+          await execAsync(`kubectl ${ka} delete models.kubeai.org -n kubeai ${name}`);
+        } else {
+          await k8sModelRequest("DELETE", name);
+        }
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "deleted" }));
+      } catch (err) {
+        logger("ERROR", "Model delete failed", err.message);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    } else {
+      res.writeHead(405);
+      res.end();
     }
     return;
   }
