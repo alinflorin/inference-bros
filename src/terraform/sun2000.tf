@@ -339,8 +339,8 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   },
                   "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
                   "id": 8,
-                  "timeFrom": "30d",
-                  "title": "Daily Energy Production (Last 30 Days)",
+                  "timeFrom": "3d",
+                  "title": "Daily Energy Production (Last 3 Days)",
                   "type": "timeseries",
                   "targets": [
                     {
@@ -360,43 +360,32 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   "fieldConfig": {
                     "defaults": {
                       "custom": {
-                        "drawStyle": "bars",
-                        "fillOpacity": 90,
-                        "lineWidth": 0,
-                        "pointSize": 5,
+                        "drawStyle": "line",
+                        "fillOpacity": 15,
+                        "lineInterpolation": "smooth",
+                        "lineWidth": 2,
                         "showPoints": "never",
-                        "spanNulls": false,
-                        "stacking": { "group": "A", "mode": "none" },
-                        "axisPlacement": "auto",
-                        "barAlignment": 0
+                        "spanNulls": false
                       },
-                      "color": { "mode": "thresholds" },
-                      "thresholds": {
-                        "steps": [
-                          { "color": "blue", "value": null },
-                          { "color": "green", "value": 100 },
-                          { "color": "yellow", "value": 300 }
-                        ]
-                      },
-                      "unit": "kwatth",
+                      "color": { "mode": "palette-classic" },
+                      "unit": "kwatt",
                       "min": 0
                     }
                   },
                   "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
                   "id": 15,
-                  "timeFrom": "365d",
-                  "title": "Monthly Energy Production (Last 12 Months)",
+                  "timeFrom": "3d",
+                  "title": "Power Output (72h)",
                   "type": "timeseries",
                   "targets": [
                     {
-                      "expr": "max_over_time(sum(sun2000_month_energy_kwh)[30d:6h])",
-                      "legendFormat": "Monthly Energy",
-                      "refId": "A",
-                      "interval": "30d"
+                      "expr": "sun2000_real_time_power_kw",
+                      "legendFormat": "Power",
+                      "refId": "A"
                     }
                   ],
                   "options": {
-                    "legend": { "calcs": ["mean", "max", "min", "last"], "displayMode": "table", "placement": "bottom" },
+                    "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
                     "tooltip": { "mode": "single", "sort": "none" }
                   }
                 },
@@ -522,10 +511,10 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                     "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
                     "textMode": "auto"
                   },
-                  "title": "Avg Daily Production (30d)",
+                  "title": "Avg Daily Production (3d)",
                   "type": "stat",
                   "targets": [
-                    { "expr": "avg_over_time(max_over_time(sum(sun2000_daily_energy_kwh)[1d:5m])[30d:1d])", "refId": "A" }
+                    { "expr": "avg_over_time(max_over_time(sun2000_daily_energy_kwh[1d:5m])[3d:1d])", "refId": "A" }
                   ]
                 },
                 {
@@ -633,10 +622,10 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                     "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
                     "textMode": "auto"
                   },
-                  "title": "Best Day (90d)",
+                  "title": "Best Day (3d)",
                   "type": "stat",
                   "targets": [
-                    { "expr": "max_over_time(max_over_time(sun2000_daily_energy_kwh[1d:5m])[90d:1d])", "refId": "A" }
+                    { "expr": "max_over_time(max_over_time(sun2000_daily_energy_kwh[1d:5m])[3d:1d])", "refId": "A" }
                   ]
                 },
                 {
@@ -657,10 +646,10 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                     "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
                     "textMode": "auto"
                   },
-                  "title": "Record Peak Power (90d)",
+                  "title": "Record Peak Power (3d)",
                   "type": "stat",
                   "targets": [
-                    { "expr": "max_over_time(sun2000_real_time_power_kw[90d:5m])", "refId": "A" }
+                    { "expr": "max_over_time(sun2000_real_time_power_kw[3d:5m])", "refId": "A" }
                   ]
                 }
               ],
