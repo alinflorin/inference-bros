@@ -343,7 +343,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   "type": "timeseries",
                   "targets": [
                     {
-                      "expr": "sum(increase(sun2000_daily_energy_kwh[1d]))",
+                      "expr": "max_over_time(sum(sun2000_daily_energy_kwh)[1d:5m])",
                       "legendFormat": "Daily Energy",
                       "refId": "A",
                       "interval": "1d"
@@ -387,7 +387,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   "type": "timeseries",
                   "targets": [
                     {
-                      "expr": "sum(increase(sun2000_month_energy_kwh[30d]))",
+                      "expr": "max_over_time(sum(sun2000_month_energy_kwh)[30d:6h])",
                       "legendFormat": "Monthly Energy",
                       "refId": "A",
                       "interval": "30d"
@@ -523,7 +523,7 @@ resource "helm_release" "sun2000_grafana_dashboard" {
                   "title": "Avg Daily Production (30d)",
                   "type": "stat",
                   "targets": [
-                    { "expr": "avg_over_time(sum(sun2000_daily_energy_kwh)[30d:])", "refId": "A" }
+                    { "expr": "avg_over_time(max_over_time(sum(sun2000_daily_energy_kwh)[1d:5m])[30d:1d])", "refId": "A" }
                   ]
                 },
                 {
