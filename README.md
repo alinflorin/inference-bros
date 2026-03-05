@@ -51,31 +51,41 @@ For older cards (1050Ti): https://us.download.nvidia.com/XFree86/Linux-x86_64/58
 - **K3s** - Lightweight Kubernetes distribution
 - **Kube-VIP** - High availability for K3s masters
 - **MetalLB** - LoadBalancer services for bare-metal
-- **Longhorn** - Persistent volume management (optional, enables model caching)
-- **NVIDIA/AMD GPU Operators** - Automatically installed if GPUs are detected
+- **Longhorn** - Persistent volume management (optional, `longhorn_enabled`; required for model caching)
+- **System Upgrade Controller** - Automated K3s node upgrades
 
 **Networking & Security:**
 - **ingress-nginx** - HTTP(S) routing and load balancing
-- **cert-manager** - SSL certificates (Let's Encrypt + self-signed)
+- **cert-manager** - SSL certificates (Let's Encrypt in production, self-signed CA locally)
 - **Dex** - Identity provider (OIDC authentication)
 - **oauth2-proxy** - Authentication proxy for internal UIs
 
 **AI & Gateway:**
-- **KubeAI** - Model serving orchestration (supports VLLM/Ollama runners)
+- **KubeAI** - Model serving orchestration (VLLM, Ollama, FasterWhisper, Infinity runners)
 - **Bifrost** - LLM gateway with billing, governance, and customer management
+- **NVIDIA GPU Operator** - Installed when `kubeai_compute_processor = "nvidia"`
+- **AMD GPU Operator** - Installed when `kubeai_compute_processor = "amd"`
 
-**Monitoring Stack (optional):**
-- **Prometheus** - Metrics collection and storage
+**Monitoring Stack** (optional, `monitoring_enabled`)**:**
+- **Prometheus + kube-prometheus-stack** - Metrics collection and storage
 - **Grafana** - Monitoring dashboards and visualization
 - **Loki** - Log aggregation
+- **Fluent Bit** - Log shipping to Loki
 - **Tempo** - Distributed tracing
 - **Alertmanager** - Alert routing to Slack
+- **Headlamp** - Kubernetes dashboard (deployed with monitoring stack)
+
+**Backup** (optional, `enable_backup`)**:**
+- **Velero** - Cluster backup and restore
+- **Snapshot Controller** - CSI volume snapshots (used with Longhorn)
 
 **Management UIs:**
-- **Headlamp** - Kubernetes dashboard for cluster management
 - **Longhorn UI** - Storage management interface
-- **PVC Explorer** - Browse model cache contents
-- **Goldilocks** - Resource rightsizing recommendations for optimal CPU/memory allocation
+- **Model Storage Browser** - Browse and manage model cache files (FileBrowser)
+- **Goldilocks** - Resource rightsizing recommendations (optional, `vpa_enabled`)
+
+**Custom Integrations** (optional)**:**
+- **Sun2000** - Huawei solar inverter monitoring; exports metrics to Prometheus with a pre-built Grafana dashboard (`sun2000_enabled`)
 
 ### Service URLs & Access
 
@@ -92,7 +102,7 @@ All services follow the pattern: `https://{service}.{location}.inferencebros.com
 - `alertmanager.stalpeni.inferencebros.com` - Alert management
 - `longhorn.stalpeni.inferencebros.com` - Storage management
 - `bifrost.stalpeni.inferencebros.com` - LLM gateway & customer management
-- `models.stalpeni.inferencebros.com` - Model storage browser
+- `models.stalpeni.inferencebros.com` - Model storage browser (FileBrowser)
 - `control.stalpeni.inferencebros.com` - Invoicing & usage API
 - `goldilocks.stalpeni.inferencebros.com` - Resource rightsizing recommendations
 
@@ -147,90 +157,42 @@ Before you can deploy models or manage the platform, you need to connect to the 
 
 ### Deploying Models
 
-Use the **Headlamp dashboard** to create Model resources. All models require the `openrouter.ai/json` annotation for API discovery and pricing.
-
-**Reference Documentation:**
-- [KubeAI Model CRD Specification](https://github.com/kubeai-project/kubeai/blob/main/docs/reference/kubernetes-api.md)
-
-**Available Resource Profiles:**
-- `nvidia-unlimited` - Modern NVIDIA GPUs (RTX 20xx+)
-- `nvidia-older-unlimited` - Pascal architecture GPUs (GTX 10xx)
-- `cpu-unlimited` - Generic CPU inference
-- `cpu-avx2-unlimited` - CPUs with AVX2 support
-- `amd-unlimited` - All AMD GPUs
+Use the **Control app** at `https://control.{location}.inferencebros.com` to manage KubeAI Model CRDs. Navigate to the **Models** tab to create, edit, or delete models. The form handles all required fields including the `openrouter.ai/json` annotation automatically — no YAML editing required.
 
 **Supported Model Runners:**
 - **VLLM** - Recommended for production (supports model caching with Longhorn)
 - **Ollama** - Alternative runner
 
-#### Example: LLaMA 3.2 - 1B - Instruct
+**Available Resource Profiles** are loaded dynamically from the `kubeai-config` ConfigMap and displayed in the Control app form. All profiles currently provisioned in this stack:
 
-```yaml
-apiVersion: kubeai.org/v1
-kind: Model
-metadata:
-  annotations:
-    openrouter.ai/json: |
-      {
-        "id": "llama-32-1b-instruct",
-        "hugging_face_id": "unsloth/Llama-3.2-1B-Instruct",
-        "name": "llama-32-1b-instruct",
-        "created": 1690502400,
-        "input_modalities": ["text"],
-        "output_modalities": ["text"],
-        "quantization": "bf16",
-        "context_length": 4096,
-        "max_output_length": 1024,
-        "pricing": {
-          "prompt": "0.000000026",
-          "completion": "0.000000198",
-          "image": "0",
-          "request": "0",
-          "input_cache_read": "0",
-          "input_cache_write": "0"
-        },
-        "supported_sampling_parameters": ["temperature", "stop"],
-        "supported_features": [
-          "tools",
-          "json_mode",
-          "structured_outputs"
-        ],
-        "description": "Meta's most used model",
-        "openrouter": {
-          "slug": "inferencebros-local/llama-32-1b-instruct"
-        },
-        "datacenters": [
-          {
-            "country_code": "RO"
-          }
-        ]
-      }
-  name: llama-32-1b-instruct
-  namespace: kubeai
-spec:
-  engine: VLLM # or OLlama
-  # For VLLM, use args:
-  args:
-    - "--gpu-memory-utilization=0.95"
-    - "--dtype=float16"
-    - "--max-num-seqs=2"
-    - "--enforce-eager"
-    - "--max-model-len=2048"
-  ##################################
-  features:
-    - TextGeneration
-  minReplicas: 1
-  maxReplicas: 1
-  # replicas: 1 # pin replicas
-  resourceProfile: nvidia-older-unlimited:1 # Add :1 suffix to resource profile
-  url: hf://unsloth/Llama-3.2-1B-Instruct # For Ollama use: ollama://hf.co/unsloth/Llama-3.2-1B-Instruct-GGUF:Llama-3.2-1B-Instruct-Q4_K_M.gguf
-  cacheProfile: storage # VLLM only, requires Longhorn for ReadWriteMany support
-```
+CPU:
+- `cpu` - Generic CPU with baseline resource requests (1 CPU, 2Gi RAM)
+- `cpu-unlimited` - Generic CPU, no resource limits
+- `cpu-avx2-unlimited` - CPUs with AVX2 support, no resource limits
+
+NVIDIA (modern):
+- `nvidia-unlimited` - Any NVIDIA GPU, no resource limits
+- `nvidia-gpu-h100` - NVIDIA H100
+- `nvidia-gpu-a100-80gb` - NVIDIA A100 80GB
+- `nvidia-gpu-a100-40gb` - NVIDIA A100 40GB
+- `nvidia-gpu-l40s` - NVIDIA L40S
+- `nvidia-gpu-l4` - NVIDIA L4
+- `nvidia-gpu-gh200` - NVIDIA GH200
+- `nvidia-gpu-a16` - NVIDIA A16
+- `nvidia-gpu-t4` - NVIDIA T4
+- `nvidia-gpu-rtx4070-8gb` - NVIDIA RTX 4070 8GB
+
+NVIDIA (older):
+- `nvidia-older-unlimited` - Pascal-architecture GPUs (GTX 10xx series), no resource limits
+
+AMD:
+- `amd-unlimited` - Any AMD GPU, no resource limits
+- `amd-gpu-mi300x` - AMD MI300X
 
 **Important Notes:**
-- Model caching (`cacheProfile: storage`) is only supported with VLLM
-- Only use `cacheProfile` if Longhorn is installed
-- Full openrouter.ai/json schema documentation available in original KubeAI docs
+- Model caching (Cache Profile) is only supported with VLLM and requires Longhorn
+- The `openrouter.slug` and `created` timestamp are computed automatically by the Control app
+- KubeAI CRD reference: [kubeai.org/v1 Model spec](https://github.com/kubeai-project/kubeai/blob/main/docs/reference/kubernetes-api.md)
 
 ### Customer Management via Bifrost
 
@@ -262,20 +224,34 @@ spec:
 - Navigate to `https://goldilocks.{location}.inferencebros.com`
 - Authenticate via Dex/OAuth2
 
-### Control Module APIs
+### Control App
 
-The control service exposes a GUI at `/` and several APIs at `control.{location}.inferencebros.com`:
+The Control app at `control.{location}.inferencebros.com` is the primary management interface for the platform. It provides a web UI and REST API.
 
-**Public Endpoints:**
-- `/openrouter/models` - List all available models with pricing
-- `/bifrost/pricingSheet` - Current pricing information
+**Web UI Tabs:**
+- **Run Invoicing** - Trigger manual billing runs with dry-run support
+- **Pricing Sheet** - View current per-token pricing fetched from model annotations
+- **Usage Stats** - Query per-API-key usage for any date range
+- **OpenRouter JSON** - Raw OpenRouter-format model list from the cluster
+- **Models** - Visual KubeAI Model CRD manager (create, edit, delete models)
 
-**Authenticated Endpoints** (require API key in Authorization header):
-- `/usage?start_date=<ISO>&end_date=<ISO>` - Query usage statistics for date range
-- `/invoicing/generate?date=<ISO>&dry_run=<all|validate|none>` - Manual invoice generation
+**Public API Endpoints:**
+- `GET /openrouter/models` - OpenRouter-format model list with pricing
+- `GET /bifrost/pricingSheet` - Pricing data for Bifrost auto-sync
+- `GET /api/models` - List all KubeAI Model CRDs (form-friendly format)
+- `GET /api/resource-profiles` - Available resource profiles from `kubeai-config` ConfigMap
+
+**Authenticated Endpoints** (require API key in `Authorization: Bearer` header):
+- `GET /usage?start_date=<ISO>&end_date=<ISO>` - Usage statistics for a date range
+
+**Admin Endpoints** (protected by oauth2-proxy):
+- `GET /invoicing/generate?date=<ISO>&dry_run=<all|validate|none>` - Manual invoice generation
   - `dry_run=all` - Skip all Odoo operations (test mode)
   - `dry_run=validate` - Check for duplicate invoices only
   - `dry_run=none` - Full run with Odoo sync (default)
+- `POST /api/models` - Create a new KubeAI Model CRD
+- `PUT /api/models/:name` - Update an existing Model CRD
+- `DELETE /api/models/:name` - Delete a Model CRD
 
 **Automatic Invoicing:**
 - Runs automatically on the 2nd of each month at 00:00 UTC
@@ -471,8 +447,11 @@ Billing · Governance"]
       KUBEAI["KubeAI
 Model CRDs
 VLLM / Ollama"]
-      GPU["NVIDIA / AMD GPUs
-(Time Slicing)"]
+      CONTROL["Control App
+Model Manager
+Invoicing · Usage"]
+      GPU["NVIDIA or AMD GPU Operator
+(one installed based on hardware)"]
     end
 
     subgraph STORAGE["💾 Storage"]
@@ -489,18 +468,22 @@ Model Cache"]
       ALERT["Alertmanager"]
     end
 
-    subgraph BACKUP["📦 Backup"]
-      VELERO["Velero"]
+    subgraph BACKUP["📦 Backup (optional)"]
+      VELERO["Velero
+(enable_backup)"]
       S3["Minio / NAS
 S3 Storage"]
     end
 
-    subgraph MGMT["🧩 Management UIs"]
-      HEADLAMP["Headlamp"]
-      LONGHORN_UI["Longhorn UI"]
-      PVCX["Model Cache Browser"]
+    subgraph MGMT["🧩 Management UIs (optional)"]
+      HEADLAMP["Headlamp
+(monitoring_enabled)"]
+      LONGHORN_UI["Longhorn UI
+(longhorn_enabled)"]
+      PVCX["Model Storage Browser
+(FileBrowser)"]
       GOLDILOCKS["Goldilocks
-Resource Rightsizing"]
+(vpa_enabled)"]
     end
   end
 
@@ -518,8 +501,11 @@ Resource Rightsizing"]
   API --> DEX
 
   NGINX -->|OpenAI-compatible API| BIFROST
+  NGINX --> CONTROL
   BIFROST --> KUBEAI
   KUBEAI --> GPU
+  CONTROL -->|CRUD Model CRDs| KUBEAI
+  CONTROL --> BIFROST
 
   KUBEAI --> LONGHORN
   LONGHORN --> VELERO
@@ -539,10 +525,15 @@ Resource Rightsizing"]
     ODOO["Odoo
 Invoicing"]
     HF["HuggingFace"]
+    SUN2000["Sun2000
+Solar Inverter
+(sun2000_enabled)"]
   end
 
   BIFROST --> ODOO
+  CONTROL --> ODOO
   KUBEAI --> HF
+  SUN2000 --> PROM
 
   %% =====================================================
   %% MANAGEMENT ACCESS
@@ -550,6 +541,7 @@ Invoicing"]
   USERS --> HEADLAMP
   USERS --> GRAFANA
   USERS --> BIFROST
+  USERS --> CONTROL
   USERS --> GOLDILOCKS
 
 ```
@@ -558,9 +550,9 @@ Invoicing"]
 
 ## 8. Quick Reference
 
-**Model Deployment:** Headlamp UI → Create Model resource with openrouter.ai/json annotation  
-**Customer Setup:** Bifrost UI → Governance → Customers & Virtual Keys  
-**Resource Optimization:** Goldilocks UI → Review recommendations → Update resource specs  
-**Monitoring:** Grafana dashboards + Bifrost portal  
-**Invoicing:** Automatic monthly or manual via Control API  
+**Model Deployment:** Control UI → Models tab → Add / Edit Model
+**Customer Setup:** Bifrost UI → Governance → Customers & Virtual Keys
+**Resource Optimization:** Goldilocks UI → Review recommendations → Update resource specs
+**Monitoring:** Grafana dashboards + Bifrost portal
+**Invoicing:** Automatic monthly or manual via Control UI (Run Invoicing tab)
 **Development:** Terraform apply → Get kubeconfig → kubectl/Headlamp
