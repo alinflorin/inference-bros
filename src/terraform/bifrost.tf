@@ -18,7 +18,7 @@ resource "helm_release" "bifrost" {
   create_namespace = true
   atomic           = true
   wait             = true
-  version          = "2.0.10"
+  version          = "2.0.11"
 
   values = [
     <<-EOT
@@ -111,8 +111,6 @@ resource "helm_release" "bifrost" {
               collector_url: "http://tempo.monitoring.svc.cluster.local:4318/v1/traces"
               trace_type: "otel"
               protocol: "http"
-      image:
-        tag: 'v1.4.10'
       replicaCount: ${var.bifrost_replicas}
       storage:
         mode: postgres
