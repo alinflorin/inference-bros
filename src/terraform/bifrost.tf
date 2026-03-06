@@ -47,7 +47,6 @@ resource "helm_release" "bifrost" {
           prometheusLabels: ["team", "environment", "organization", "project"]
           dropExcessRequests: true
           enableLogging: true
-          enableGovernance: true
           enforceGovernanceHeader: true
           allowDirectKeys: true
           disableContentLogging: true
