@@ -139,6 +139,7 @@ jobs:
       - name: Update PR Comment
         uses: actions/github-script@v8
         if: github.event_name == 'pull_request'
+        continue-on-error: true
         env:
           PLAN_OUTCOME: ${{ steps.plan.outcome }}
           PLAN_STDOUT: ${{ steps.plan.outputs.stdout }}
