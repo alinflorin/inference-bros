@@ -240,7 +240,7 @@ spec:
     - '--enforce-eager'
     - '--max-num-seqs=2'
     - '--enable-auto-tool-choice'
-    - '--tool-call-parser llama3'
+    - '--tool-call-parser=llama3'
   cacheProfile: storage
   engine: VLLM
   features:
