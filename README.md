@@ -194,6 +194,63 @@ AMD:
 - The `openrouter.slug` and `created` timestamp are computed automatically by the Control app
 - KubeAI CRD reference: [kubeai.org/v1 Model spec](https://github.com/kubeai-project/kubeai/blob/main/docs/reference/kubernetes-api.md)
 
+**Example - LLaMA 3.2 1B Instruct:**
+```
+apiVersion: kubeai.org/v1
+kind: Model
+metadata:
+  annotations:
+    openrouter.ai/json: |-
+      {
+        "id": "llama-32-1b-instruct",
+        "name": "llama-32-1b-instruct",
+        "created": 1690502400,
+        "input_modalities": ["text"],
+        "output_modalities": ["text"],
+        "quantization": "bf16",
+        "context_length": 4096,
+        "max_output_length": 1024,
+        "pricing": {
+          "prompt": "0.000000027",
+          "completion": "0.000000198",
+          "image": "0",
+          "file": "0",
+          "video": "0",
+          "audio": "0",
+          "request": "0",
+          "input_cache_read": "0",
+          "input_cache_write": "0"
+        },
+        "supported_sampling_parameters": ["temperature", "stop"],
+        "supported_features": ["tools", "json_mode", "structured_outputs"],
+        "description": "Meta's most used model",
+        "openrouter": {
+          "slug": "inferencebros-stalpeni/llama-32-1b-instruct"
+        },
+        "datacenters": [{"country_code": "RO"}],
+        "hugging_face_id": "llama-32-1b-instruct"
+      }
+  name: llama-32-1b-instruct
+  namespace: kubeai
+spec:
+  args:
+    - '--gpu-memory-utilization=0.95'
+    - '--dtype=float16'
+    - '--max-model-len=2048'
+    - '--enforce-eager'
+    - '--max-num-seqs=2'
+    - '--enable-auto-tool-choice'
+    - '--tool-call-parser llama3'
+  cacheProfile: storage
+  engine: VLLM
+  features:
+    - TextGeneration
+  maxReplicas: 1
+  minReplicas: 1
+  resourceProfile: nvidia-older-unlimited:1
+  url: hf://unsloth/Llama-3.2-1B-Instruct
+
+```
 ### Customer Management via Bifrost
 
 **Adding New Customers:**
