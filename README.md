@@ -239,8 +239,6 @@ spec:
     - '--max-model-len=2048'
     - '--enforce-eager'
     - '--max-num-seqs=2'
-    - '--enable-auto-tool-choice'
-    - '--tool-call-parser=llama3_json'
   cacheProfile: storage
   engine: VLLM
   features:
