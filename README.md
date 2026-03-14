@@ -202,13 +202,13 @@ metadata:
   annotations:
     openrouter.ai/json: |-
       {
-        "id": "llama-32-1b-instruct",
-        "name": "llama-32-1b-instruct",
+        "id": "qwen2-5-3b-instruct",
+        "name": "qwen2-5-3b-instruct",
         "created": 1690502400,
         "input_modalities": ["text"],
         "output_modalities": ["text"],
-        "quantization": "bf16",
-        "context_length": 4096,
+        "quantization": "gptq-int4",
+        "context_length": 1024,
         "max_output_length": 1024,
         "pricing": {
           "prompt": "0.000000027",
@@ -223,22 +223,23 @@ metadata:
         },
         "supported_sampling_parameters": ["temperature", "stop"],
         "supported_features": ["tools", "json_mode", "structured_outputs"],
-        "description": "Meta's most used model",
+        "description": "Qwen2.5 3B Instruct GPTQ Int4",
         "openrouter": {
-          "slug": "inferencebros-stalpeni/llama-32-1b-instruct"
+          "slug": "inferencebros-stalpeni/qwen2-5-3b-instruct"
         },
         "datacenters": [{"country_code": "RO"}],
-        "hugging_face_id": "llama-32-1b-instruct"
+        "hugging_face_id": "qwen2-5-3b-instruct"
       }
-  name: llama-32-1b-instruct
+  name: qwen2-5-3b-instruct
   namespace: kubeai
 spec:
   args:
     - '--gpu-memory-utilization=0.95'
-    - '--dtype=float16'
-    - '--max-model-len=2048'
+    - '--max-model-len=1024'
     - '--enforce-eager'
-    - '--max-num-seqs=2'
+    - '--max-num-seqs=1'
+    - '--enable-auto-tool-choice'
+    - '--tool-call-parser=hermes'
   cacheProfile: storage
   engine: VLLM
   features:
@@ -246,8 +247,7 @@ spec:
   maxReplicas: 1
   minReplicas: 1
   resourceProfile: nvidia-older-unlimited:1
-  url: hf://unsloth/Llama-3.2-1B-Instruct
-
+  url: hf://Qwen/Qwen2.5-3B-Instruct-GPTQ-Int4
 ```
 ### Customer Management via Bifrost
 
