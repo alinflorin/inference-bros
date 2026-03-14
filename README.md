@@ -208,7 +208,7 @@ metadata:
         "input_modalities": ["text"],
         "output_modalities": ["text"],
         "quantization": "gptq-int4",
-        "context_length": 1024,
+        "context_length": 2048,
         "max_output_length": 1024,
         "pricing": {
           "prompt": "0.000000027",
@@ -235,7 +235,7 @@ metadata:
 spec:
   args:
     - '--gpu-memory-utilization=0.95'
-    - '--max-model-len=1024'
+    - '--max-model-len=2048'
     - '--enforce-eager'
     - '--max-num-seqs=1'
     - '--enable-auto-tool-choice'
