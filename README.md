@@ -202,12 +202,12 @@ metadata:
   annotations:
     openrouter.ai/json: |-
       {
-        "id": "huihui-qwen3-5-4b-abliterated",
-        "name": "huihui-qwen3-5-4b-abliterated",
+        "id": "llama-32-1b-instruct",
+        "name": "llama-32-1b-instruct",
         "created": 1690502400,
         "input_modalities": ["text"],
         "output_modalities": ["text"],
-        "quantization": "q4_K_M",
+        "quantization": "bf16",
         "context_length": 4096,
         "max_output_length": 1024,
         "pricing": {
@@ -223,23 +223,30 @@ metadata:
         },
         "supported_sampling_parameters": ["temperature", "stop"],
         "supported_features": ["tools", "json_mode", "structured_outputs"],
-        "description": "Huihui Qwen3.5 4B Abliterated Q4_K_M via Ollama",
+        "description": "Meta's most used model",
         "openrouter": {
-          "slug": "inferencebros-stalpeni/huihui-qwen3-5-4b-abliterated"
+          "slug": "inferencebros-stalpeni/llama-32-1b-instruct"
         },
         "datacenters": [{"country_code": "RO"}],
-        "hugging_face_id": "mradermacher/Huihui-Qwen3.5-4B-abliterated-i1-GGUF"
+        "hugging_face_id": "llama-32-1b-instruct"
       }
-  name: huihui-qwen3-5-4b-abliterated
+  name: llama-32-1b-instruct
   namespace: kubeai
 spec:
-  engine: OLlama
+  args: # only for VLLM
+    - '--gpu-memory-utilization=0.95'
+    - '--dtype=float16'
+    - '--max-model-len=2048'
+    - '--enforce-eager'
+    - '--max-num-seqs=2'
+  cacheProfile: storage
+  engine: VLLM # or OLlama
   features:
     - TextGeneration
   maxReplicas: 1
   minReplicas: 1
   resourceProfile: nvidia-older-unlimited:1
-  url: ollama://hf.co/mradermacher/Huihui-Qwen3.5-4B-abliterated-i1-GGUF:Huihui-Qwen3.5-4B-abliterated.i1-Q4_K_M.gguf
+  url: hf://unsloth/Llama-3.2-1B-Instruct # For OLlama, example: ollama://hf.co/mradermacher/Huihui-Qwen3.5-4B-abliterated-i1-GGUF:Huihui-Qwen3.5-4B-abliterated.i1-Q4_K_M.gguf
 ```
 ### Customer Management via Bifrost
 
