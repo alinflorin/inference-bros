@@ -202,13 +202,13 @@ metadata:
   annotations:
     openrouter.ai/json: |-
       {
-        "id": "qwen2-5-3b-instruct",
-        "name": "qwen2-5-3b-instruct",
+        "id": "huihui-qwen3-5-4b-abliterated",
+        "name": "huihui-qwen3-5-4b-abliterated",
         "created": 1690502400,
         "input_modalities": ["text"],
         "output_modalities": ["text"],
-        "quantization": "gptq-int4",
-        "context_length": 2048,
+        "quantization": "q4_K_M",
+        "context_length": 4096,
         "max_output_length": 1024,
         "pricing": {
           "prompt": "0.000000027",
@@ -223,31 +223,23 @@ metadata:
         },
         "supported_sampling_parameters": ["temperature", "stop"],
         "supported_features": ["tools", "json_mode", "structured_outputs"],
-        "description": "Qwen2.5 3B Instruct GPTQ Int4",
+        "description": "Huihui Qwen3.5 4B Abliterated Q4_K_M via Ollama",
         "openrouter": {
-          "slug": "inferencebros-stalpeni/qwen2-5-3b-instruct"
+          "slug": "inferencebros-stalpeni/huihui-qwen3-5-4b-abliterated"
         },
         "datacenters": [{"country_code": "RO"}],
-        "hugging_face_id": "qwen2-5-3b-instruct"
+        "hugging_face_id": "mradermacher/Huihui-Qwen3.5-4B-abliterated-i1-GGUF"
       }
-  name: qwen2-5-3b-instruct
+  name: huihui-qwen3-5-4b-abliterated
   namespace: kubeai
 spec:
-  args:
-    - '--gpu-memory-utilization=0.95'
-    - '--max-model-len=2048'
-    - '--enforce-eager'
-    - '--max-num-seqs=1'
-    - '--enable-auto-tool-choice'
-    - '--tool-call-parser=hermes'
-  cacheProfile: storage
-  engine: VLLM
+  engine: OLlama
   features:
     - TextGeneration
   maxReplicas: 1
   minReplicas: 1
   resourceProfile: nvidia-older-unlimited:1
-  url: hf://Qwen/Qwen2.5-3B-Instruct-GPTQ-Int4
+  url: ollama://hf.co/mradermacher/Huihui-Qwen3.5-4B-abliterated-i1-GGUF:Huihui-Qwen3.5-4B-abliterated.i1-Q4_K_M.gguf
 ```
 ### Customer Management via Bifrost
 
