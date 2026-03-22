@@ -18,7 +18,7 @@ resource "helm_release" "bifrost" {
   create_namespace = true
   atomic           = true
   wait             = true
-  version          = "2.0.13"
+  version          = "2.0.14"
 
   values = [
     <<-EOT
@@ -31,7 +31,7 @@ resource "helm_release" "bifrost" {
     ,
     <<-EOT
       image:
-        tag: 'v1.4.12'
+        tag: 'v1.4.14'
       autoscaling:
         enabled: ${var.bifrost_hpa.enabled}
         minReplicas: ${var.bifrost_hpa.min_replicas}
