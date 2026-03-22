@@ -4,7 +4,7 @@ resource "helm_release" "longhorn" {
   chart            = "longhorn"
   namespace        = "longhorn-system"
   create_namespace = true
-  version          = "1.11.0"
+  version          = "1.11.1"
   atomic           = true
   wait             = true
   timeout          = 500
