@@ -31,7 +31,7 @@ resource "helm_release" "bifrost" {
     ,
     <<-EOT
       image:
-        tag: 'v1.4.14'
+        tag: 'v1.4.17'
       autoscaling:
         enabled: ${var.bifrost_hpa.enabled}
         minReplicas: ${var.bifrost_hpa.min_replicas}
