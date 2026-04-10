@@ -137,7 +137,7 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Update PR Comment
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         if: github.event_name == 'pull_request'
         continue-on-error: true
         env:
